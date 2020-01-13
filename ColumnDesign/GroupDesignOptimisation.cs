@@ -14,7 +14,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public class GroupDesignOptimisation : ViewModelBase
     {

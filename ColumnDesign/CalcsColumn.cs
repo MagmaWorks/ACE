@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public class CalcsColumn
     {

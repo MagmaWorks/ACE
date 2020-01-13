@@ -7,7 +7,7 @@ using FireDesign;
 using OxyPlot;
 using OxyPlot.Series;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public class FireDesignView : ViewModelBase
     {

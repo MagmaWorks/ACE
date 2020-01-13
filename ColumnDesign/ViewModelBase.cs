@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public class ViewModelBase : INotifyPropertyChanged
     {

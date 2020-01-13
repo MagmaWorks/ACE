@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Wordprocessing;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public class CalcuationView : ViewModelBase
     {

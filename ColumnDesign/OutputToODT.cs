@@ -15,9 +15,9 @@ using WpfMath;
 using System.Windows.Media.Imaging;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using static ColumnDesigner.CalcuationView;
+using static ColumnDesign.CalcuationView;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public static class OutputToODT
     {

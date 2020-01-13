@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -31,7 +31,7 @@ namespace ColumnDesigner
                 string userName2 = un2.Substring(un2.LastIndexOf("\\") + 1);
                 
                 //DirectoryInfo di = new DirectoryInfo(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\ColumnDesign\Temp");
-                //DirectoryInfo di = new DirectoryInfo(System.Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles) + @"\Magma Works shared\ColumnDesigner\Temp");
+                //DirectoryInfo di = new DirectoryInfo(System.Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles) + @"\Magma Works shared\ColumnDesign\Temp");
                 DirectoryInfo di = new DirectoryInfo(Path.GetTempPath());
 
                 filePath = di.FullName + "\\columnData.json";

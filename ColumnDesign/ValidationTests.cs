@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public class ValidationTests
     {
@@ -126,12 +126,12 @@ namespace ColumnDesigner
             }
 
 
-            string pathTable = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapTable.txt";
-            string pathIso500 = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapIso500.txt";
-            string pathZone = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapZone.txt";
-            string pathAdvanced = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapAdvanced.txt";
-            string pathSecondDim = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\secondDim.txt";
-            string pathAxialLoads = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\axialLoads.txt";
+            string pathTable = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapTable.txt";
+            string pathIso500 = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapIso500.txt";
+            string pathZone = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapZone.txt";
+            string pathAdvanced = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapAdvanced.txt";
+            string pathSecondDim = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\secondDim.txt";
+            string pathAxialLoads = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\axialLoads.txt";
 
             System.IO.File.WriteAllText(pathTable, linesTable.ToString());
             System.IO.File.WriteAllText(pathIso500, linesIso500.ToString());
@@ -271,12 +271,12 @@ namespace ColumnDesigner
                 linesAdvanced.Append(mapAdvanced[i] + " ");
             }
 
-            string pathTable = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapTable_Mx="+MxTop.ToString()+"_c="+testColumn.CoverToLinks+"H="+testColumn.BarDiameter+".txt";
-            string pathIso500 = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapIso500_Mx=" + MxTop.ToString() + "_c=" + testColumn.CoverToLinks + "H=" + testColumn.BarDiameter + ".txt";
-            string pathZone = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapZone_Mx=" + MxTop.ToString() + "_c=" + testColumn.CoverToLinks + "H=" + testColumn.BarDiameter + ".txt";
-            string pathAdvanced = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\mapAdvanced_Mx=" + MxTop.ToString() + "_c=" + testColumn.CoverToLinks + "H=" + testColumn.BarDiameter + ".txt";
-            //string pathSecondDim = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\secondDim.txt";
-            //string pathAxialLoads = @"C:\workspace\ColumnDesigner\ColumnDesigner\ColumnDesigner\axialLoads.txt";
+            string pathTable = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapTable_Mx="+MxTop.ToString()+"_c="+testColumn.CoverToLinks+"H="+testColumn.BarDiameter+".txt";
+            string pathIso500 = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapIso500_Mx=" + MxTop.ToString() + "_c=" + testColumn.CoverToLinks + "H=" + testColumn.BarDiameter + ".txt";
+            string pathZone = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapZone_Mx=" + MxTop.ToString() + "_c=" + testColumn.CoverToLinks + "H=" + testColumn.BarDiameter + ".txt";
+            string pathAdvanced = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\mapAdvanced_Mx=" + MxTop.ToString() + "_c=" + testColumn.CoverToLinks + "H=" + testColumn.BarDiameter + ".txt";
+            //string pathSecondDim = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\secondDim.txt";
+            //string pathAxialLoads = @"C:\workspace\ColumnDesign\ColumnDesign\ColumnDesign\axialLoads.txt";
 
             System.IO.File.WriteAllText(pathTable, linesTable.ToString());
             System.IO.File.WriteAllText(pathIso500, linesIso500.ToString());

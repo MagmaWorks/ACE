@@ -13,7 +13,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public class ViewModel : ViewModelBase
     {
@@ -247,6 +247,7 @@ namespace ColumnDesigner
                     MyLayoutView.LoadGraph(col);
                     break;
                 case (FDesignMethod.Advanced):
+                    if (updateContours) col.UpdateTP();
                     col.UpdateFireID();
                     MyLayoutView.LoadGraph(col);
                     break;
@@ -367,10 +368,11 @@ namespace ColumnDesigner
             openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openDialog.Multiselect = true;
             if (openDialog.ShowDialog() != DialogResult.OK) return;
-            List<Column> newCols = new List<Column> { customCol };
+            List<Column> newCols = new List<Column>();
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
+            if (!newCols.Select(x => x.Name).Contains(customCol.Name)) newCols.Insert(0, customCol);
             MyColumns = newCols;
-            SelectedColumn = MyColumns[1];
+            SelectedColumn = MyColumns[Convert.ToInt32(Math.Min(newCols.Count-1,1))];
             NameSelectedColumn = SelectedColumn.Name;
         }
 
@@ -395,12 +397,14 @@ namespace ColumnDesigner
                 string openObj = System.IO.File.ReadAllText(fileNames[i]);
 
                 Column newCol = new Column();
+
+                string[] splits = fileNames[i].Split('\\');
+                string name = splits[splits.Length - 1];
                 if (fileNames[i].Contains("Calcs"))
                 {
                     var deserialiseType = new { InstanceName = "", TypeName = "", ClassName = "", Inputs = new List<CalcsValue>() };
                     var dObj = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(openObj, deserialiseType);
-                    string[] splits = fileNames[i].Split('\\');
-                    string name = splits[splits.Length - 1];
+                    
                     newCol = new Column()
                     {
                         Name = name.Substring(0,name.Length-5),
@@ -432,6 +436,7 @@ namespace ColumnDesigner
                 else
                 {
                     newCol = Newtonsoft.Json.JsonConvert.DeserializeObject<Column>(openObj);
+                    newCol.Name = name.Substring(0, name.Length - 5);
                 }
 
                 yield return newCol;

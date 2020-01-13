@@ -13,7 +13,7 @@ using InteractionDiagram3D;
 using MWGeometry;
 using System.Windows.Media.Media3D;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public static class AsyncOptimisation
     {

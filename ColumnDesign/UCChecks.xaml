@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="ColumnDesigner.UCChecks"
+﻿<UserControl x:Class="ColumnDesign.UCChecks"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:ColumnDesigner"
+             xmlns:local="clr-namespace:ColumnDesign"
              mc:Ignorable="d" >
     
     <Grid Background="LightGray">
@@ -367,7 +367,7 @@
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" >
                 <StackPanel Orientation="Vertical" Background="Gray" Margin="4 0 0 0" VerticalAlignment="Top" >
-                    <!--<Button
+                    <Button
                         Click="OptimiseDesign"
                         BorderBrush="Transparent"
                         Margin="5 5 5 5"
@@ -376,7 +376,7 @@
                         Width="50"
                         ToolTip="Optimise your current column design">
                         <Image Source="Resources/Optimisation.png"/>
-                    </Button>-->
+                    </Button>
                     <!--<Button
                         Click="OptimiseGroup"
                         BorderBrush="Transparent"

@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using Button = System.Windows.Controls.Button;
 using UserControl = System.Windows.Controls.UserControl;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     /// <summary>
     /// Interaction logic for UCChecks.xaml

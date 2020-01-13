@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     /// <summary>
     /// Interaction logic for GroupOptimisationResults.xaml

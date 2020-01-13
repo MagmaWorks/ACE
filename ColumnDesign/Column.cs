@@ -10,7 +10,7 @@ using InteractionDiagram3D;
 using MWGeometry;
 using Material = InteractionDiagram3D.Material;
 
-namespace ColumnDesigner
+namespace ColumnDesign
 {
     public enum GeoShape { Rectangular, Circular, Polygonal }
     public enum FDesignMethod { Table, Isotherm_500, Zone_Method, Advanced }
