@@ -1,0 +1,284 @@
+﻿<Window x:Class="ColumnDesigner.AutoGroupDesign"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ColumnDesigner"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        Title="Auto Group Design" Height="880" Width="430">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        
+        <Grid Grid.Row="0" Margin="5 5 5 5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+                
+            <TextBlock Text="Optimised inputs" Grid.Row="0" FontWeight="SemiBold" Margin="5 5 5 0"/>
+
+            <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.5" Margin="15 5 15 5">
+                <StackPanel Orientation="Vertical">
+                    <Border BorderThickness="1" BorderBrush="Black" Margin="5 5 5 5">
+                        <TextBlock Background="LightGray" Padding="3 3 3 3" TextWrapping="Wrap">
+                        Those parameters are GLOBAL. Inputs effectively considered 
+                        are the intersection of the GLOBAL and LOCAL inputs.
+                        </TextBlock>
+                    </Border>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Margin="5 5 5 5"/>
+                            <CheckBox Content="Rectangular" Name="RectangularCB" Margin="5 5 5 0" Click="RectangularCB_Checked"/>
+                            <CheckBox Content="X dimension" Name="LXCB" IsEnabled="false" Margin="20 7 5 5" Click="LXCB_Checked"/>
+                            <CheckBox Content="Y dimension" Name="LYCB" IsEnabled="false" Margin="20 7 5 5" Click="LYCB_Checked"/>
+                            <CheckBox Content="No rebar X" Name="NXCB" IsEnabled="false" Margin="20 7 5 5" Click="NXCB_Checked"/>
+                            <CheckBox Content="No rebar Y" Name="NYCB" IsEnabled="false" Margin="20 7 6 5" Click="NYCB_Checked"/>
+                            <CheckBox Content="Circular" Name="CircularCB" Margin="5 5 5 0" Click="CircularCB_Checked"/>
+                            <CheckBox Content="Diameter" Name="DCB" IsEnabled="false" Margin="20 7 5 5" Click="DCB_Checked"/>
+                            <CheckBox Content="NCirc" Name="NCircCB" IsEnabled="false" Margin="20 7 5 5" Click="NCircCB_Checked"/>
+                            <CheckBox Content="Polygonal" Name="PolygonalCB" Margin="5 5 5 0" Click="PolygonalCB_Checked"/>
+                            <CheckBox Content="Radius" Name="RadiusCB" IsEnabled="false" Margin="20 7 5 5" Click="RadiusCB_Checked"/>
+                            <CheckBox Content="Edges" Name="EdgesCB" IsEnabled="false" Margin="20 7 5 5" Click="EdgesCB_Checked"/>
+                            <CheckBox Content="Bar diameter" Name="BarDCB" Margin="5 7 5 5" Click="BarCB_Checked"/>
+                            <CheckBox Content="Link diameter" Name="LinkDCB" Margin="5 6 5 5" Click="LinkCB_Checked"/>
+                            <CheckBox Content="Concrete Grade" Name="CGCB" Margin="5 6 5 5" Click="CGCB_Checked"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                            <TextBlock Text="Min" Margin="5 5 5 3"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBox Name="MinXDim" IsEnabled ="False" Text="200" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <TextBox Name="MinYDim" IsEnabled ="False" Text="200" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <ComboBox Name="MinNX" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2"/>
+                            <ComboBox Name="MinNY" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBox Name="MinD" IsEnabled ="False" Text="300" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <ComboBox Name="MinNCirc" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 3 0 3"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBox Name="MinRadius" IsEnabled ="False" Text="200" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <TextBox Name="MinEdges" IsEnabled ="False" Text="3" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <ComboBox Name="MinBarDiameter" IsEnabled ="False" ItemsSource="{Binding BarDiameters}" Width="60" Margin="0 2 0 2"/>
+                            <ComboBox Name="MinLinkDiameter" IsEnabled ="False" ItemsSource="{Binding LinkDiameters}" Width="60" Margin="0 2 0 2"/>
+                            <ComboBox Name="MinCG" IsEnabled ="False" ItemsSource="{Binding ConcreteNames}" Width="60" Margin="0 2 0 2"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                            <TextBlock Text="Max" Margin="5 5 5 3"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBox Name="MaxXDim" IsEnabled ="False" Text="1250" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <TextBox Name="MaxYDim" IsEnabled ="False" Text="1250" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <ComboBox Name="MaxNX" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2"/>
+                            <ComboBox Name="MaxNY" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBox Name="MaxD" IsEnabled ="False" Text="1000" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <ComboBox Name="MaxNCirc" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 3 0 3"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBox Name="MaxRadius" IsEnabled ="False" Text="500" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <TextBox Name="MaxEdges" IsEnabled ="False" Text="8" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <ComboBox Name="MaxBarDiameter" IsEnabled ="False" ItemsSource="{Binding BarDiameters}" Width="60" Margin="0 2 0 2"/>
+                            <ComboBox Name="MaxLinkDiameter" IsEnabled ="False" ItemsSource="{Binding LinkDiameters}" Width="60" Margin="0 2 0 2"/>
+                            <ComboBox Name="MaxCG" IsEnabled ="False" ItemsSource="{Binding ConcreteNames}" Width="60" Margin="0 2 0 2"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                            <TextBlock Text="Increment" Margin="5 5 5 3"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBox Name="IncrXDim" IsEnabled ="False" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <TextBox Name="IncrYDim" IsEnabled ="False" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBlock Text="" Margin="5 5 5 5"/>
+                            <TextBlock Text="" Margin="5 5 5 5"/>
+                            <TextBox Name="IncrD" IsEnabled ="False" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>
+                            <TextBlock Text="" Margin="5 5 5 0"/>
+                            <TextBlock Text="" Margin="5 5 5 5"/>
+                            <TextBox Name="IncrRadius" IsEnabled ="False" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                            <TextBlock Margin="5 5 5 5"/>
+                            <TextBlock Margin="5 5 5 5"/>
+                            <TextBlock Margin="5 5 5 0"/>
+                            <CheckBox Name ="SquareCB" IsEnabled="False" Width="60" Height="20" Content="= X" Margin="0 5 5 5" Click="SquareCB_Checked"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Margin="5 5 5 5"/>
+                            <TextBlock Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="LXmess" Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="LYmess" Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="NXmess" Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="NYmess" Margin="5 5 5 5"/>
+                            <TextBlock Margin="5 5 5 0"/>
+                            <TextBlock Foreground="Red" Name="Dmess" Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="NCircmess" Margin="5 5 5 5"/>
+                            <TextBlock Margin="5 5 5 0"/>
+                            <TextBlock Foreground="Red" Name="Radiusmess" Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="Edgesmess" Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="Barmess" Margin="5 7 5 5"/>
+                            <TextBlock Foreground="Red" Name="Linkmess" Margin="5 5 5 5"/>
+                            <TextBlock Foreground="Red" Name="CGmess" Margin="5 5 5 5"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                
+            </Border>
+        </Grid>
+        
+
+        <Grid Grid.Row="1" Margin="5 5 5 5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Parameters" FontWeight="SemiBold" Margin="5 5 5 0"/>
+
+            <Grid Grid.Row="1" Margin="5 5 5 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border BorderBrush="Black" BorderThickness="0.5" Margin="10 0 0 0">
+                    <Grid Grid.Column="0" Margin="5 5 5 5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Global Optimisation" Grid.Row="0" FontWeight="SemiBold"/>
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="1">
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBlock Text="Max iterations" Margin="0 5 0 5"/>
+                                <TextBlock Text="T0" Margin="0 5 0 5"/>
+                                <TextBlock Text="Alpha" Margin="0 5 0 5"/>
+                                <TextBlock Text="Variance" Margin="0 5 0 5"/>
+                                <TextBlock Text="Nd min" Margin="0 5 0 5"/>
+                                <TextBlock Text="Nd max" Margin="0 5 0 5"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBox Name="GlobMaxIter" Text="2000" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="GlobTinit" Text="10000" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="GlobAlpha" Text="0.98" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="GlobVariance" Text="2" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="GlobNdmin" Text="3" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="GlobNdmax" Text="5" Width="40" Margin="0 4 0 4"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1"  BorderBrush="Black" BorderThickness="0.5"  Margin="30 0 0 0">
+                    <Grid Margin="5 5 5 5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Individual Optimisations" Grid.Row="0" FontWeight="SemiBold"/>
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="1">
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBlock Text="Max iterations" Margin="0 5 0 5"/>
+                                <TextBlock Text="T0" Margin="0 5 0 5"/>
+                                <TextBlock Text="Alpha" Margin="0 5 0 5"/>
+                                <TextBlock Text="Variance" Margin="0 5 0 5"/>
+                                <TextBlock Text="Sample (%)" Margin="0 5 0 5"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBox Name="MaxIter" Text="200" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="Tinit" Text="3000" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="Alpha" Text="0.9" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="Variance" Text="1" Width="40" Margin="0 4 0 4"/>
+                                <TextBox Name="Sample" Text="10" Width="40" Margin="0 4 0 4"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="5 0 5 0">
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid Grid.Column="0">
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Text="Optimisation drivers" Grid.Row="0" FontWeight="SemiBold" Margin="5 5 5 5"/>
+
+                <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.5" Margin="15 0 0 10">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical" Margin="3 3 3 3">
+                            <CheckBox Content="Cost" Name="CostCB" Margin="5 5 5 5"/>
+                            <CheckBox Content="Carbon" Name="CarbonCB" Margin="5 5 5 5"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical" Margin="3 3 3 3">
+                            <TextBox Name="CostWeightTB" Text="1" Width="30" Margin="5 4 5 4"/>
+                            <TextBox Name="CarbonWeightTB" Text="1" Width="30" Margin="5 4 5 4"/>
+                        </StackPanel>
+                        <TextBlock Name="Drivermess" Margin="5 5 5 5" Foreground="Red"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <StackPanel Orientation="Vertical">
+                    <CheckBox 
+                        Name="UseJSON_CB" 
+                        IsChecked="false" 
+                        Content="Use existing JSON"
+                        Margin="50 35 5 5 "/>
+                    <CheckBox 
+                        Content="All loads" 
+                        IsChecked="false" 
+                        Name="AllLoadsCB" 
+                        Margin="50 5 5 5"/>
+                    <!--<CheckBox 
+                        Name="Parallel_CB" 
+                        IsChecked="false" 
+                        Content="Parallel computation"
+                        Margin="50 5 5 5 "/>-->
+                </StackPanel>
+            </Grid>
+
+        </Grid>
+
+        <Grid Grid.Row="3" HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button 
+                Grid.Column="0"
+                Content="Design"
+                Margin="10 0 10 0"
+                Click="RunGroupDesign"
+                Width="80"
+                Height="25"/>
+            <Button 
+                Grid.Column="1"
+                Content="Close"
+                Margin="10 0 10 0"
+                Click="Close"
+                Width="80"
+                Height="25"/>
+        </Grid>
+    </Grid>
+</Window>

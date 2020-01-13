@@ -1,0 +1,84 @@
+﻿<UserControl x:Class="ColumnDesigner.UCOutputsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ColumnDesigner"
+             mc:Ignorable="d" >
+
+    <UserControl.Resources>
+        <ContentControl x:Key="Layout">
+            <local:UCColumnLayout DataContext="{Binding MyLayoutView}"/>
+        </ContentControl>
+        <ContentControl x:Key="YieldSurface">
+            <local:UCYieldSurface/>
+        </ContentControl>
+        <ContentControl x:Key="Calcs">
+            <local:UCCalcs DataContext="{Binding MyCalcView}"/>
+        </ContentControl>
+        <ContentControl x:Key="Fire">
+            <local:UCFireDesign DataContext="{Binding MyFireDesignView}"/>
+        </ContentControl>
+        <ContentControl x:Key="Checks">
+            <local:UCChecks/>
+        </ContentControl>
+    </UserControl.Resources>
+    
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <ContentControl 
+                Grid.Column="0" 
+                Content="{StaticResource Layout}"/>
+
+            <GridSplitter Grid.Column="1" Background="LightGray" HorizontalAlignment="Stretch" Width="2"/>
+
+            <ContentControl 
+                Grid.Column="2" 
+                Content="{StaticResource YieldSurface}"/>
+
+        </Grid>
+
+        <GridSplitter Grid.Row="1" Background="LightGray" HorizontalAlignment="Stretch" Height="2"/>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="Auto"/>
+                <!--<ColumnDefinition Width="0*"/>
+                <ColumnDefinition Width="Auto"/>-->
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <ContentControl 
+                Grid.Column="0" 
+                Content="{StaticResource Calcs}"/>
+
+            <GridSplitter Grid.Column="1" Background="LightGray" HorizontalAlignment="Stretch" Width="2"/>
+
+            <!--<ContentControl
+                Grid.Column="2"
+                Content="{StaticResource Fire}"/>
+            
+            <GridSplitter Grid.Column="3" Background="LightGray" HorizontalAlignment="Stretch" Width="2"/>-->
+
+            <ContentControl
+                Grid.Column="2"
+                Content="{StaticResource Checks}"/>
+
+        </Grid>
+
+    </Grid>
+</UserControl>

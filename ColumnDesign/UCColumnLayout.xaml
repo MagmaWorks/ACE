@@ -1,0 +1,164 @@
+﻿<UserControl x:Class="ColumnDesigner.UCColumnLayout"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ColumnDesigner"
+             xmlns:ox="http://oxyplot.org/wpf"
+             mc:Ignorable="d"
+             SizeChanged="LayoutSizeChanged">
+    <Grid>
+        <Canvas HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Line X1="{Binding XAxis1.X}" 
+                  Y1="{Binding XAxis1.Y}" 
+                  X2="{Binding XAxis2.X}" 
+                  Y2="{Binding XAxis2.Y}" 
+                  Stroke="Black" StrokeThickness="0.5" StrokeDashArray="10,10"/>
+            <Line X1="{Binding YAxis1.X}" 
+                  Y1="{Binding YAxis1.Y}" 
+                  X2="{Binding YAxis2.X}" 
+                  Y2="{Binding YAxis2.Y}" 
+                  Stroke="Black" StrokeThickness="0.5" StrokeDashArray="10,10"/>
+            <Polygon Points="{Binding XArrow}"
+                     Stroke="Black"
+                     Fill="Black"/>
+            <Polygon Points="{Binding YArrow}"
+                     Stroke="Black"
+                     Fill="Black"/>
+            <TextBox
+                Canvas.Left="{Binding XAxis2.X}"
+                Canvas.Top="{Binding XAxis2.Y}"
+                Text="X"
+                BorderBrush="Transparent"
+                Margin="5 -10 0 0"/>
+            <TextBox
+                Canvas.Left="{Binding YAxis1.X}"
+                Canvas.Top="{Binding YAxis1.Y}"
+                Text="Y"
+                BorderBrush="Transparent"
+                Margin="-5 -20 0 0"/>
+        </Canvas>
+
+        <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" >
+
+            <Polyline Points="{Binding ContourPoints}" Fill="LightGray" SizeChanged="LayoutSizeChanged">
+                <Polyline.Style>
+                    <Style TargetType="Polyline">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Shape}" Value="Rectangular">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Circular">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Polygonal">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Polyline.Style>
+            </Polyline>
+
+            <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}"  Fill="LightGray"
+                     Canvas.Left="{Binding CircCenter.X}"
+                     Canvas.Top="{Binding CircCenter.Y}"
+                     SizeChanged="LayoutSizeChanged">
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Shape}" Value="Rectangular">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Circular">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Polygonal">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>
+        </Canvas>
+
+        <ItemsControl 
+            ItemsSource="{Binding Rebars}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Canvas>
+                        <Ellipse
+                            Fill="Brown"
+                            StrokeThickness="0.01"
+                            Height="{Binding Radius}"
+                            Width="{Binding Radius}"
+                            Canvas.Left="{Binding Position.X}"
+                            Canvas.Top="{Binding Position.Y}">
+                        </Ellipse>
+                    </Canvas>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <ItemsControl
+            ItemsSource="{Binding TempContours}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Canvas>
+                        <!--<Polyline
+                            Points="{Binding DisplayPoints}"
+                            Stroke="Red"
+                            StrokeThickness="2">
+                        </Polyline>-->
+                        <Polygon
+                            Points="{Binding ContourPolygons}"
+                            Fill="{Binding Color}">
+                        </Polygon>
+                        <Polygon
+                            Points="{Binding ScaleRectangles}"
+                            Fill="{Binding Color}">
+                        </Polygon>
+                        <TextBlock
+                            Canvas.Left="{Binding KeyPos.X}"
+                            Canvas.Top="{Binding KeyPos.Y}"
+                            Text="{Binding Level}">
+                        </TextBlock>
+                        
+                    </Canvas>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.Style>
+                <Style TargetType="ItemsControl">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding DisplayFire}" Value="true">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding DisplayFire}" Value="false">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ItemsControl.Style>
+        </ItemsControl>
+
+        <Canvas
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top">
+            <Button
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Canvas.Right="10"
+                Canvas.Top="10"
+                Width="50"
+                Height="50"
+                Click="FireDisplayChanged">
+                <Image Source="resources/Fire.png"/>
+            </Button>
+        </Canvas>
+        
+
+    </Grid>
+</UserControl>

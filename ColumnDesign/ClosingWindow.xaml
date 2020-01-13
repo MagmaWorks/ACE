@@ -1,0 +1,38 @@
+﻿<Window x:Class="ColumnDesigner.ClosingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ColumnDesigner"
+        mc:Ignorable="d"
+        Title="ClosingWindow">
+    <Grid>
+        <Grid>
+            <StackPanel Orientation="Horizontal" Height="30" HorizontalAlignment="Center" Margin="10 10 10 10">
+                <Button 
+                    Name="Save"
+                    Content="Save" 
+                    Margin="0 0 15 0" 
+                    Padding="5 5 5 5"
+                    Click="Button_Click"/>
+                <Button 
+                    Name="SaveAll"
+                    Content="Save all" 
+                    Margin="0 0 15 0" 
+                    Padding="5 5 5 5"
+                    Click="Button_Click"/>
+                <Button 
+                    Name="Quit"
+                    Content="Quit without saving" 
+                    Margin="0 0 15 0" 
+                    Padding="5 5 5 5"
+                    Click="Button_Click"/>
+                <Button 
+                    Name="Cancel"
+                    Content="Cancel" 
+                    Padding="5 5 5 5"
+                    Click="Button_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,191 @@
+﻿<Window x:Class="ColumnDesigner.FireInfo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ColumnDesigner"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
+        mc:Ignorable="d"
+        Title="FireInfo" Width="1250">
+    <ScrollViewer>
+        <Grid Margin="40 40 40 40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+                        <TextBlock FontWeight="Bold" FontSize="20">
+                            About fire design
+                        </TextBlock>
+                    </StackPanel>
+                    <!--<Image gif:ImageBehavior.AnimatedSource="resources/fire.gif" Width="300"/>-->
+
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock TextWrapping="Wrap" Margin="0 30 0 20">
+                        Fire design is based on EN 1992-1-2. The fire design of columns is usually based on the tables provided in the code. 
+                        However, other methods - called simplified methods - are suggested for a more accurate estimation of columns capacity under fire condition.
+                        The Column Design apps developed by Magma Works integrates the classic table, the two simplified methods and an advanced method developed in-house
+                        and based on the calculation of the interaction diagram of the column under fire conditions.
+                        </TextBlock>
+
+                        <StackPanel Orientation="Vertical" Margin="0 0 0 20">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="resources/fire.png" Width="25" Height="25" Margin="0 -5 0 0"/>
+                                <TextBlock Text="1.   Fire design inputs" FontWeight="Bold" FontSize="13" Margin="-17 0 0 0"/>
+                            </StackPanel>
+
+                            <TextBlock Margin="0 10 0 0" TextWrapping="Wrap">
+                                Fire design is based on the 4 following inputs: <LineBreak/>
+                                - The <Run FontWeight="SemiBold">fire resistance (in minutes)</Run> ranging from 30 to 240 (there is no theoretical limit to fire resistance)<LineBreak/>
+                                - The <Run FontWeight="SemiBold">fire curve </Run> (see Section 3.2 in EN 1991-1-2)<LineBreak/>
+                                - The <Run FontWeight="SemiBold">fire load combination</Run> (see Section 2.4.2 in EN 1992-1-2)<LineBreak/>
+                                - The <Run FontWeight="SemiBold">fire design method</Run> (see EN 1992-1-2)<LineBreak/>
+                                Each input can be changed at the bottom of the left panel. 
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Margin="0 0 0 20">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="resources/fire.png" Width="25" Height="25" Margin="0 -5 0 0"/>
+                                <TextBlock Text="2.   Temperature curves" FontWeight="Bold" FontSize="13" Margin="-17 0 0 0"/>
+                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MinWidth="600"/>
+                                    <ColumnDefinition Width="400"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" TextWrapping="Wrap" Margin="0 10 0 0">
+                                    The temperature curve defines the variation of temperature according to time. The temperature curve is 
+                                    needed for the simplified and advanced methods where the calculation of the temperature profiles in the 
+                                    column section is necessary. The calculation of the temperature profiles are done by solving the heat equation
+                                    ( <Hyperlink> https://en.wikipedia.org/wiki/Heat_equation </Hyperlink>). When tables are used, the temperature 
+                                    curve doesn't need to be specified.<LineBreak/>
+                                    <LineBreak/>
+                                    The eurocode provides 3 different temperature curves (Section 3.2 EN 1991-1-2). The most commonly used and 
+                                    recommended curve is the standard temperature curve which is used internationally. The external 
+                                    curve must be used for external fires but shouldn't be used unless explicitly mentioned. The hydrocarbon curve can be used 
+                                    for columns located in car parks where typical fires show faster increase in temperature.<LineBreak/>
+                                </TextBlock>
+                                <Image
+                                    Grid.Column="1"
+                                    Source="resources/TemperatureCurves.png" 
+                                    Width="400"/>
+                            </Grid>
+                            <TextBlock>
+                                
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Margin="0 0 0 20">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="resources/fire.png" Width="25" Height="25" Margin="0 -5 0 0"/>
+                                <TextBlock Text="3.   Load combinations" FontWeight="Bold" FontSize="13" Margin="-17 0 0 0"/>
+                            </StackPanel>
+
+                            <TextBlock Margin="0 10 0 0" TextWrapping="WrapWithOverflow">
+                                The common method for defining the fire load case is to multiply the considered design load case by a factor 0.7 giving then 
+                                the fire design load case. However, the eurocode allows to define dedicated fire load case. In section 2.4.2 in EN 1992-1-2 is defined
+                                the reduction factor for the fire situation. This factor is the ratio between design load values and fire design load values. It is defined
+                                as the ratio between the load case DL+SDL+0.5LL and the ULS load combination. Assuming that the ULS combination is the load combination used 
+                                for the design of the column, the fire load combination is therefore <Run FontWeight="SemiBold">DL + SDL + 0.5LL</Run>. This load combination 
+                                is usually less conservative than 0.7*ULS.
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Margin="0 0 0 20">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="resources/fire.png" Width="25" Height="25" Margin="0 -5 0 0"/>
+                                <TextBlock Text="4.   Methods" FontWeight="Bold" FontSize="13" Margin="-17 0 0 0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock TextWrapping="Wrap" Margin="0 10 0 0">
+                                    <Run> The 4 following methods are proposed in the Column Design app: </Run><LineBreak/>
+                                        - The <Run FontWeight="DemiBold">Table method </Run> (Table 5.2a in EN 1992-1-2)<LineBreak/>
+                                        - The <Run FontWeight="DemiBold">500C isotherm method</Run> (ANNEX B.1 in EN 1992-1-2)<LineBreak/>
+                                        - The <Run FontWeight="DemiBold"> zone method</Run> (ANNEX B.2 in EN 1992-1-2)<LineBreak/>
+                                        - The <Run FontWeight="DemiBold"> Advanced method </Run> (Magma Works method based on the computation of the interaction 
+                                    diagram of the damaged column. Advanced methods must satisfy Section 4.3 in EN 1992-1-2.)<LineBreak/>
+                                    
+                                    <LineBreak/>
+                                </TextBlock>
+                                <TextBlock Text="&#8718; Table Method" FontWeight="DemiBold"/>
+                                <TextBlock TextWrapping="Wrap" Margin="0 5 0 0">
+                                    The table method is based on the table 5.2a in the  Eurocode EN1992-1-2. This table provides the minimum thickness and the concrete cover needed for a given fire resistance 
+                                    and for a given ratio between fire axial load and axial load resistance (called &#956;). This method, although very easy and straightforward, has two main drawbacks. First, it is 
+                                    a discrete method, meaning that it provides results for only 3 different possible values of &#956;. The method can therefore only yield conservative results (since associated with a 
+                                    bigger &#956; value than the actual one). Then, this method is only based on the axial load and does not consider moments. The combination of those two observations makes the method
+                                    sometimes too conservative, sometimes too unconservative. Following methods mitigate those problems by providing systematic solutions considering axials loads and moments.
+                                </TextBlock>
+                                <TextBlock Text='&#8718; Isotherm 500 and Zone Methods' FontWeight="DemiBold" Margin="0 10 0 0"/>
+                                <TextBlock TextWrapping="Wrap" Margin="0 5 0 0">
+                                    The 500C isotherm and zone methods are methods suggested by the Eurocode. In both methods a certain thickness is calculated and 
+                                    the column section is reduced by this thickness on its exposed edges. The resulting section is assumed to keep the same properties and 
+                                    is then used to calculate the resistance of the column under fire conditions.
+                                </TextBlock>
+                                <Border BorderBrush="Black" BorderThickness="1" Padding="3" Margin="0 3 0 0">
+                                    <TextBlock TextWrapping="Wrap">
+                                        It is important to note that the 500C isotherm methods is more suitable for beam designs than column designs. <Run FontWeight="Bold"> This implies that the
+                                        design of the column based on the 500C isotherm method might overestimate the actual resistance of the column. </Run>
+                                    </TextBlock>
+                                </Border>
+
+                                <TextBlock Text="&#8718; Advanced Method" FontWeight="DemiBold" Margin="0 10 0 0"/>
+
+                                <TextBlock TextWrapping="Wrap" Margin="0 5 0 0">
+                                    As the isotherm 500 and the zone method, the advanced method uses the temperature profiles of the column under fire. The temperatures contours enable the calculation
+                                    of the damaged properties for each "temperature layer". The 3D interaction diagram of the damaged section is then calculated. This interaction diagram is displayed in green in the 
+                                    3D view. To satisfy fire design the fire load must stand within the fire interaction diagram. 
+                                </TextBlock>
+                                
+                                <TextBlock TextWrapping="Wrap">
+                                    <LineBreak/>
+                                    Graphs presented here below show the minimum LY dimension for a given LX dimension for fire 
+                                    resistance requirements of 120 minutes. Figure 1 exposes curves for the 4 methods for increasing 
+                                    axial dead load and no moment is applied. In Figure 2, axial load is constant but moment Mx is taking 
+                                    increasing values.
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+
+                        
+                        
+                    </StackPanel>
+                </StackPanel>
+
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <StackPanel Orientation="Vertical">
+                        <Image
+                            Source="resources/FireInfo1.png"
+                            Width="600"/>
+                        <TextBlock Text="Figure 1" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Column="1">
+                    <StackPanel Orientation="Vertical">
+                        <Image
+                            Source="resources/FireInfo2.png"
+                            Width="550"/>
+                        <TextBlock Text="Figure 2" HorizontalAlignment="Center" FontWeight="Bold"/>
+                    </StackPanel>
+                    
+                </Grid>
+
+            </Grid>
+
+        </Grid>
+    </ScrollViewer>
+    
+</Window>
