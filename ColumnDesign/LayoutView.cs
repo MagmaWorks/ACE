@@ -179,7 +179,20 @@ namespace ColumnDesign
                     ContourPoints.Add(new Point(X, Y));
                 }
             }
-            
+            else if (shape == GeoShape.LShaped)
+            {
+                ContourPoints = new PointCollection()
+                {
+                    new Point(-column.HX / 2, -column.HY / 2),
+                    new Point(column.HX / 2, -column.HY / 2),
+                    new Point(column.HX / 2, -column.HY / 2 + column.hY),
+                    new Point(-column.HX / 2 + column.hX, -column.HY / 2 + column.hY),
+                    new Point(-column.HX / 2 + column.hX, column.HY / 2),
+                    new Point(-column.HX / 2, column.HY / 2)
+                };
+                ContourPoints = new PointCollection(ContourPoints.Select(p => new Point(p.X * sf, p.Y * sf)));
+            }
+
             rebars = new List<RebarObj>();
             if(shape == GeoShape.Rectangular)
             {
@@ -227,6 +240,15 @@ namespace ColumnDesign
                     double X = ((R - d) * Math.Cos(theta) - column.BarDiameter / 2 ) * sf;
                     double Y = ((R - d) * Math.Sin(theta) - column.BarDiameter / 2 ) * sf;
                     rebars.Add(new RebarObj(new Point(X, Y), column.BarDiameter * sf));
+                }
+            }
+            else if (shape == GeoShape.LShaped)
+            {
+                rebars = new List<RebarObj>();
+                List<Point> pts = column.GetLShapedRebars();
+                for (int i = 0; i < pts.Count; i++)
+                {
+                    rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
                 }
             }
 
@@ -354,6 +376,11 @@ namespace ColumnDesign
                 {
                     height = 2 * column.Radius;
                     width = 2 * column.Radius;
+                }
+                else if (column.Shape == GeoShape.LShaped)
+                {
+                    height = column.HY;
+                    width = column.HX;
                 }
                 if (column != null)
                 {

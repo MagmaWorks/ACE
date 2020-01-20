@@ -247,8 +247,7 @@ namespace ColumnDesign
                     MyLayoutView.LoadGraph(col);
                     break;
                 case (FDesignMethod.Advanced):
-                    if (updateContours) col.UpdateTP();
-                    col.UpdateFireID();
+                    col.UpdateFireID(updateContours);
                     MyLayoutView.LoadGraph(col);
                     break;
             }

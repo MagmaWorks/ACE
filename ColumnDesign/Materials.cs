@@ -11,6 +11,7 @@ namespace ColumnDesign
         public string Name { get; set; }
         public double Fc { get; set; }
         public double E { get; set; }
+        public double Density { get; set; } = 2500;
 
         public Concrete(string n, double f, double e)
         {

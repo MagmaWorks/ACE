@@ -53,7 +53,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>3</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>MagmaWorks_logo.ico</ApplicationIcon>
@@ -395,6 +395,7 @@
     <Resource Include="Resources\FireInfo1.png" />
     <Resource Include="Resources\FireInfo2.png" />
     <Resource Include="Resources\fire.gif" />
+    <Resource Include="Resources\Eye.png" />
     <Content Include="Resources\InteractionDiagram3D.dll" />
     <Content Include="Resources\InteractionDiagram3D_Windows.dll" />
     <Content Include="Resources\MWGeometry.dll" />

@@ -39,9 +39,21 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Geometry" FontSize="12" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0" >
+                        <TextBlock Text="Geometry" FontSize="12" FontWeight="SemiBold"/>
+                        <Button
+                            Margin="5 0 0 0"
+                            Click="ChangeGeometryVisibility"
+                            BorderBrush="Transparent"
+                            Background="Transparent">
+                            <Image 
+                                Source="Resources/Eye.png"
+                                Width="16"/>
+                        </Button>
 
-                    <StackPanel Orientation="Vertical" Grid.Row="1">
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical" Grid.Row="1" Name="GeometrySection">
 
                         <StackPanel Orientation="Vertical">
                             <StackPanel Grid.Row="1" Orientation="Horizontal" >
@@ -56,8 +68,8 @@
                             <CheckBox Name="RectangularCB" Content="Rectangular" Margin="2 5 0 2" IsChecked="{Binding SelectedColumn.IsRectangular, Mode=OneWay}" Checked="ShapeChanged"/>
                             <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
                                 <StackPanel Orientation="Vertical" Width="115">
-                                    <TextBlock Text="LX (mm) " Margin="5 2 0 2" />
-                                    <TextBlock Text="LY (mm) " Margin="5 2 0 2" />
+                                    <TextBlock Text="LX (mm) " Margin="5 4 0 2" />
+                                    <TextBlock Text="LY (mm) " Margin="5 4 0 2" />
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical">
                                     <TextBox Name="RectWidth" Text="{Binding SelectedColumn.LX}" Margin="0 2 2 0" Width="70" Height="21" LostFocus="UpdateWidth"/>
@@ -82,8 +94,8 @@
                             <CheckBox Name="PolygonalCB" Content="Polygonal (regular)" Margin="2 5 0 5" IsChecked="{Binding SelectedColumn.IsPolygonal, Mode=OneWay}" Checked="ShapeChanged"/>
                             <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
                                 <StackPanel Orientation="Vertical" Width="115">
-                                    <TextBlock Text="Edges (mm) " Margin="5 2 0 2" />
-                                    <TextBlock Text="Radius (mm) " Margin="5 2 0 2" />
+                                    <TextBlock Text="Edges (mm) " Margin="5 4 0 2" />
+                                    <TextBlock Text="Radius (mm) " Margin="5 4 0 2" />
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical">
                                     <TextBox Name="PolyEdges" Text="{Binding SelectedColumn.Edges}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateEdges" IsEnabled="False"/>
@@ -91,7 +103,23 @@
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
-
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox Name="LShapedCB" Content="L-Shaped" Margin="2 5 0 5" IsChecked="{Binding SelectedColumn.IsLShaped, Mode=OneWay}" Checked="ShapeChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                                <StackPanel Orientation="Vertical" Width="115">
+                                    <TextBlock Text="HX (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="hX (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="HY (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="hY (mm)" Margin="5 4 0 2"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox Name="LShapedHX" Text="{Binding SelectedColumn.HX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
+                                    <TextBox Name="LShapedhX" Text="{Binding SelectedColumn.hX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
+                                    <TextBox Name="LShapedHY" Text="{Binding SelectedColumn.HY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
+                                    <TextBox Name="LShapedhY" Text="{Binding SelectedColumn.hY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
 
                     <!--<StackPanel Grid.Row="1" Orientation="Horizontal" >

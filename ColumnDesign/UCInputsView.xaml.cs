@@ -152,6 +152,48 @@ namespace ColumnDesign
             }
         }
 
+        private void UpdateLShape(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            ViewModel vm = this.DataContext as ViewModel;
+            double l = Convert.ToDouble(tb.Text);
+            double val = 0;
+            switch (tb.Name)
+            {
+                case ("LShapedHX"):
+                    val = vm.SelectedColumn.HX;
+                    break;
+                case ("LShapedHY"):
+                    val = vm.SelectedColumn.HY;
+                    break;
+                case ("LShapedhX"):
+                    val = vm.SelectedColumn.hX;
+                    break;
+                case ("LShapedhY"):
+                    val = vm.SelectedColumn.hY;
+                    break;
+            }
+            if (l != val)
+            {
+                switch (tb.Name)
+                {
+                    case ("LShapedHX"):
+                        vm.SelectedColumn.HX = l;
+                        break;
+                    case ("LShapedHY"):
+                        vm.SelectedColumn.HY = l;
+                        break;
+                    case ("LShapedhX"):
+                        vm.SelectedColumn.hX = l;
+                        break;
+                    case ("LShapedhY"):
+                        vm.SelectedColumn.hY = l;
+                        break;
+                }
+                vm.UpdateDesign();
+            }
+        }
+
         private void UpdateCover(object sender, RoutedEventArgs e)
         {
             TextBox tb = sender as TextBox;
@@ -321,23 +363,34 @@ namespace ColumnDesign
             Diameter.IsEnabled = CircularCB.IsChecked ?? false;
             PolyEdges.IsEnabled = PolygonalCB.IsChecked ?? false;
             PolyRadius.IsEnabled = PolygonalCB.IsChecked ?? false;
+            LShapedHX.IsEnabled = LShapedCB.IsChecked ?? false;
+            LShapedhX.IsEnabled = LShapedCB.IsChecked ?? false;
+            LShapedHY.IsEnabled = LShapedCB.IsChecked ?? false;
+            LShapedhY.IsEnabled = LShapedCB.IsChecked ?? false;
 
-            FireDesignMethodCB.IsEnabled = (cb == RectangularCB) ? true : false;
-            FireCurveCB.IsEnabled = (cb == RectangularCB) ? true : false;
+            FireDesignMethodCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
+            FireCurveCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
 
             ViewModel vm = (cb.DataContext as ViewModel);
+            Column c = vm.SelectedColumn;
 
             if (RectangularCB.IsChecked ?? false)
-                vm.SelectedColumn.Shape = GeoShape.Rectangular;
+                c.Shape = GeoShape.Rectangular;
             else if (CircularCB.IsChecked ?? false)
             {
-                vm.SelectedColumn.Shape = GeoShape.Circular;
+                c.Shape = GeoShape.Circular;
                 FireDesignMethodCB.SelectedItem = "Table";
             }
             else if (PolygonalCB.IsChecked ?? false)
             {
-                vm.SelectedColumn.Shape = GeoShape.Polygonal;
+                c.Shape = GeoShape.Polygonal;
                 FireDesignMethodCB.SelectedItem = "Table";
+            }
+            else if (LShapedCB.IsChecked ?? false)
+            {
+                c.Shape = GeoShape.LShaped;
+                if (c.FireDesignMethod == FDesignMethod.Isotherm_500 || c.FireDesignMethod == FDesignMethod.Zone_Method)
+                    FireDesignMethodCB.SelectedItem = "Table";
             }
 
             vm.UpdateDesign();
@@ -417,6 +470,14 @@ namespace ColumnDesign
                 col.FireLoad = col.Loads[0];
             vm.UpdateLoad();
         }
-        
+
+        private void ChangeGeometryVisibility(object sender, RoutedEventArgs e)
+        {
+            if (GeometrySection.Visibility == Visibility.Visible)
+                GeometrySection.Visibility = Visibility.Collapsed;
+            else if (GeometrySection.Visibility == Visibility.Collapsed)
+                GeometrySection.Visibility = Visibility.Visible;
+        }
+
     }
 }

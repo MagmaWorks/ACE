@@ -24,18 +24,12 @@ namespace ColumnDesign
             {
                 filePath += a + " ";
             }
-            if (filePath == "")
-            {
-                string un2 = System.DirectoryServices.AccountManagement.UserPrincipal.Current.DisplayName;
-                //string userName = "Grégoire Corre";
-                string userName2 = un2.Substring(un2.LastIndexOf("\\") + 1);
-                
-                //DirectoryInfo di = new DirectoryInfo(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\ColumnDesign\Temp");
-                //DirectoryInfo di = new DirectoryInfo(System.Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles) + @"\Magma Works shared\ColumnDesign\Temp");
-                DirectoryInfo di = new DirectoryInfo(Path.GetTempPath());
+            //if (filePath == "")
+            //{
+            //    DirectoryInfo di = new DirectoryInfo(Path.GetTempPath());
 
-                filePath = di.FullName + "\\columnData.json";
-            }
+            //    filePath = di.FullName + "\\columnData.json";
+            //}
             
             if(File.Exists(filePath))
             {
@@ -53,14 +47,14 @@ namespace ColumnDesign
                 }
                 catch
                 {
-                    var settings = new JsonSerializerSettings()
-                    {
-                        TypeNameHandling = TypeNameHandling.Objects,
-                        PreserveReferencesHandling = PreserveReferencesHandling.Objects
-                    };
-                    reader = new StreamReader(filePath);
-                    var fileContents = reader.ReadToEnd();
-                    cols = JsonConvert.DeserializeObject<List<Column>>(fileContents, settings);
+                    //var settings = new JsonSerializerSettings()
+                    //{
+                    //    TypeNameHandling = TypeNameHandling.Objects,
+                    //    PreserveReferencesHandling = PreserveReferencesHandling.Objects
+                    //};
+                    //reader = new StreamReader(filePath);
+                    //var fileContents = reader.ReadToEnd();
+                    //cols = JsonConvert.DeserializeObject<List<Column>>(fileContents, settings);
                 }
                 finally
                 {
