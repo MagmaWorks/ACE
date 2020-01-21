@@ -36,5 +36,25 @@ namespace ColumnDesign
             LayoutView lv = this.DataContext as LayoutView;
             lv.DisplayFire = !lv.DisplayFire;
         }
+
+        public void RotAntiClockWise(object sender, RoutedEventArgs e)
+        {
+            LayoutView lv = this.DataContext as LayoutView;
+            double theta = lv.column.Theta + 90;
+            if (theta == -90) theta = 270;
+            if (theta == 360) theta = 0;
+            lv.column.Theta = theta;
+            lv.myViewModel.UpdateDesign();
+        }
+
+        public void RotClockWise(object sender, RoutedEventArgs e)
+        {
+            LayoutView lv = this.DataContext as LayoutView;
+            double theta = lv.column.Theta - 90;
+            if (theta == -90) theta = 270;
+            if (theta == 360) theta = 0;
+            lv.column.Theta = theta;
+            lv.myViewModel.UpdateDesign();
+        }
     }
 }

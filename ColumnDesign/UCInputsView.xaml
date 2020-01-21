@@ -241,7 +241,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <TextBox Text="{Binding SelectedColumn.CoverToLinks}" Margin="0 5 5 0" Width="70" Height="20" LostFocus="UpdateCover"/>
-                            <TextBox Text="{Binding SelectedColumn.EffectiveLength}" Margin="0 5 5 0" Width="70" Height="21" />
+                            <TextBox Text="{Binding SelectedColumn.EffectiveLength}" Margin="0 5 5 0" Width="70" Height="21" LostFocus="DesignChanged"/>
                             <!--<ComboBox ItemsSource="{Binding SteelGrades}" Margin="0 5 5 0" LX="60" Height="21" />-->
                             <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.BarDiameter}" LostFocus="DesignChanged" IsEditable="True"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
@@ -255,8 +255,15 @@
                                   Margin="0 4 5 0" Width="70" Height="21"/>
                             <ComboBox ItemsSource="{Binding FireResistances}" SelectedValue="{Binding SelectedColumn.R}" SelectionChanged="FireResistanceChanged"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
-                            <ComboBox ItemsSource="{Binding FireDesignMethods}" SelectedValue="{Binding SelectedColumn.FDMStr}" SelectionChanged="FireDesignMethodChanged"
-                                  Margin="0 4 5 0" Width="70" Height="21" Name="FireDesignMethodCB"/>
+                            <ComboBox 
+                                ItemsSource="{Binding FireDesignMethods}" 
+                                SelectedValue="{Binding SelectedColumn.FDMStr}" 
+                                SelectionChanged="FireDesignMethodChanged"
+                                Margin="0 4 5 0" 
+                                Width="70" 
+                                Height="21" 
+                                Name="FireDesignMethodCB">
+                            </ComboBox>
                             <ComboBox ItemsSource="{Binding FireCurves}" SelectedValue="{Binding SelectedColumn.FCStr}" SelectionChanged="FireCurveChanged"
                                   Margin="0 4 5 0" Width="70" Height="21" Name="FireCurveCB"/>
                             <ComboBox ItemsSource="{Binding SelectedColumn.FireLoadNames}" SelectedValue="{Binding SelectedColumn.FireLoad.Name, Mode=OneWay}" SelectionChanged="FireLoadChanged"

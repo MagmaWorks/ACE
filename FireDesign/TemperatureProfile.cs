@@ -28,6 +28,7 @@ namespace FireDesign
         double Ly;
         double lx;
         double ly;
+        double Theta;
 
         public Dictionary<double, Matrix<double>> TempMap = new Dictionary<double, Matrix<double>>();
         //public List<Matrix<double>> Contours;
@@ -114,7 +115,7 @@ namespace FireDesign
 
         }
 
-        public TemperatureProfile(double Hx, double Hy, double hx, double hy, double time, FCurve fcurve)
+        public TemperatureProfile(double Hx, double Hy, double hx, double hy, double theta, double time, FCurve fcurve)
         {
             NT = Convert.ToInt32((time / 7200) * 1800);
             double dt = time / NT;
@@ -147,6 +148,7 @@ namespace FireDesign
 
             lx = hx;
             ly = hy;
+            Theta = theta;
 
             var M = Matrix<double>.Build;
             var V = Vector<double>.Build;
@@ -201,7 +203,9 @@ namespace FireDesign
                     return Temp[i, NY - 1] + 25 * dy / l * (Tfire - Temp[i, NY - 1]) - dt * B[i, NY - 1] / l * 0.7 * 5.6703E-8 * Math.Pow(Temp[i, NY - 1] + 273, 4);
                 }));
 
-                Temp.SetSubMatrix(nx, ny, M.Dense(NX - nx, NY - ny, Tfire));
+                int n1 = (theta == 0 || theta == 270) ? nx : 0;
+                int n2 = (theta == 0 || theta == 90) ? ny : 0;
+                Temp.SetSubMatrix(n1, n2, M.Dense(NX - nx, NY - ny, Tfire));
 
                 var Temp2 = Temp.SubMatrix(1, NX - 2, 1, NY - 2)
                           + dt / (4 * dx * dx) * A.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(2, NX - 2, 1, NY - 2).PointwisePower(2) - 2 * Temp.SubMatrix(2, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(0, NX - 2, 1, NY - 2)) + Temp.SubMatrix(0, NX - 2, 1, NY - 2).PointwisePower(2))
@@ -344,17 +348,28 @@ namespace FireDesign
             }
             else
             {
+                double angle = Theta * Math.PI / 180;
+                double H1 = Lx * Math.Abs(Math.Cos(angle)) + Ly * Math.Abs(Math.Sin(angle));
+                double h1 = lx * Math.Abs(Math.Cos(angle)) + ly * Math.Abs(Math.Sin(angle));
+                double H2 = Lx * Math.Abs(Math.Sin(angle)) + Ly * Math.Abs(Math.Cos(angle));
+                double h2 = lx * Math.Abs(Math.Sin(angle)) + ly * Math.Abs(Math.Cos(angle));
+
+                List<MWPoint2D> contour = new List<MWPoint2D>()
+                {
+                    new MWPoint2D(0, 0),
+                    new MWPoint2D(H1, 0),
+                    new MWPoint2D(H1, h2),
+                    new MWPoint2D(h1, h2),
+                    new MWPoint2D(h1, H2),
+                    new MWPoint2D(0, H2)
+                };
+                contour = contour.Select(p => new MWPoint2D(p.X - H1 / 2, p.Y - H2 / 2)).ToList();
+                contour = contour.Select(p => new MWPoint2D(Math.Cos(angle) * p.X - Math.Sin(angle) * p.Y,
+                                                  Math.Sin(angle) * p.X + Math.Cos(angle) * p.Y)).ToList();
+                contour = contour.Select(p => new MWPoint2D(p.X + Lx / 2, p.Y + Ly / 2)).ToList();
                 ContourPts.Add(new Contour()
                 {
-                    Points = new List<MWPoint2D>()
-                {
-                    new MWPoint2D(Lx, 0),
-                    new MWPoint2D(0, 0),
-                    new MWPoint2D(0, Ly),
-                    new MWPoint2D(lx, Ly),
-                    new MWPoint2D(lx,ly),
-                    new MWPoint2D(Lx,ly)
-                },
+                    Points = contour,
                     Level = level
                 });
                 ContourPts.ForEach(d => d.Points = d.Points.Select(p => new MWPoint2D((p.X - Lx / 2) * 1e3, (p.Y - Ly / 2) * 1e3)).ToList());

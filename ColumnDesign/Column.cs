@@ -39,6 +39,7 @@ namespace ColumnDesign
         public double sx2;
         public double sy1;
         public double sy2;
+        public double Theta = 0;
         public MWPoint3D Point1 { get; set; }
         public MWPoint3D Point2 { get; set; }
 
@@ -71,6 +72,7 @@ namespace ColumnDesign
         public int R { get; set; } = 120; // fire resistance in min
         public FireExposition SidesExposed { get; set; } = FireExposition.MoreThanOneSide;
         public FDesignMethod FireDesignMethod { get => (FDesignMethod) Enum.Parse(typeof(FDesignMethod), FDMStr); }
+        //public FireDesignMethod FireDesignMethod { get; set; } = new FireDesignMethod(FDesignMethod.Table);
         public string FDMStr { get; set; } = "Table";
         public FCurve FireCurve { get => (FCurve)Enum.Parse(typeof(FCurve), FCStr); }
         public string FCStr { get; set; } = "Standard";
@@ -315,25 +317,18 @@ namespace ColumnDesign
             else if (Shape == GeoShape.LShaped)
             {
                 // creation of the concrete section
-                List<MWPoint2D> LShapedPts = new List<MWPoint2D>()
-                {
-                    new MWPoint2D(-HX / 2, -HY / 2),
-                    new MWPoint2D(HX / 2, -HY / 2),
-                    new MWPoint2D(HX / 2, -HY / 2 + hY),
-                    new MWPoint2D(-HX / 2 + hX, -HY / 2 + hY),
-                    new MWPoint2D(-HX / 2 + hX, HY / 2),
-                    new MWPoint2D(-HX / 2, HY / 2)
-                };
+                List<Point> pts = GetLShapedContour();
+                List<MWPoint2D> LShapedPts = pts.Select(p => new MWPoint2D(p.X, p.Y)).ToList();
                 composites.Add(new ConcreteSection(LShapedPts, concrete));
 
                 MWPoint2D bary = Points.GetBarycenter(LShapedPts);
                 Console.WriteLine("conc : X = {0}, Y = {1}", bary.X, bary.Y);
 
                 // creation of the rebars
-                List<Point> pts = GetLShapedRebars();
-                for (int i = 0; i < pts.Count; i++)
+                List<Point> rebars = GetLShapedRebars();
+                for (int i = 0; i < rebars.Count; i++)
                 {
-                    Rebar r = new Rebar(new MWPoint2D(pts[i].X, pts[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
+                    Rebar r = new Rebar(new MWPoint2D(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
                     //steelPos.Add(new MWPoint2D(x, y));
                     composites.Add(r);
                 }
@@ -368,25 +363,60 @@ namespace ColumnDesign
             }
         }
 
+        public List<Point> GetLShapedContour()
+        {
+            double angle = Theta * Math.PI / 180;
+            double H1 = HX * Math.Abs(Math.Cos(angle)) + HY * Math.Abs(Math.Sin(angle));
+            double h1 = hX * Math.Abs(Math.Cos(angle)) + hY * Math.Abs(Math.Sin(angle));
+            double H2 = HX * Math.Abs(Math.Sin(angle)) + HY * Math.Abs(Math.Cos(angle));
+            double h2 = hX * Math.Abs(Math.Sin(angle)) + hY * Math.Abs(Math.Cos(angle));
+
+            List<Point> ContourPts = new List<Point>()
+            {
+                new Point(-H1 / 2, -H2 / 2),
+                new Point(H1 / 2, -H2 / 2),
+                new Point(H1 / 2, -H2 / 2 + h2),
+                new Point(-H1 / 2 + h1, -H2 / 2 + h2),
+                new Point(-H1 / 2 + h1, H2 / 2),
+                new Point(-H1 / 2, H2 / 2)
+            };
+
+
+            return ContourPts.Select(p => new Point(Math.Cos(angle) * p.X - Math.Sin(angle) * p.Y,
+                                                    Math.Sin(angle) * p.X + Math.Cos(angle) * p.Y)).ToList();
+        }
+
         public List<Point> GetLShapedRebars()
         {
+            double angle = Theta * Math.PI / 180;
+            double H1 = HX * Math.Abs(Math.Cos(angle)) + HY * Math.Abs(Math.Sin(angle));
+            double h1 = hX * Math.Abs(Math.Cos(angle)) + hY * Math.Abs(Math.Sin(angle));
+            double H2 = HX * Math.Abs(Math.Sin(angle)) + HY * Math.Abs(Math.Cos(angle));
+            double h2 = hX * Math.Abs(Math.Sin(angle)) + hY * Math.Abs(Math.Cos(angle));
+
             double d = CoverToLinks + LinkDiameter + BarDiameter / 2;
             List<Point> rebars = new List<Point>()
             {
-                new Point(-HX/2 + d, -HY/2 + d),
-                new Point(-HX/2 + hX - d, -HY/2 + d),
-                new Point(HX/2 - d, -HY/2 + d),
-                new Point(-HX/2 + d, -HY/2 + hY - d),
-                new Point(-HX/2 + hX - d, -HY/2 + hY - d),
-                new Point(HX/2 - d, -HY/2 + hY - d),
-                new Point(-HX/2 + d, HY/2 - d),
-                new Point(-HX/2 + hX - d, HY/2 - d),
+                new Point(-H1/2 + d, -H2/2 + d),
+                new Point(-H1/2 + h1 - d, -H2/2 + d),
+                new Point(-H1/2 + d, -H2/2 + h2 - d),
+                new Point(-H1/2 + h1 - d, -H2/2 + h2 - d),
             };
+            if(HX - hX > 2 * BarDiameter)
+            {
+                rebars.Add(new Point(H1 / 2 - d, -H2 / 2 + d));
+                rebars.Add(new Point(H1 / 2 - d, -H2 / 2 + h2 - d));
+            }
+            if(HY - hY > 2 * BarDiameter)
+            {
+                rebars.Add(new Point(-H1 / 2 + d, H2 / 2 - d));
+                rebars.Add(new Point(-H1 / 2 + h1 - d, H2 / 2 - d));
+            }
 
-            double ly1 = HY - hY;
-            double ly2 = hY - 2 * d;
-            double lx1 = HX - hX;
-            double lx2 = hX - 2 * d;
+            double ly1 = H2 - h2;
+            double ly2 = h2 - 2 * d;
+            double lx1 = H1 - h1;
+            double lx2 = h1 - 2 * d;
             int nX1 = 0;
             int nX2 = 0;
             int nY1 = 0;
@@ -401,25 +431,25 @@ namespace ColumnDesign
                 {
                     addX1 = new List<Point>();
                     nX1++;
-                    double dx = (HX - hX) / (nX1 + 1);
+                    double dx = (H1 - h1) / (nX1 + 1);
                     for (int j = 1; j <= nX1; j++)
                     {
-                        addX1.Add(new Point(-HX / 2 + hX + j * dx - d, -HY / 2 + d));
-                        addX1.Add(new Point(-HX / 2 + hX + j * dx - d, -HY / 2 + hY - d));
+                        addX1.Add(new Point(-H1 / 2 + h1 + j * dx - d, -H2 / 2 + d));
+                        addX1.Add(new Point(-H1 / 2 + h1 + j * dx - d, -H2 / 2 + h2 - d));
                     }
-                    lx1 = (HY - hY) / (nX1 + 1);
+                    lx1 = (H1 - h1) / (nX1 + 1);
                 }
                 else
                 {
                     addX2 = new List<Point>();
                     nX2++;
-                    double dx = (hX - 2 * d) / (nX1 + 1);
+                    double dx = (h1 - 2 * d) / (nX1 + 1);
                     for (int j = 1; j <= nX2; j++)
                     {
-                        addX2.Add(new Point(-HX / 2 + d + j * dx, -HY / 2 + d));
-                        addX2.Add(new Point(-HX / 2 + d + j * dx, HY / 2 - d));
+                        addX2.Add(new Point(-H1 / 2 + d + j * dx, -H2 / 2 + d));
+                        addX2.Add(new Point(-H1 / 2 + d + j * dx, H2 / 2 - d));
                     }
-                    lx2 = (hX - 2 * d) / (nX2 + 1);
+                    lx2 = (h1 - 2 * d) / (nX2 + 1);
                 }
             }
             for (int i = 4; i <= NRebarY; i++)
@@ -428,25 +458,25 @@ namespace ColumnDesign
                 {
                     addY1 = new List<Point>();
                     nY1++;
-                    double dy = (HY - hY) / (nY1 + 1);
+                    double dy = (H2 - h2) / (nY1 + 1);
                     for (int j = 1; j <= nY1; j++)
                     {
-                        addY1.Add(new Point(-HX / 2 + d, -HY / 2 + hY + j * dy - d));
-                        addY1.Add(new Point(-HX / 2 + hX - d, -HY / 2 + hY + j * dy - d));
+                        addY1.Add(new Point(-H1 / 2 + d, -H2 / 2 + h2 + j * dy - d));
+                        addY1.Add(new Point(-H1 / 2 + h1 - d, -H2 / 2 + h2 + j * dy - d));
                     }
-                    ly1 = (HY - hY) / (nY1 + 1);
+                    ly1 = (H2 - h2) / (nY1 + 1);
                 }
                 else
                 {
                     addY2 = new List<Point>();
                     nY2++;
-                    double dy = (hY - 2 * d) / (nY2 + 1);
+                    double dy = (h2 - 2 * d) / (nY2 + 1);
                     for (int j = 1; j <= nY2; j++)
                     {
-                        addY2.Add(new Point(-HX / 2 + d, -HY / 2 + d + j * dy));
-                        addY2.Add(new Point(HX / 2 - d, -HY / 2 + d + j * dy));
+                        addY2.Add(new Point(-H1 / 2 + d, -H2 / 2 + d + j * dy));
+                        addY2.Add(new Point(H1 / 2 - d, -H2 / 2 + d + j * dy));
                     }
-                    ly2 = (hY - 2 * d) / (nY2 + 1);
+                    ly2 = (h2 - 2 * d) / (nY2 + 1);
                 }
             }
             sx1 = lx1;
@@ -459,8 +489,8 @@ namespace ColumnDesign
             rebars.AddRange(addY1);
             rebars.AddRange(addY2);
 
-            rebars = rebars.Select(r => new Point(r.X, r.Y)).ToList();
-
+            rebars = rebars.Select(p => new Point(Math.Cos(angle) * p.X - Math.Sin(angle) * p.Y,
+                                                  Math.Sin(angle) * p.X + Math.Cos(angle) * p.Y)).ToList();
             return rebars;
         }
 
@@ -623,7 +653,7 @@ namespace ColumnDesign
                 case (GeoShape.LShaped):
                     for (int i = 0; i < fdata.Count; i++)
                     {
-                        if (HX - HX >= fdata[i].minDimension && HY - hY >= fdata[i].minDimension)
+                        if (HX - hX >= fdata[i].minDimension && HY - hY >= fdata[i].minDimension)
                         {
                             afi = fdata[i].axisDistance;
                             break;
@@ -658,14 +688,14 @@ namespace ColumnDesign
                 if (Shape == GeoShape.Rectangular)
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
-                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
             }
             else if (!TP?.TempMap.Keys.Contains(R) ?? true)
             {
                 if (Shape == GeoShape.Rectangular)
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
-                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
             }
 
             TP.GetContours(R, (Shape == GeoShape.Rectangular));
@@ -767,22 +797,22 @@ namespace ColumnDesign
 
         public (bool, FormulaeVM) CheckFireIsotherm500(bool newdesign = false)
         {
-            if (newdesign)
-            {
-                if (Shape == GeoShape.Rectangular)
-                    TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
-                else if (Shape == GeoShape.LShaped)
-                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
-            }
-            else if (!TP?.TempMap.Keys.Contains(R) ?? true)
-            {
-                if (Shape == GeoShape.Rectangular)
-                    TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
-                else if (Shape == GeoShape.LShaped)
-                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
-            }
+            if (Shape == GeoShape.Rectangular)
+                return CheckFireIsotherm500_Rectangular();
+            //else if (Shape == GeoShape.LShaped)
+            //    return CheckFireIsotherm500_LShaped();
+            return (false, null);
+        }
 
-            TP.GetContours(R, (Shape == GeoShape.Rectangular));
+        // Isotherm 500 method for rectangular columns
+        public (bool, FormulaeVM) CheckFireIsotherm500_Rectangular(bool newdesign = false)
+        {
+            if (newdesign)
+                TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
+            else if (!TP?.TempMap.Keys.Contains(R) ?? true)
+                TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
+
+            TP.GetContours(R, true);
 
             if (steelData.Count == 0) SetSteelData();
 
@@ -799,7 +829,7 @@ namespace ColumnDesign
 
             double xspace = (LX - 2 * (CoverToLinks + LinkDiameter + BarDiameter / 2.0)) / (NRebarX - 1);
             double yspace = (LY - 2 * (CoverToLinks + LinkDiameter + BarDiameter / 2.0)) / (NRebarY - 1);
-            double area = Math.PI * Math.Pow(BarDiameter / 2, 2)/1e6;
+            double area = Math.PI * Math.Pow(BarDiameter / 2, 2) / 1e6;
             for (int i = 0; i < NRebarX; i++)
             {
                 var x = CoverToLinks + LinkDiameter + BarDiameter / 2.0 + i * xspace - LX / 2;
@@ -808,8 +838,8 @@ namespace ColumnDesign
                     var y = CoverToLinks + LinkDiameter + BarDiameter / 2.0 + j * yspace - LY / 2;
                     if (i == 0 || i == NRebarX - 1 || j == 0 || j == NRebarY - 1)
                     {
-                        
-                        double temp = getTemp(new MWPoint2D(x,y));
+
+                        double temp = getTemp(new MWPoint2D(x, y));
                         SteelData sd = steelData.First(s => s.Temp == temp);
                         NRfi += area * SteelGrade.Fy / 1.15 * 1e3 * sd.kf;
                     }
@@ -830,7 +860,7 @@ namespace ColumnDesign
                 double temp = getTemp(new MWPoint2D(x, yy));
                 As1Fsd += As * SteelGrade.Fy * steelData.First(s => s.Temp == temp).kf;
             }
-            double X = As1Fsd / (LX - 2 * dY) / ConcreteGrade.Fc;
+            double X = As1Fsd / (LX - 2 * dX) / ConcreteGrade.Fc;
 
             Mx = As1Fsd * Math.Abs(yy - (LY / 2 - X / 2)) + As1Fsd * (LY - 2 * yy);
 
@@ -842,10 +872,10 @@ namespace ColumnDesign
                 double temp = getTemp(new MWPoint2D(xx, y));
                 As1Fsd += As * SteelGrade.Fy * steelData.First(s => s.Temp == temp).kf;
             }
-            X = As1Fsd / (LY - 2 * dX) / ConcreteGrade.Fc;
+            X = As1Fsd / (LY - 2 * dY) / ConcreteGrade.Fc;
 
             My = As1Fsd * Math.Abs(xx - (LX / 2 - X / 2)) + As1Fsd * (LX - 2 * xx);
-            
+
             // formulae
             FormulaeVM f = new FormulaeVM();
             f.Narrative = "Nominal cover for fire and bond requirements";
@@ -869,6 +899,102 @@ namespace ColumnDesign
             return (res, f);
         }
 
+        // Isotherm 500 method for L Shaped columns
+        //public (bool, FormulaeVM) CheckFireIsotherm500_LShaped(bool newdesign = false)
+        //{
+        //    if (newdesign)
+        //            TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
+        //    else if (!TP?.TempMap.Keys.Contains(R) ?? true)
+        //            TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
+
+        //    TP.GetContours(R, false);
+
+        //    if (steelData.Count == 0) SetSteelData();
+
+        //    FireDesign.Contour iso500 = TP.ContourPts.First(c => c.Level == 500);
+        //    double maxX = iso500.Points.Max(x => x.X);
+        //    double minX = iso500.Points.Min(x => x.X);
+        //    double maxY = iso500.Points.Max(x => x.Y);
+        //    double minY = iso500.Points.Min(x => x.Y);
+
+        //    double dX = Math.Min(Math.Abs(minX - HX / 2), Math.Abs(maxX - HX / 2));
+        //    double dY = Math.Min(Math.Abs(minY - HY / 2), Math.Abs(maxY - HY / 2));
+
+        //    double NRfi = (HX - 2 * dX) * (HY - 2 * dY) * 0.85 * ConcreteGrade.Fc / 1.5 / 1e3;
+
+        //    List<Point> rebars = GetLShapedRebars();
+
+        //    double area = Math.PI * Math.Pow(BarDiameter / 2, 2) / 1e6;
+        //    for (int i = 0; i < rebars.Count; i++)
+        //    {
+        //        double temp = getTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
+        //        SteelData sd = steelData.First(s => s.Temp == temp);
+        //        NRfi += area * SteelGrade.Fy / 1.15 * 1e3 * sd.kf;
+        //    }
+
+        //    // check moments
+        //    double Mx = 0;
+        //    double My = 0;
+
+        //    Point COG = GetLShapeCOG();
+            
+        //    double As1Fsd = 0;
+        //    for(int i = 0; i < rebars.Count; i++)
+        //    {
+        //        double temp = getTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
+        //        As1Fsd += area * SteelGrade.Fy * steelData.First(s => s.Temp == temp).kf;
+        //    }
+        //    double X = As1Fsd / (HX - 2 * dX) / ConcreteGrade.Fc;
+
+
+        //    var yy = CoverToLinks + LinkDiameter + BarDiameter / 2.0 - HY / 2;
+            
+        //    Mx = As1Fsd * Math.Abs(yy - (HY / 2 - X / 2)) + As1Fsd * (HY - 2 * yy);
+
+        //    As1Fsd = 0;
+        //    var xx = CoverToLinks + LinkDiameter + BarDiameter / 2.0 - LX / 2;
+        //    for (int i = 0; i < NRebarY; i++)
+        //    {
+        //        var y = CoverToLinks + LinkDiameter + BarDiameter / 2.0 + i * yspace - LY / 2;
+        //        double temp = getTemp(new MWPoint2D(xx, y));
+        //        As1Fsd += area * SteelGrade.Fy * steelData.First(s => s.Temp == temp).kf;
+        //    }
+        //    X = As1Fsd / (LY - 2 * dY) / ConcreteGrade.Fc;
+
+        //    My = As1Fsd * Math.Abs(xx - (LX / 2 - X / 2)) + As1Fsd * (LX - 2 * xx);
+
+        //    // formulae
+        //    FormulaeVM f = new FormulaeVM();
+        //    f.Narrative = "Nominal cover for fire and bond requirements";
+        //    f.Expression = new List<string>();
+        //    f.Ref = "EN1992-1-2 ANNEX B.2";
+        //    f.Expression.Add(@"Isotherm 500");
+        //    f.Expression.Add(@"a_x = " + Math.Round(dX) + " mm");
+        //    f.Expression.Add(@"a_y = " + Math.Round(dY) + " mm");
+        //    f.Expression.Add(@"N_{R,fi} = (L_x - 2 a_x)(L_y - 2 a_y)f_{cd} + A_s\times f_{yd,fi}= " + Math.Round(NRfi) + " kN");
+        //    f.Expression.Add(@"N_{Ed,fi} = " + Math.Round(FireLoad.P) + " kN");
+        //    f.Expression.Add(@"M_{xR,fi} = " + Math.Round(Mx) + " kN.m");
+        //    f.Expression.Add(@"M_{xd,fi} = " + Math.Round(FireLoad.Mxd) + "kN.m");
+        //    f.Expression.Add(@"M_{yR,fi} = " + Math.Round(My) + " kN.m");
+        //    f.Expression.Add(@"M_{yd,fi} = " + Math.Round(FireLoad.Myd) + "kN.m");
+
+        //    bool res = (NRfi > FireLoad.P && Mx > FireLoad.Mxd && My > FireLoad.Myd);
+
+        //    f.Status = res ? CalcStatus.PASS : CalcStatus.FAIL;
+        //    f.Conclusion = res ? "PASS" : "FAIL";
+
+        //    return (res, f);
+        //}
+
+        public Point GetLShapeCOG()
+        {
+            double x = -(HX - hX) * (HY - hY) * hX / 2;
+            x /= (HX * HY - (HX - hX) * (HY - hY));
+            double y = -(HX - hX) * (HY - hY) * hY / 2;
+            y /= (HX * HY - (HX - hX) * (HY - hY));
+            return new Point(x, y);
+        }
+
         public void UpdateTP(bool newdesign = true)
         {
             if (newdesign)
@@ -876,14 +1002,14 @@ namespace ColumnDesign
                 if (Shape == GeoShape.Rectangular)
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
-                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
             }
             else if (!TP?.TempMap.Keys.Contains(R) ?? true)
             {
                 if (Shape == GeoShape.Rectangular)
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
-                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
             }
 
             TP.GetContours(R, Shape == GeoShape.Rectangular);
@@ -1731,5 +1857,17 @@ namespace ColumnDesign
         }
 
     }
+
+    //public class FireDesignMethod
+    //{
+    //    public FDesignMethod Method { get; set; }
+    //    public bool IsSelectable { get; set; }
+
+    //    public FireDesignMethod(FDesignMethod method, bool selectable = true)
+    //    {
+    //        Method = method;
+    //        IsSelectable = selectable;
+    //    }
+    //}
 
 }

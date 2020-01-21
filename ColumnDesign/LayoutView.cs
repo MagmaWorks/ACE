@@ -15,6 +15,8 @@ namespace ColumnDesign
 {
     public class LayoutView : ViewModelBase
     {
+        public ViewModel myViewModel;
+
         GeoShape shape;
         public GeoShape Shape
         {
@@ -181,16 +183,7 @@ namespace ColumnDesign
             }
             else if (shape == GeoShape.LShaped)
             {
-                ContourPoints = new PointCollection()
-                {
-                    new Point(-column.HX / 2, -column.HY / 2),
-                    new Point(column.HX / 2, -column.HY / 2),
-                    new Point(column.HX / 2, -column.HY / 2 + column.hY),
-                    new Point(-column.HX / 2 + column.hX, -column.HY / 2 + column.hY),
-                    new Point(-column.HX / 2 + column.hX, column.HY / 2),
-                    new Point(-column.HX / 2, column.HY / 2)
-                };
-                ContourPoints = new PointCollection(ContourPoints.Select(p => new Point(p.X * sf, p.Y * sf)));
+                ContourPoints = new PointCollection(column.GetLShapedContour().Select(p => new Point(p.X * sf, p.Y * sf)));
             }
 
             rebars = new List<RebarObj>();

@@ -371,6 +371,7 @@
     <Resource Include="Resources\MagmaWorksLogoLong.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Rotate.png" />
     <Resource Include="Resources\TemperatureCurves.png" />
     <Resource Include="Resources\Optimisation.png" />
     <Resource Include="Resources\Warning.png" />

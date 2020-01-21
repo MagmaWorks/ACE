@@ -41,7 +41,7 @@
 
         <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" >
 
-            <Polyline Points="{Binding ContourPoints}" Fill="LightGray" SizeChanged="LayoutSizeChanged">
+            <Polyline Points="{Binding ContourPoints}" Fill="LightGray" SizeChanged="LayoutSizeChanged" RenderTransformOrigin="0 0">
                 <Polyline.Style>
                     <Style TargetType="Polyline">
                         <Style.Triggers>
@@ -54,9 +54,15 @@
                             <DataTrigger Binding="{Binding Shape}" Value="Polygonal">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="LShaped">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Polyline.Style>
+                <Polyline.RenderTransform>
+                    <ScaleTransform ScaleY="-1"/>
+                </Polyline.RenderTransform>
             </Polyline>
 
             <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}"  Fill="LightGray"
@@ -75,9 +81,15 @@
                             <DataTrigger Binding="{Binding Shape}" Value="Polygonal">
                                 <Setter Property="Visibility" Value="Hidden"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="LShaped">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Ellipse.Style>
+                <Ellipse.RenderTransform>
+                    <ScaleTransform ScaleY="-1"/>
+                </Ellipse.RenderTransform>
             </Ellipse>
         </Canvas>
 
@@ -96,6 +108,9 @@
                             Canvas.Left="{Binding Position.X}"
                             Canvas.Top="{Binding Position.Y}">
                         </Ellipse>
+                        <Canvas.RenderTransform>
+                            <ScaleTransform ScaleY="-1"/>
+                        </Canvas.RenderTransform>
                     </Canvas>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -116,6 +131,9 @@
                         <Polygon
                             Points="{Binding ContourPolygons}"
                             Fill="{Binding Color}">
+                            <Polygon.RenderTransform>
+                                <ScaleTransform ScaleY="-1"/>
+                            </Polygon.RenderTransform>
                         </Polygon>
                         <Polygon
                             Points="{Binding ScaleRectangles}"
@@ -126,7 +144,6 @@
                             Canvas.Top="{Binding KeyPos.Y}"
                             Text="{Binding Level}">
                         </TextBlock>
-                        
                     </Canvas>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -144,9 +161,7 @@
             </ItemsControl.Style>
         </ItemsControl>
 
-        <Canvas
-            HorizontalAlignment="Right"
-            VerticalAlignment="Top">
+        <Canvas>
             <Button
                 Background="Transparent"
                 BorderBrush="Transparent"
@@ -156,6 +171,66 @@
                 Height="50"
                 Click="FireDisplayChanged">
                 <Image Source="resources/Fire.png"/>
+            </Button>
+            <Button
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Click="RotAntiClockWise"
+                Width="25"
+                Height="25"
+                Canvas.Left="10"
+                Canvas.Bottom="10">
+                <Image Source="resources/Rotate.png"/>
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Shape}" Value="Rectangular">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Circular">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Polygonal">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="LShaped">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button
+                Background="Transparent"
+                BorderBrush="Transparent"
+                Click="RotClockWise"
+                Width="25"
+                Height="25"
+                Canvas.Left="40"
+                Canvas.Bottom="10">
+                <Image Source="resources/Rotate.png" RenderTransformOrigin="0.5 0.5">
+                    <Image.RenderTransform>
+                        <ScaleTransform ScaleX="-1"/>
+                    </Image.RenderTransform>
+                </Image>
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Shape}" Value="Rectangular">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Circular">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="Polygonal">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="LShaped">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
             </Button>
         </Canvas>
         

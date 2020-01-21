@@ -183,7 +183,12 @@ namespace ColumnDesign
         public List<int> LinkDiameters { get; set; } = new List<int> { 10, 12, 16, 20, 25, 32, 40 };
 
         public List<int> FireResistances { get; set; } = new List<int> { 30, 60, 90, 120, 180, 240 };
-        public List<string> FireDesignMethods { get; set; } = Enum.GetNames(typeof(FDesignMethod)).ToList(); //new List<string> { "Table", "Isotherm 500", "Zone method", "Advanced" };
+        List<string> fireDesignMethods = Enum.GetNames(typeof(FDesignMethod)).ToList(); //new List<string> { "Table", "Isotherm 500", "Zone method", "Advanced" };
+        public List<string> FireDesignMethods
+        {
+            get { return fireDesignMethods; }
+            set { fireDesignMethods = value; RaisePropertyChanged(nameof(FireDesignMethods)); }
+        }
         public List<string> FireCurves { get; set; } = Enum.GetNames(typeof(FCurve)).ToList(); //new List<string> { "Standard curve", "Hydrocarbon" };
 
         //public List<string> IDReductions { get; set; } = new List<string> { "100 %", "95 %", "90 %", "85 %", "80 %" };
@@ -204,6 +209,7 @@ namespace ColumnDesign
         
         public ViewModel()
         {
+            MyLayoutView.myViewModel = this;
             //ValidationTests2 vt = new ValidationTests2(); 
         }
 

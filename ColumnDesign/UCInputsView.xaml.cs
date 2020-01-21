@@ -353,6 +353,7 @@ namespace ColumnDesign
 
         private void ShapeChanged(object sender, RoutedEventArgs e)
         {
+            
             CheckBox cb = sender as CheckBox;
             RectangularCB.IsChecked = (cb == RectangularCB) ? true : false;
             CircularCB.IsChecked = (cb == CircularCB) ? true : false;
@@ -368,29 +369,50 @@ namespace ColumnDesign
             LShapedHY.IsEnabled = LShapedCB.IsChecked ?? false;
             LShapedhY.IsEnabled = LShapedCB.IsChecked ?? false;
 
-            FireDesignMethodCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
+            //FireDesignMethodCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
             FireCurveCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
 
             ViewModel vm = (cb.DataContext as ViewModel);
             Column c = vm.SelectedColumn;
-
+            
             if (RectangularCB.IsChecked ?? false)
                 c.Shape = GeoShape.Rectangular;
             else if (CircularCB.IsChecked ?? false)
             {
                 c.Shape = GeoShape.Circular;
                 FireDesignMethodCB.SelectedItem = "Table";
+                vm.MyLayoutView.DisplayFire = false;
             }
             else if (PolygonalCB.IsChecked ?? false)
             {
                 c.Shape = GeoShape.Polygonal;
                 FireDesignMethodCB.SelectedItem = "Table";
+                vm.MyLayoutView.DisplayFire = false;
             }
             else if (LShapedCB.IsChecked ?? false)
             {
                 c.Shape = GeoShape.LShaped;
                 if (c.FireDesignMethod == FDesignMethod.Isotherm_500 || c.FireDesignMethod == FDesignMethod.Zone_Method)
                     FireDesignMethodCB.SelectedItem = "Table";
+            }
+
+            // Update the fire design methods
+            
+            switch (c.Shape)
+            {
+                case (GeoShape.Rectangular):
+                    vm.FireDesignMethods = Enum.GetNames(typeof(FDesignMethod)).ToList();
+                    break;
+                case (GeoShape.Circular):
+                    vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString() };
+                    break;
+                case (GeoShape.Polygonal):
+                    vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString() };
+                    break;
+                case (GeoShape.LShaped):
+                    vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString(), FDesignMethod.Advanced.ToString() };
+                    break;
+
             }
 
             vm.UpdateDesign();
