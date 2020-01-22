@@ -12,7 +12,7 @@ using Material = InteractionDiagram3D.Material;
 
 namespace ColumnDesign
 {
-    public enum GeoShape { Rectangular, Circular, Polygonal, LShaped }
+    public enum GeoShape { Rectangular, Circular, Polygonal, LShaped, TShaped }
     public enum FDesignMethod { Table, Isotherm_500, Zone_Method, Advanced }
 
     public class Column
@@ -24,6 +24,7 @@ namespace ColumnDesign
         public bool IsCircular { get => Shape == GeoShape.Circular; }
         public bool IsPolygonal { get => Shape == GeoShape.Polygonal; }
         public bool IsLShaped { get => Shape == GeoShape.LShaped; }
+        public bool IsTShaped { get => Shape == GeoShape.TShaped; }
         public double Length { get; set; } = 3150;
         public double LX { get; set; } = 350;
         public double LY { get; set; } = 350;
@@ -40,6 +41,7 @@ namespace ColumnDesign
         public double sy1;
         public double sy2;
         public double Theta = 0;
+        public int Nrebars;
         public MWPoint3D Point1 { get; set; }
         public MWPoint3D Point2 { get; set; }
 
@@ -320,12 +322,26 @@ namespace ColumnDesign
                 List<Point> pts = GetLShapedContour();
                 List<MWPoint2D> LShapedPts = pts.Select(p => new MWPoint2D(p.X, p.Y)).ToList();
                 composites.Add(new ConcreteSection(LShapedPts, concrete));
-
-                MWPoint2D bary = Points.GetBarycenter(LShapedPts);
-                Console.WriteLine("conc : X = {0}, Y = {1}", bary.X, bary.Y);
-
+                
                 // creation of the rebars
                 List<Point> rebars = GetLShapedRebars();
+                for (int i = 0; i < rebars.Count; i++)
+                {
+                    Rebar r = new Rebar(new MWPoint2D(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
+                    //steelPos.Add(new MWPoint2D(x, y));
+                    composites.Add(r);
+                }
+
+            }
+            else if (Shape == GeoShape.TShaped)
+            {
+                // creation of the concrete section
+                List<Point> pts = GetTShapedContour();
+                List<MWPoint2D> TShapedPts = pts.Select(p => new MWPoint2D(p.X, p.Y)).ToList();
+                composites.Add(new ConcreteSection(TShapedPts, concrete));
+                
+                // creation of the rebars
+                List<Point> rebars = GetTShapedRebars();
                 for (int i = 0; i < rebars.Count; i++)
                 {
                     Rebar r = new Rebar(new MWPoint2D(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
@@ -394,6 +410,9 @@ namespace ColumnDesign
             double H2 = HX * Math.Abs(Math.Sin(angle)) + HY * Math.Abs(Math.Cos(angle));
             double h2 = hX * Math.Abs(Math.Sin(angle)) + hY * Math.Abs(Math.Cos(angle));
 
+            int NrotX = (Theta == 0 || Theta == 180) ? NRebarX : NRebarY;
+            int NrotY = (Theta == 0 || Theta == 180) ? NRebarY : NRebarX;
+
             double d = CoverToLinks + LinkDiameter + BarDiameter / 2;
             List<Point> rebars = new List<Point>()
             {
@@ -425,7 +444,7 @@ namespace ColumnDesign
             List<Point> addX2 = new List<Point>();
             List<Point> addY1 = new List<Point>();
             List<Point> addY2 = new List<Point>();
-            for (int i = 4; i <= NRebarX; i++)
+            for (int i = 4; i <= NrotX; i++)
             {
                 if (lx1 >= lx2)
                 {
@@ -443,7 +462,7 @@ namespace ColumnDesign
                 {
                     addX2 = new List<Point>();
                     nX2++;
-                    double dx = (h1 - 2 * d) / (nX1 + 1);
+                    double dx = (h1 - 2 * d) / (nX2 + 1);
                     for (int j = 1; j <= nX2; j++)
                     {
                         addX2.Add(new Point(-H1 / 2 + d + j * dx, -H2 / 2 + d));
@@ -452,7 +471,7 @@ namespace ColumnDesign
                     lx2 = (h1 - 2 * d) / (nX2 + 1);
                 }
             }
-            for (int i = 4; i <= NRebarY; i++)
+            for (int i = 4; i <= NrotY; i++)
             {
                 if (ly1 >= ly2)
                 {
@@ -491,6 +510,133 @@ namespace ColumnDesign
 
             rebars = rebars.Select(p => new Point(Math.Cos(angle) * p.X - Math.Sin(angle) * p.Y,
                                                   Math.Sin(angle) * p.X + Math.Cos(angle) * p.Y)).ToList();
+
+            Nrebars = rebars.Count;
+
+            return rebars;
+        }
+
+        public List<Point> GetTShapedContour()
+        {
+            List<Point> ContourPts = new List<Point>()
+            {
+                new Point(-hX/2, -HY/2),
+                new Point(hX/2, -HY/2),
+                new Point(hX/2, HY/2-hY),
+                new Point(HX/2, HY/2-hY),
+                new Point(HX/2, HY/2),
+                new Point(-HX/2,HY/2),
+                new Point(-HX/2,HY/2-hY),
+                new Point(-hX/2,HY/2-hY)
+            };
+
+            return ContourPts;
+        }
+
+        public List<Point> GetTShapedRebars()
+        {
+            double d = CoverToLinks + LinkDiameter + BarDiameter / 2;
+            List<Point> rebars = new List<Point>()
+            {
+                
+                new Point(hX/2 - d, HY/2 - hY + d),
+                new Point(hX/2 - d, HY/2 - d),
+                new Point(-hX/2 + d, HY/2 -d),
+                new Point(-hX/2 + d, HY/2 - hY + d)
+            };
+            if (HX - hX > 4 * BarDiameter)
+            {
+                rebars.Add(new Point(HX / 2 - d, HY / 2 - hY + d));
+                rebars.Add(new Point(HX / 2 - d, HY / 2 - d));
+                rebars.Add(new Point(-HX / 2 + d, HY / 2 - d));
+                rebars.Add(new Point(-HX / 2 + d, HY / 2 - hY + d));
+            }
+            if (HY - hY > 2 * BarDiameter)
+            {
+                rebars.Add(new Point(-hX / 2 + d, -HY / 2 + d));
+                rebars.Add(new Point(hX / 2 - d, -HY / 2 + d));
+            }
+
+            double ly1 = HY - hY;
+            double ly2 = hY - 2 * d;
+            double lx1 = (HX - hX)/2;
+            double lx2 = hX - 2 * d;
+            int nX1 = 0;
+            int nX2 = 0;
+            int nY1 = 0;
+            int nY2 = 0;
+            List<Point> addX1 = new List<Point>();
+            List<Point> addX2 = new List<Point>();
+            List<Point> addY1 = new List<Point>();
+            List<Point> addY2 = new List<Point>();
+            for (int i = 3; i <= NRebarX; i++)
+            {
+                if (lx1 >= lx2)
+                {
+                    addX1 = new List<Point>();
+                    nX1++;
+                    double dx = (HX - hX) / 2 / (nX1 + 1);
+                    for (int j = 1; j <= nX1; j++)
+                    {
+                        addX1.Add(new Point(-HX / 2 + d + j * dx, HY / 2 - d));
+                        addX1.Add(new Point(-HX / 2 + d + j * dx, HY / 2 - hY + d));
+                        addX1.Add(new Point(HX / 2 - d - j * dx, HY / 2 - d));
+                        addX1.Add(new Point(HX / 2 - d - j * dx, HY / 2 - hY + d));
+                    }
+                    lx1 = (HX - hX) / 2 / (nX1 + 1);
+                }
+                else
+                {
+                    addX2 = new List<Point>();
+                    nX2++;
+                    double dx = (hX - 2 * d) / (nX2 + 1);
+                    for (int j = 1; j <= nX2; j++)
+                    {
+                        addX2.Add(new Point(-hX / 2 + d + j * dx, HY / 2 - d));
+                        addX2.Add(new Point(-hX / 2 + d + j * dx, -HY / 2 + d));
+                    }
+                    lx2 = (hX - 2 * d) / (nX2 + 1);
+                }
+            }
+            for (int i = 4; i <= NRebarY; i++)
+            {
+                if (ly1 >= ly2)
+                {
+                    addY1 = new List<Point>();
+                    nY1++;
+                    double dy = (HY - hY) / (nY1 + 1);
+                    for (int j = 1; j <= nY1; j++)
+                    {
+                        addY1.Add(new Point(-hX / 2 + d, -HY / 2 + d + j * dy));
+                        addY1.Add(new Point(hX / 2 - d, -HY / 2 + d + j * dy));
+                    }
+                    ly1 = (HY - hY) / (nY1 + 1);
+                }
+                else
+                {
+                    addY2 = new List<Point>();
+                    nY2++;
+                    double dy = (hY - 2 * d) / (nY2 + 1);
+                    for (int j = 1; j <= nY2; j++)
+                    {
+                        addY2.Add(new Point(-HX / 2 + d, HY / 2 - hY + d + j * dy));
+                        addY2.Add(new Point(HX / 2 - d, HY / 2 - hY + d + j * dy));
+                    }
+                    ly2 = (hY - 2 * d) / (nY2 + 1);
+                }
+            }
+            sx1 = lx1;
+            sx2 = lx2;
+            sy1 = ly1;
+            sy2 = ly2;
+
+            rebars.AddRange(addX1);
+            rebars.AddRange(addX2);
+            rebars.AddRange(addY1);
+            rebars.AddRange(addY2);
+
+            Nrebars = rebars.Count;
+
             return rebars;
         }
 
@@ -660,6 +806,16 @@ namespace ColumnDesign
                         }
                     }
                     break;
+                case (GeoShape.TShaped):
+                    for (int i = 0; i < fdata.Count; i++)
+                    {
+                        if (HX - hX >= fdata[i].minDimension && HY - hY >= fdata[i].minDimension)
+                        {
+                            afi = fdata[i].axisDistance;
+                            break;
+                        }
+                    }
+                    break;
             }
             double cminb = Math.Max(this.LinkDiameter, this.BarDiameter - this.LinkDiameter);
             double cnommin = Math.Max(afi - this.BarDiameter / 2.0 - this.LinkDiameter, cminb + 10);
@@ -689,6 +845,8 @@ namespace ColumnDesign
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
                     TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
+                else if (Shape == GeoShape.TShaped)
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
             }
             else if (!TP?.TempMap.Keys.Contains(R) ?? true)
             {
@@ -696,9 +854,11 @@ namespace ColumnDesign
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
                     TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
+                else if (Shape == GeoShape.TShaped)
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
             }
 
-            TP.GetContours(R, (Shape == GeoShape.Rectangular));
+            TP.GetContours(R, Shape.ToString());
 
             if (steelData.Count == 0) SetSteelData();
             if (concreteData.Count == 0) SetConcreteData();
@@ -812,7 +972,7 @@ namespace ColumnDesign
             else if (!TP?.TempMap.Keys.Contains(R) ?? true)
                 TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
 
-            TP.GetContours(R, true);
+            TP.GetContours(R, GeoShape.Rectangular.ToString());
 
             if (steelData.Count == 0) SetSteelData();
 
@@ -1003,6 +1163,8 @@ namespace ColumnDesign
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
                     TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
+                else if (Shape == GeoShape.TShaped)
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
             }
             else if (!TP?.TempMap.Keys.Contains(R) ?? true)
             {
@@ -1010,9 +1172,11 @@ namespace ColumnDesign
                     TP = new TemperatureProfile(LX / 1e3, LY / 1e3, R * 60, FireCurve);
                 else if (Shape == GeoShape.LShaped)
                     TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, Theta, R * 60, FireCurve);
+                else if (Shape == GeoShape.TShaped)
+                    TP = new TemperatureProfile(HX / 1e3, HY / 1e3, hX / 1e3, hY / 1e3, R * 60, FireCurve);
             }
 
-            TP.GetContours(R, Shape == GeoShape.Rectangular);
+            TP.GetContours(R, Shape.ToString());
         }
 
         public void UpdateFireID(bool newdesign = false)
@@ -1090,6 +1254,32 @@ namespace ColumnDesign
                 }
 
             }
+            else if (Shape == GeoShape.TShaped)
+            {
+                // Creation of the concrete sections
+                for (int i = 1; i < TP.ContourPts.Count - 1; i++)
+                {
+                    ConcreteData cd = concreteData.First(x => x.Temp == TP.ContourPts[i].Level);
+                    Material concrete = new Material(ConcreteGrade.Name + "_" + TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * ConcreteGrade.Fc / 1.5, 0, ConcreteGrade.E, cd.Ec1, cd.density);
+                    composites.Add(new ConcreteSection(TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete)); // reduces the number of points by 5
+                }
+                int n_last = TP.ContourPts.Count - 1;
+                ConcreteData cd_last = concreteData.First(x => x.Temp == TP.ContourPts[n_last].Level);
+                Material concrete_last = new Material(ConcreteGrade.Name + "_" + TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * ConcreteGrade.Fc / 1.5, 0, ConcreteGrade.E, cd_last.Ec1, cd_last.density);
+                composites.Add(new ConcreteSection(TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
+
+                // Creation of the rebars
+                List<Point> rebars = GetTShapedRebars();
+                for (int i = 0; i < rebars.Count; i++)
+                {
+                    double temp = GetRebarTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
+                    SteelData sd = steelData.First(s => s.Temp == temp);
+                    Material steel = new Material(SteelGrade.Name, MatYpe.Steel, sd.kf * SteelGrade.Fy / 1.15, sd.kf * SteelGrade.Fy / 1.15, sd.kE * SteelGrade.E);
+                    Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
+                    composites.Add(r);
+                }
+
+            }
 
             Diagram d = new Diagram(composites, DiagramDisc);
             fireDiagramFaces = d.faces;
@@ -1149,6 +1339,8 @@ namespace ColumnDesign
                 As = Edges * Math.PI * Math.Pow(BarDiameter / 2.0, 2);
             else if (Shape == GeoShape.LShaped)
                 As = 8 + (NRebarX - 3) * 2 + (NRebarY - 3) * 2;
+            else if (Shape == GeoShape.TShaped)
+                As = 10;
             if (As > Asmax)
                 return false;
             else if (As < Asmin)
@@ -1352,7 +1544,7 @@ namespace ColumnDesign
                 minY = -Diameter / 2;
                 maxY = Diameter / 2;
             }
-            else if (Shape == GeoShape.Polygonal || Shape == GeoShape.LShaped)
+            else if (Shape == GeoShape.Polygonal || Shape == GeoShape.LShaped || Shape == GeoShape.TShaped)
             {
                 List<MWPoint2D> concPoints = new List<MWPoint2D>();
                 // Creation of the rebar positions
@@ -1415,7 +1607,7 @@ namespace ColumnDesign
                 double I = Math.PI * Math.Pow(Diameter, 4) / 64;
                 return new double[] { I, I, Math.PI * Math.Pow(Diameter / 2, 2) };
             }
-            else if (Shape == GeoShape.Polygonal || Shape == GeoShape.LShaped)
+            else if (Shape == GeoShape.Polygonal || Shape == GeoShape.LShaped || Shape == GeoShape.TShaped)
             {
                 double Ix = 0;
                 double Iy = 0;
@@ -1453,6 +1645,8 @@ namespace ColumnDesign
                 return Edges * Math.Pow(Radius, 2) * Math.Cos(Math.PI / Edges) * Math.Sin(Math.PI / Edges);
             else if (Shape == GeoShape.LShaped)
                 return HX * HY - (HX - hX) * (HY - hY);
+            else if (Shape == GeoShape.TShaped)
+                return HX * HY - (HX - hX) * (HY - hY);
             return 0;
         }
 
@@ -1467,6 +1661,8 @@ namespace ColumnDesign
                 n = Edges;
             else if (Shape == GeoShape.LShaped)
                 n = 8 + (NRebarX - 3) * 2 + (NRebarY - 3) * 2;
+            else if (Shape == GeoShape.TShaped)
+                n = 10;
             return n * Math.PI * Math.Pow(BarDiameter / 2.0, 2);
         }
 
@@ -1497,6 +1693,8 @@ namespace ColumnDesign
             }
             else if (Shape == GeoShape.LShaped)
                 return new double[] { HX, HY };
+            else if (Shape == GeoShape.TShaped)
+                return new double[] { HX, HY };
             return null;
         }
 
@@ -1512,6 +1710,8 @@ namespace ColumnDesign
                 return n * Diameter * Math.Sin(Math.PI / n);
             }
             else if (Shape == GeoShape.LShaped)
+                return 2 * (HX + HY);
+            else if (Shape == GeoShape.TShaped)
                 return 2 * (HX + HY);
             return 0;
         }
@@ -1657,6 +1857,8 @@ namespace ColumnDesign
                     return (Edges >= 8) ? true : false;
                 else if (Shape == GeoShape.LShaped)
                     return (8 + (NRebarX - 3) * 2 + (NRebarY - 3) * 2 >= 8) ? true : false;
+                else if (Shape == GeoShape.TShaped)
+                    return (Nrebars >= 8) ? true : false;
             }
             return false;
         }
@@ -1698,6 +1900,13 @@ namespace ColumnDesign
                     message.AppendLine("Preferred max spacing is 300mm for compression bars and 175mm for tension bars");
             }
             else if (Shape == GeoShape.LShaped)
+            {
+                if (sx1 < 75 || sx2 < 75 || sy1 < 75 || sy2 < 75)
+                    message.AppendLine("Preferred minimum spacing is 75mm");
+                if (sx1 > 175 || sx2 > 175 || sy1 > 175 || sy2 > 175)
+                    message.AppendLine("Preferred max spacing is 300mm for compression bars and 175mm for tension bars");
+            }
+            else if (Shape == GeoShape.TShaped)
             {
                 if (sx1 < 75 || sx2 < 75 || sy1 < 75 || sy2 < 75)
                     message.AppendLine("Preferred minimum spacing is 75mm");

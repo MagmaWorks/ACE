@@ -72,11 +72,18 @@ namespace ColumnDesign
         {
             ViewModel vm = this.DataContext as ViewModel;
             ComboBox cb = sender as ComboBox;
-            int val = Convert.ToInt32(cb.Text);
-            if(vm.BarDiameters.Contains(val))
+            try
             {
-                vm.SelectedColumn.BarDiameter = val;
-                vm.UpdateDesign();
+                int val = Convert.ToInt32(cb.Text);
+                if (vm.BarDiameters.Contains(val))
+                {
+                    vm.SelectedColumn.BarDiameter = val;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -84,11 +91,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double w = Convert.ToDouble(tb.Text);
-            if(w != vm.SelectedColumn.LX)
+            try
             {
-                vm.SelectedColumn.LX = Convert.ToDouble(w);
-                vm.UpdateDesign();
+                double w = Convert.ToDouble(tb.Text);
+                if (w != vm.SelectedColumn.LX)
+                {
+                    vm.SelectedColumn.LX = Convert.ToDouble(w);
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -96,11 +110,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double d = Convert.ToDouble(tb.Text);
-            if(d != vm.SelectedColumn.LY)
+            try
             {
-                vm.SelectedColumn.LY = d;
-                vm.UpdateDesign();
+                double d = Convert.ToDouble(tb.Text);
+                if (d != vm.SelectedColumn.LY)
+                {
+                    vm.SelectedColumn.LY = d;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -108,11 +129,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double d = Convert.ToDouble(tb.Text);
-            if (d != vm.SelectedColumn.Radius)
+            try
             {
-                vm.SelectedColumn.Radius = d;
-                vm.UpdateDesign();
+                double d = Convert.ToDouble(tb.Text);
+                if (d != vm.SelectedColumn.Radius)
+                {
+                    vm.SelectedColumn.Radius = d;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -120,11 +148,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double d = Convert.ToDouble(tb.Text);
-            if (d != vm.SelectedColumn.Diameter)
+            try
             {
-                vm.SelectedColumn.Diameter = d;
-                vm.UpdateDesign();
+                double d = Convert.ToDouble(tb.Text);
+                if (d != vm.SelectedColumn.Diameter)
+                {
+                    vm.SelectedColumn.Diameter = d;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -132,11 +167,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            int d = Convert.ToInt32(tb.Text);
-            if (d != vm.SelectedColumn.Edges)
+            try
             {
-                vm.SelectedColumn.Edges = d;
-                vm.UpdateDesign();
+                int d = Convert.ToInt32(tb.Text);
+                if (d != vm.SelectedColumn.Edges)
+                {
+                    vm.SelectedColumn.Edges = d;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -144,53 +186,62 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double l = Convert.ToDouble(tb.Text);
-            if(l != vm.SelectedColumn.Length)
+            try
             {
-                vm.SelectedColumn.Length = l;
-                vm.UpdateDesign();
+                double l = Convert.ToDouble(tb.Text);
+                if (l != vm.SelectedColumn.Length)
+                {
+                    vm.SelectedColumn.Length = l;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
-        private void UpdateLShape(object sender, RoutedEventArgs e)
+        private void UpdateLTShape(object sender, RoutedEventArgs e)
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double l = Convert.ToDouble(tb.Text);
-            double val = 0;
-            switch (tb.Name)
+            try
             {
-                case ("LShapedHX"):
+                double l = Convert.ToDouble(tb.Text);
+                double val = 0;
+                if (tb.Name == "TShapedHX" || tb.Name == "LShapedHX")
                     val = vm.SelectedColumn.HX;
-                    break;
-                case ("LShapedHY"):
+                else if (tb.Name == "TShapedHY" || tb.Name == "LShapedHY")
                     val = vm.SelectedColumn.HY;
-                    break;
-                case ("LShapedhX"):
+                else if(tb.Name == "TShapedhX" || tb.Name == "LShapedhX")
                     val = vm.SelectedColumn.hX;
-                    break;
-                case ("LShapedhY"):
+                else if (tb.Name == "TShapedhY" || tb.Name == "LShapedhY")
                     val = vm.SelectedColumn.hY;
-                    break;
-            }
-            if (l != val)
-            {
-                switch (tb.Name)
+                
+                if (l != val)
                 {
-                    case ("LShapedHX"):
-                        vm.SelectedColumn.HX = l;
-                        break;
-                    case ("LShapedHY"):
-                        vm.SelectedColumn.HY = l;
-                        break;
-                    case ("LShapedhX"):
-                        vm.SelectedColumn.hX = l;
-                        break;
-                    case ("LShapedhY"):
-                        vm.SelectedColumn.hY = l;
-                        break;
+                    if (tb.Name == "TShapedHX" || tb.Name == "LShapedHX")
+                    {
+                        if (l > vm.SelectedColumn.hX) vm.SelectedColumn.HX = l;
+                    }
+                    else if (tb.Name == "TShapedHY" || tb.Name == "LShapedHY")
+                    {
+                        if (l > vm.SelectedColumn.hY) vm.SelectedColumn.HY = l;
+                    }  
+                    else if (tb.Name == "TShapedhX" || tb.Name == "LShapedhX")
+                    {
+                        if (l < vm.SelectedColumn.HX) vm.SelectedColumn.hX = l;
+                    }
+                    else if (tb.Name == "TShapedhY" || tb.Name == "LShapedhY")
+                    {
+                        if (l < vm.SelectedColumn.HY) vm.SelectedColumn.hY = l;
+                    }
+                    vm.UpdateDesign();
                 }
-                vm.UpdateDesign();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -198,12 +249,19 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double c = Convert.ToDouble(tb.Text);
-            if(c != vm.SelectedColumn.CoverToLinks)
+            try
             {
-                vm.SelectedColumn.CoverToLinks = c;
-                vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade;
-                vm.UpdateDesign();
+                double c = Convert.ToDouble(tb.Text);
+                if (c != vm.SelectedColumn.CoverToLinks)
+                {
+                    vm.SelectedColumn.CoverToLinks = c;
+                    vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -211,12 +269,19 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double val = Convert.ToDouble(tb.Text);
-            if (val != vm.SelectedColumn.CustomConcreteGrade.E)
+            try
             {
-                vm.SelectedColumn.CustomConcreteGrade.E = val;
-                vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade;
-                vm.UpdateDesign();
+                double val = Convert.ToDouble(tb.Text);
+                if (val != vm.SelectedColumn.CustomConcreteGrade.E)
+                {
+                    vm.SelectedColumn.CustomConcreteGrade.E = val;
+                    vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -224,11 +289,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double val = Convert.ToDouble(tb.Text);
-            if (val != vm.SelectedColumn.CustomConcreteGrade.Fc)
+            try
             {
-                vm.SelectedColumn.CustomConcreteGrade.Fc = val;
-                vm.UpdateDesign();
+                double val = Convert.ToDouble(tb.Text);
+                if (val != vm.SelectedColumn.CustomConcreteGrade.Fc)
+                {
+                    vm.SelectedColumn.CustomConcreteGrade.Fc = val;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -236,12 +308,19 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double val = Convert.ToDouble(tb.Text);
-            if (val != vm.SelectedColumn.CustomSteelGrade.E)
+            try
             {
-                vm.SelectedColumn.CustomSteelGrade.E = val;
-                vm.SelectedColumn.SteelGrade = vm.SelectedColumn.CustomSteelGrade;
-                vm.UpdateDesign();
+                double val = Convert.ToDouble(tb.Text);
+                if (val != vm.SelectedColumn.CustomSteelGrade.E)
+                {
+                    vm.SelectedColumn.CustomSteelGrade.E = val;
+                    vm.SelectedColumn.SteelGrade = vm.SelectedColumn.CustomSteelGrade;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -249,11 +328,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double val = Convert.ToDouble(tb.Text);
-            if (val != vm.SelectedColumn.CustomSteelGrade.Fy)
+            try
             {
-                vm.SelectedColumn.CustomSteelGrade.Fy = val;
-                vm.UpdateDesign();
+                double val = Convert.ToDouble(tb.Text);
+                if (val != vm.SelectedColumn.CustomSteelGrade.Fy)
+                {
+                    vm.SelectedColumn.CustomSteelGrade.Fy = val;
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -262,11 +348,18 @@ namespace ColumnDesign
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
             Column col = vm.SelectedColumn;
-            double p = Convert.ToDouble(tb.Text);
-            if (p != col.SelectedLoad.P)
+            try
             {
-                col.SelectedLoad.P = p;
-                vm.UpdateLoad();
+                double p = Convert.ToDouble(tb.Text);
+                if (p != col.SelectedLoad.P)
+                {
+                    col.SelectedLoad.P = p;
+                    vm.UpdateLoad();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -274,11 +367,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double m = Convert.ToDouble(tb.Text);
-            if (m != vm.SelectedColumn.SelectedLoad.MxTop)
+            try
             {
-                vm.SelectedColumn.SelectedLoad.MxTop = m;
-                vm.UpdateLoad();
+                double m = Convert.ToDouble(tb.Text);
+                if (m != vm.SelectedColumn.SelectedLoad.MxTop)
+                {
+                    vm.SelectedColumn.SelectedLoad.MxTop = m;
+                    vm.UpdateLoad();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -286,11 +386,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double m = Convert.ToDouble(tb.Text);
-            if(m != vm.SelectedColumn.SelectedLoad.MxBot)
+            try
             {
-                vm.SelectedColumn.SelectedLoad.MxBot = m;
-                vm.UpdateLoad();
+                double m = Convert.ToDouble(tb.Text);
+                if (m != vm.SelectedColumn.SelectedLoad.MxBot)
+                {
+                    vm.SelectedColumn.SelectedLoad.MxBot = m;
+                    vm.UpdateLoad();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -298,11 +405,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double m = Convert.ToDouble(tb.Text);
-            if(m != vm.SelectedColumn.SelectedLoad.MyTop)
+            try
             {
-                vm.SelectedColumn.SelectedLoad.MyTop = m;
-                vm.UpdateLoad();
+                double m = Convert.ToDouble(tb.Text);
+                if (m != vm.SelectedColumn.SelectedLoad.MyTop)
+                {
+                    vm.SelectedColumn.SelectedLoad.MyTop = m;
+                    vm.UpdateLoad();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -310,11 +424,18 @@ namespace ColumnDesign
         {
             TextBox tb = sender as TextBox;
             ViewModel vm = this.DataContext as ViewModel;
-            double m = Convert.ToDouble(tb.Text);
-            if(m != vm.SelectedColumn.SelectedLoad.MyBot)
+            try
             {
-                vm.SelectedColumn.SelectedLoad.MyBot = m;
-                vm.UpdateLoad();
+                double m = Convert.ToDouble(tb.Text);
+                if (m != vm.SelectedColumn.SelectedLoad.MyBot)
+                {
+                    vm.SelectedColumn.SelectedLoad.MyBot = m;
+                    vm.UpdateLoad();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         
@@ -358,6 +479,8 @@ namespace ColumnDesign
             RectangularCB.IsChecked = (cb == RectangularCB) ? true : false;
             CircularCB.IsChecked = (cb == CircularCB) ? true : false;
             PolygonalCB.IsChecked = (cb == PolygonalCB) ? true : false;
+            LShapedCB.IsChecked = (cb == LShapedCB) ? true : false;
+            TShapedCB.IsChecked = (cb == TShapedCB) ? true : false;
 
             RectDepth.IsEnabled = RectangularCB.IsChecked ?? false;
             RectWidth.IsEnabled = RectangularCB.IsChecked ?? false;
@@ -368,6 +491,16 @@ namespace ColumnDesign
             LShapedhX.IsEnabled = LShapedCB.IsChecked ?? false;
             LShapedHY.IsEnabled = LShapedCB.IsChecked ?? false;
             LShapedhY.IsEnabled = LShapedCB.IsChecked ?? false;
+            TShapedHX.IsEnabled = TShapedCB.IsChecked ?? false;
+            TShapedhX.IsEnabled = TShapedCB.IsChecked ?? false;
+            TShapedHY.IsEnabled = TShapedCB.IsChecked ?? false;
+            TShapedhY.IsEnabled = TShapedCB.IsChecked ?? false;
+
+            RectangularSection.Visibility = (RectangularCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
+            CircularSection.Visibility = (CircularCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
+            PolygonalSection.Visibility = (PolygonalCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
+            LShapedSection.Visibility = (LShapedCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
+            TShapedSection.Visibility = (TShapedCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
 
             //FireDesignMethodCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
             FireCurveCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
@@ -376,7 +509,9 @@ namespace ColumnDesign
             Column c = vm.SelectedColumn;
             
             if (RectangularCB.IsChecked ?? false)
+            {
                 c.Shape = GeoShape.Rectangular;
+            }
             else if (CircularCB.IsChecked ?? false)
             {
                 c.Shape = GeoShape.Circular;
@@ -395,9 +530,15 @@ namespace ColumnDesign
                 if (c.FireDesignMethod == FDesignMethod.Isotherm_500 || c.FireDesignMethod == FDesignMethod.Zone_Method)
                     FireDesignMethodCB.SelectedItem = "Table";
             }
+            else if (TShapedCB.IsChecked ?? false)
+            {
+                c.Shape = GeoShape.TShaped;
+                if (c.FireDesignMethod == FDesignMethod.Isotherm_500 || c.FireDesignMethod == FDesignMethod.Zone_Method)
+                    FireDesignMethodCB.SelectedItem = "Table";
+            }
 
             // Update the fire design methods
-            
+
             switch (c.Shape)
             {
                 case (GeoShape.Rectangular):
@@ -410,6 +551,9 @@ namespace ColumnDesign
                     vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString() };
                     break;
                 case (GeoShape.LShaped):
+                    vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString(), FDesignMethod.Advanced.ToString() };
+                    break;
+                case (GeoShape.TShaped):
                     vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString(), FDesignMethod.Advanced.ToString() };
                     break;
 
@@ -496,9 +640,41 @@ namespace ColumnDesign
         private void ChangeGeometryVisibility(object sender, RoutedEventArgs e)
         {
             if (GeometrySection.Visibility == Visibility.Visible)
+            {
                 GeometrySection.Visibility = Visibility.Collapsed;
+                //var converter = new ImageSourceConverter();
+                //GeometryEye.Source = (ImageSource)converter.ConvertFromString("/Resources/ClosedEye.png");
+            }
             else if (GeometrySection.Visibility == Visibility.Collapsed)
+            {
                 GeometrySection.Visibility = Visibility.Visible;
+                //var converter = new ImageSourceConverter();
+                //GeometryEye.Source = (ImageSource)converter.ConvertFromString("/Resources/Eye.png");
+            }
+        }
+
+        private void ChangeMaterialVisibility(object sender, RoutedEventArgs e)
+        {
+            if (MaterialSection.Visibility == Visibility.Visible)
+                MaterialSection.Visibility = Visibility.Collapsed;
+            else if (MaterialSection.Visibility == Visibility.Collapsed)
+                MaterialSection.Visibility = Visibility.Visible;
+        }
+
+        private void ChangeLoadsVisibility(object sender, RoutedEventArgs e)
+        {
+            if (LoadsSection.Visibility == Visibility.Visible)
+                LoadsSection.Visibility = Visibility.Collapsed;
+            else if (LoadsSection.Visibility == Visibility.Collapsed)
+                LoadsSection.Visibility = Visibility.Visible;
+        }
+
+        private void ChangeDesignVisibility(object sender, RoutedEventArgs e)
+        {
+            if (DesignSection.Visibility == Visibility.Visible)
+                DesignSection.Visibility = Visibility.Collapsed;
+            else if (DesignSection.Visibility == Visibility.Collapsed)
+                DesignSection.Visibility = Visibility.Visible;
         }
 
     }

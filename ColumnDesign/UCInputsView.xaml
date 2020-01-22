@@ -47,26 +47,39 @@
                             BorderBrush="Transparent"
                             Background="Transparent">
                             <Image 
-                                Source="Resources/Eye.png"
-                                Width="16"/>
+                                Name="GeometryEye"
+                                Width="16">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=GeometrySection, Path=Visibility}" Value="Visible">
+                                                <Setter Property="Source" Value="Resources/Eye.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ElementName=GeometrySection, Path=Visibility}" Value="Collapsed">
+                                                <Setter Property="Source" Value="Resources/Closed_Eye.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
                         </Button>
 
                     </StackPanel>
 
                     <StackPanel Orientation="Vertical" Grid.Row="1" Name="GeometrySection">
 
-                        <StackPanel Orientation="Vertical">
-                            <StackPanel Grid.Row="1" Orientation="Horizontal" >
-                                <StackPanel Orientation="Vertical" Width="125">
-                                    <TextBlock Text="Length (mm) " Margin="5 5 0 5" />
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    <TextBox Text="{Binding SelectedColumn.Length}" Margin="0 5 5 0" Width="60" Height="21" LostFocus="UpdateLength"/>
-                                </StackPanel>
+                        <StackPanel Orientation="Horizontal" >
+                            <StackPanel Orientation="Vertical" Width="125">
+                                <TextBlock Text="Length (mm) " Margin="5 5 0 5" />
                             </StackPanel>
-
+                            <StackPanel Orientation="Vertical">
+                                <TextBox Text="{Binding SelectedColumn.Length}" Margin="0 5 5 0" Width="60" Height="21" LostFocus="UpdateLength"/>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Vertical">
                             <CheckBox Name="RectangularCB" Content="Rectangular" Margin="2 5 0 2" IsChecked="{Binding SelectedColumn.IsRectangular, Mode=OneWay}" Checked="ShapeChanged"/>
-                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="RectangularSection">
                                 <StackPanel Orientation="Vertical" Width="115">
                                     <TextBlock Text="LX (mm) " Margin="5 4 0 2" />
                                     <TextBlock Text="LY (mm) " Margin="5 4 0 2" />
@@ -80,7 +93,7 @@
 
                         <StackPanel Orientation="Vertical">
                             <CheckBox Name="CircularCB" Content="Circular" Margin="2 5 0 2" IsChecked="{Binding SelectedColumn.IsCircular, Mode=OneWay}" Checked="ShapeChanged"/>
-                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="CircularSection">
                                 <StackPanel Orientation="Vertical" Width="115">
                                     <TextBlock Text="Diameter (mm) " Margin="5 2 0 2" />
                                 </StackPanel>
@@ -92,7 +105,7 @@
 
                         <StackPanel Orientation="Vertical">
                             <CheckBox Name="PolygonalCB" Content="Polygonal (regular)" Margin="2 5 0 5" IsChecked="{Binding SelectedColumn.IsPolygonal, Mode=OneWay}" Checked="ShapeChanged"/>
-                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="PolygonalSection">
                                 <StackPanel Orientation="Vertical" Width="115">
                                     <TextBlock Text="Edges (mm) " Margin="5 4 0 2" />
                                     <TextBlock Text="Radius (mm) " Margin="5 4 0 2" />
@@ -105,7 +118,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <CheckBox Name="LShapedCB" Content="L-Shaped" Margin="2 5 0 5" IsChecked="{Binding SelectedColumn.IsLShaped, Mode=OneWay}" Checked="ShapeChanged"/>
-                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="LShapedSection">
                                 <StackPanel Orientation="Vertical" Width="115">
                                     <TextBlock Text="HX (mm)" Margin="5 4 0 2"/>
                                     <TextBlock Text="hX (mm)" Margin="5 4 0 2"/>
@@ -113,10 +126,27 @@
                                     <TextBlock Text="hY (mm)" Margin="5 4 0 2"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical">
-                                    <TextBox Name="LShapedHX" Text="{Binding SelectedColumn.HX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
-                                    <TextBox Name="LShapedhX" Text="{Binding SelectedColumn.hX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
-                                    <TextBox Name="LShapedHY" Text="{Binding SelectedColumn.HY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
-                                    <TextBox Name="LShapedhY" Text="{Binding SelectedColumn.hY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLShape" IsEnabled="False"/>
+                                    <TextBox Name="LShapedHX" Text="{Binding SelectedColumn.HX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
+                                    <TextBox Name="LShapedhX" Text="{Binding SelectedColumn.hX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
+                                    <TextBox Name="LShapedHY" Text="{Binding SelectedColumn.HY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
+                                    <TextBox Name="LShapedhY" Text="{Binding SelectedColumn.hY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox Name="TShapedCB" Content="T-Shaped" Margin="2 5 0 5" IsChecked="{Binding SelectedColumn.IsTShaped, Mode=OneWay}" Checked="ShapeChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="TShapedSection">
+                                <StackPanel Orientation="Vertical" Width="115">
+                                    <TextBlock Text="HX (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="hX (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="HY (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="hY (mm)" Margin="5 4 0 2"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox Name="TShapedHX" Text="{Binding SelectedColumn.HX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
+                                    <TextBox Name="TShapedhX" Text="{Binding SelectedColumn.hX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
+                                    <TextBox Name="TShapedHY" Text="{Binding SelectedColumn.HY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
+                                    <TextBox Name="TShapedhY" Text="{Binding SelectedColumn.hY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateLTShape" IsEnabled="False"/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
@@ -144,9 +174,33 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Material" FontSize="12" FontWeight="SemiBold"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Material" FontSize="12" FontWeight="SemiBold"/>
+                        <Button
+                            Margin="5 0 0 0"
+                            Click="ChangeMaterialVisibility"
+                            BorderBrush="Transparent"
+                            Background="Transparent">
+                            <Image 
+                                Name="MaterialEye"
+                                Width="16">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=MaterialSection, Path=Visibility}" Value="Visible">
+                                                <Setter Property="Source" Value="Resources/Eye.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ElementName=MaterialSection, Path=Visibility}" Value="Collapsed">
+                                                <Setter Property="Source" Value="Resources/Closed_Eye.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </Button>
+                    </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" >
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Name="MaterialSection">
                         <StackPanel Orientation="Vertical" Width="125">
                             <TextBlock Text="Concrete grade " Margin="5 4 0 5"/>
                             <TextBlock Text="Young modulus (GPa)" Margin="5 4 0 5" />
@@ -167,12 +221,12 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <!--<StackPanel Grid.Row="2" Orientation="Horizontal">
                         <StackPanel Orientation="Vertical" Width="120">
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                         </StackPanel>
-                    </StackPanel>
+                    </StackPanel>-->
 
                 </Grid>
 
@@ -183,20 +237,42 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="0">
-                        <TextBlock Text="Loads" FontSize="12" FontWeight="SemiBold" Width="125"/>
+                        <TextBlock Text="Loads" FontSize="12" FontWeight="SemiBold" />
+                        <Button
+                            Margin="5 0 70 0"
+                            Click="ChangeLoadsVisibility"
+                            BorderBrush="Transparent"
+                            Background="Transparent">
+                            <Image 
+                                Name="LoadsEye"
+                                Width="16">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=LoadsSection, Path=Visibility}" Value="Visible">
+                                                <Setter Property="Source" Value="Resources/Eye.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ElementName=LoadsSection, Path=Visibility}" Value="Collapsed">
+                                                <Setter Property="Source" Value="Resources/Closed_Eye.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </Button>
                         <ComboBox
                             HorizontalAlignment="Right"
                             ItemsSource="{Binding SelectedColumn.LoadNames}"
                             SelectedValue="{Binding SelectedColumn.SelectedLoad.Name, Mode=OneWay}"
                             SelectionChanged="LoadSelectionChanged"
-                            Margin="0 4 0 0"
+                            Margin="0 0 0 0"
                             Width="Auto"
                             MinWidth="70"
                             MaxWidth="130"
                             Height="22"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Name="LoadsSection">
                         <StackPanel Orientation="Vertical" Width="125">
                             <TextBlock Text="Axial load (kN)" Margin="5 4 0 5"/>
                             <TextBlock Text="Mx top (kN.m) " Margin="5 4 0 5" />
@@ -221,9 +297,33 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="Design" FontSize="12" FontWeight="SemiBold"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Design" FontSize="12" FontWeight="SemiBold"/>
+                        <Button
+                            Margin="5 0 0 0"
+                            Click="ChangeDesignVisibility"
+                            BorderBrush="Transparent"
+                            Background="Transparent">
+                            <Image 
+                                Name="DesignEye"
+                                Width="16">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=DesignSection, Path=Visibility}" Value="Visible">
+                                                <Setter Property="Source" Value="Resources/Eye.png"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ElementName=DesignSection, Path=Visibility}" Value="Collapsed">
+                                                <Setter Property="Source" Value="Resources/Closed_Eye.png"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </Button>
+                    </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Name="DesignSection">
                         <StackPanel Orientation="Vertical" Width="125">
                             <TextBlock Text="Cover to links (mm)" Margin="5 4 0 5"/>
                             <TextBlock Text="Eff. length factor " Margin="5 4 0 5" />

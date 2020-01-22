@@ -397,6 +397,7 @@
     <Resource Include="Resources\FireInfo2.png" />
     <Resource Include="Resources\fire.gif" />
     <Resource Include="Resources\Eye.png" />
+    <Resource Include="Resources\Closed_Eye.png" />
     <Content Include="Resources\InteractionDiagram3D.dll" />
     <Content Include="Resources\InteractionDiagram3D_Windows.dll" />
     <Content Include="Resources\MWGeometry.dll" />

@@ -57,6 +57,9 @@
                             <DataTrigger Binding="{Binding Shape}" Value="LShaped">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="TShaped">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Polyline.Style>
@@ -68,7 +71,8 @@
             <Ellipse Height="{Binding Diameter}" Width="{Binding Diameter}"  Fill="LightGray"
                      Canvas.Left="{Binding CircCenter.X}"
                      Canvas.Top="{Binding CircCenter.Y}"
-                     SizeChanged="LayoutSizeChanged">
+                     SizeChanged="LayoutSizeChanged"
+                     RenderTransformOrigin="0.5 0.5">
                 <Ellipse.Style>
                     <Style TargetType="Ellipse">
                         <Style.Triggers>
@@ -82,6 +86,9 @@
                                 <Setter Property="Visibility" Value="Hidden"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Shape}" Value="LShaped">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="TShaped">
                                 <Setter Property="Visibility" Value="Hidden"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -196,6 +203,9 @@
                             <DataTrigger Binding="{Binding Shape}" Value="LShaped">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="TShaped">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
@@ -227,6 +237,9 @@
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Shape}" Value="LShaped">
                                 <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Shape}" Value="TShaped">
+                                <Setter Property="Visibility" Value="Hidden"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

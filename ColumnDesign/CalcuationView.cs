@@ -44,6 +44,8 @@ namespace ColumnDesign
                 As = c.Edges * Math.PI * Math.Pow(c.BarDiameter / 2.0, 2);
             else if (c.Shape == GeoShape.LShaped)
                 As = (8 + (c.NRebarX - 3) * 2 + (c.NRebarY - 3) * 2) * Math.PI * Math.Pow(c.BarDiameter / 2.0, 2);
+            else if (c.Shape == GeoShape.TShaped)
+                As = c.Nrebars * Math.PI * Math.Pow(c.BarDiameter / 2.0, 2);
 
             FormulaeVM f1 = new FormulaeVM();
             f1.Narrative = "Min / Max steel";
@@ -650,7 +652,7 @@ namespace ColumnDesign
                 fy.Expression.Add(@"I_y = \frac{\pi D^4}{64} = " + Math.Round(I/1e4) + " cm^4");
                 return new double[] { I, I, Math.PI * Math.Pow(col.Diameter/2.0,2) };
             }
-            else if(col.Shape == GeoShape.Polygonal || col.Shape == GeoShape.LShaped)
+            else if(col.Shape == GeoShape.Polygonal || col.Shape == GeoShape.LShaped || col.Shape == GeoShape.TShaped)
             {
                 double Ix = 0;
                 double Iy = 0;
@@ -689,6 +691,8 @@ namespace ColumnDesign
                 return col.Edges * Math.Pow(col.Radius, 2) * Math.Cos(Math.PI / col.Edges) * Math.Sin(Math.PI / col.Edges);
             else if (col.Shape == GeoShape.LShaped)
                 return col.HX * col.HY - (col.HX - col.hX) * (col.HY - col.hY);
+            else if (col.Shape == GeoShape.TShaped)
+                return col.HX * col.HY - (col.HX - col.hX) * (col.HY - col.hY);
             return 0;
         }
 
@@ -703,6 +707,8 @@ namespace ColumnDesign
                 n = col.Edges;
             else if (col.Shape == GeoShape.LShaped)
                 n = 8 + (col.NRebarX - 3) * 2 + (col.NRebarY - 3) * 2;
+            else if (col.Shape == GeoShape.TShaped)
+                n = col.Nrebars;
             return n * Math.PI * Math.Pow(col.BarDiameter / 2.0, 2);
         }
 
@@ -733,6 +739,8 @@ namespace ColumnDesign
             }
             else if (col.Shape == GeoShape.LShaped)
                 return new double[] { col.HX, col.HY };
+            else if (col.Shape == GeoShape.TShaped)
+                return new double[] { col.HX, col.HY };
             return null;
         }
 
@@ -748,6 +756,8 @@ namespace ColumnDesign
                 return n * col.Diameter * Math.Sin(Math.PI / n);
             }
             else if (col.Shape == GeoShape.LShaped)
+                return 2 * (col.HX + col.HY);
+            else if (col.Shape == GeoShape.TShaped)
                 return 2 * (col.HX + col.HY);
             return 0;
         }
@@ -818,7 +828,7 @@ namespace ColumnDesign
                     f0.Status = CalcStatus.FAIL;
                 }
             }
-            else if (c.Shape == GeoShape.LShaped)
+            else if (c.Shape == GeoShape.LShaped || c.Shape == GeoShape.TShaped)
             {
                 if (c.sx1 < smin || c.sx2 < smin || c.sy1 < smin || c.sy2 < smin)
                 {

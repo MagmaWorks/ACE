@@ -185,6 +185,10 @@ namespace ColumnDesign
             {
                 ContourPoints = new PointCollection(column.GetLShapedContour().Select(p => new Point(p.X * sf, p.Y * sf)));
             }
+            else if (shape == GeoShape.TShaped)
+            {
+                ContourPoints = new PointCollection(column.GetTShapedContour().Select(p => new Point(p.X * sf, p.Y * sf)));
+            }
 
             rebars = new List<RebarObj>();
             if(shape == GeoShape.Rectangular)
@@ -239,6 +243,15 @@ namespace ColumnDesign
             {
                 rebars = new List<RebarObj>();
                 List<Point> pts = column.GetLShapedRebars();
+                for (int i = 0; i < pts.Count; i++)
+                {
+                    rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+                }
+            }
+            else if (shape == GeoShape.TShaped)
+            {
+                rebars = new List<RebarObj>();
+                List<Point> pts = column.GetTShapedRebars();
                 for (int i = 0; i < pts.Count; i++)
                 {
                     rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
@@ -370,7 +383,7 @@ namespace ColumnDesign
                     height = 2 * column.Radius;
                     width = 2 * column.Radius;
                 }
-                else if (column.Shape == GeoShape.LShaped)
+                else if (column.Shape == GeoShape.LShaped || column.Shape == GeoShape.TShaped)
                 {
                     height = column.HY;
                     width = column.HX;
