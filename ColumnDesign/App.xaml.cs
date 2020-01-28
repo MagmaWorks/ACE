@@ -74,7 +74,8 @@ namespace ColumnDesign
                 CustomConcreteGrade = new Concrete("Custom", 50, 37),
                 ConcreteGrade = new Concrete("50/60", 50, 37),
                 SelectedLoad = new Load() { Name = "default", P = 5000 },
-                Loads = new List<Load>() { new Load() { Name = "default", P = 5000 } }
+                Loads = new List<Load>() { new Load() { Name = "default", P = 5000 } },
+                FireLoad = new Load() { Name = "default", P = 5000 } 
                 //P = 5000
             };
 

@@ -698,7 +698,7 @@ namespace ColumnDesign
 
         private static (double,bool?,bool?,bool?,bool?,bool?) Objective(Column c, double carbonRef, double costRef, double Wcost, double Fcost, double Wcarb, double Fcarb, bool allLoads)
         {
-            c.GetInteractionDiagram();
+            
             
             bool? minRebarCheck = c.CheckMinRebarNo();
             bool? minmaxCheck = null;
@@ -716,12 +716,21 @@ namespace ColumnDesign
                         fireCheck = c.CheckFire();
                         if(fireCheck == true)
                         {
+                            c.GetInteractionDiagram();
                             capacityCheck = c.isInsideCapacity(allLoads);
+                            Console.WriteLine("coucou");
                         }
+                        else
+                            System.Threading.Thread.Sleep(10);
                     }
+                    else
+                        System.Threading.Thread.Sleep(10);
                 }
+                else
+                    System.Threading.Thread.Sleep(10);
             }
-            
+            else
+                System.Threading.Thread.Sleep(10);
 
             double penCapacity =  capacityCheck == true ? 1 : (capacityCheck == null ? 5 : 10);
             double penFire =  fireCheck == true ? 1 : (fireCheck == null ? 5 : 10);

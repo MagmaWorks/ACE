@@ -245,6 +245,22 @@ namespace ColumnDesign
             }
         }
 
+        private void UpdateEffLength(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            ViewModel vm = this.DataContext as ViewModel;
+            try
+            {
+                double c = Convert.ToDouble(tb.Text);
+                if (c != vm.SelectedColumn.EffectiveLength)
+                {
+                    vm.SelectedColumn.EffectiveLength = c;
+                    vm.UpdateDesign();
+                }
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
         private void UpdateCover(object sender, RoutedEventArgs e)
         {
             TextBox tb = sender as TextBox;
@@ -255,7 +271,7 @@ namespace ColumnDesign
                 if (c != vm.SelectedColumn.CoverToLinks)
                 {
                     vm.SelectedColumn.CoverToLinks = c;
-                    vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade;
+                    //vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade;
                     vm.UpdateDesign();
                 }
             }

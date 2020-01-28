@@ -303,25 +303,26 @@ namespace ColumnDesign
         
         private void GetContourPolygons()
         {
-            double h = column.LY * sf / tempContours.Count;
+            double h = 0.8 * winHeight / TempContours.Count; //column.LY * sf / tempContours.Count;
             tempContours.ToList().ForEach(d => d.DisplayPoints = new PointCollection(d.Points.Select(x => new Point(x.X * sf, x.Y * sf))));
-            //tempContours.ToList().ForEach(d =>
-            //    d.DisplayPoints = new PointCollection(
-            //        d.Points.Select(p => new Point((column.LX / 2 - p.X * 1e3) * sf, (column.LY / 2 - p.Y * 1e3) * sf))
-            //        .Concat(d.Points.Select(p => new Point((column.LX / 2 - p.X * 1e3) * sf, -(column.LY / 2 - p.Y * 1e3) * sf)).Reverse())
-            //        .Concat(d.Points.Select(p => new Point(-(column.LX / 2 - p.X * 1e3) * sf, -(column.LY / 2 - p.Y * 1e3) * sf)))
-            //        .Concat(d.Points.Select(p => new Point(-(column.LX / 2 - p.X * 1e3) * sf, (column.LY / 2 - p.Y * 1e3) * sf)).Reverse())
-            //        ));
             tempContours[0].ContourPolygons = tempContours[0].DisplayPoints;
             tempContours[0].Color = new SolidColorBrush(Rainbow(0.67));
+            //tempContours[0].ScaleRectangles = new PointCollection(new List<Point>()
+            //    {
+            //        new Point(winWidth / 2 - 100,column.LY/2*sf),
+            //        new Point(winWidth / 2 - 80,column.LY/2*sf),
+            //        new Point(winWidth / 2 - 80,column.LY/2*sf - h),
+            //        new Point(winWidth / 2 - 100,column.LY/2*sf - h)
+            //    });
             tempContours[0].ScaleRectangles = new PointCollection(new List<Point>()
                 {
-                    new Point(winWidth / 2 - 100,column.LY/2*sf),
-                    new Point(winWidth / 2 - 80,column.LY/2*sf),
-                    new Point(winWidth / 2 - 80,column.LY/2*sf - h),
-                    new Point(winWidth / 2 - 100,column.LY/2*sf - h)
+                    new Point(winWidth / 2 - 100,0.45*winHeight),
+                    new Point(winWidth / 2 - 80,0.45*winHeight),
+                    new Point(winWidth / 2 - 80,0.45*winHeight - h),
+                    new Point(winWidth / 2 - 100,0.45*winHeight - h)
                 });
-            tempContours[0].KeyPos = new Point(winWidth / 2 - 70, column.LY / 2 * sf - h - 5);
+            //tempContours[0].KeyPos = new Point(winWidth / 2 - 70, column.LY / 2 * sf - h - 5);
+            tempContours[0].KeyPos = new Point(winWidth / 2 - 70, 0.45 * winHeight - h - 5);
             tempContours[0].Level = TempLevels[0];
             for (int i = 1; i < tempContours.Count; i++)
             {
@@ -329,14 +330,22 @@ namespace ColumnDesign
                     tempContours[i].DisplayPoints.Concat(tempContours[i - 1].DisplayPoints.Reverse())
                     );
                 tempContours[i].Color = new SolidColorBrush(Rainbow( ( 1.0 - i * 1.0 / (tempContours.Count - 1))/ 1.5));
+                //tempContours[i].ScaleRectangles = new PointCollection(new List<Point>()
+                //    {
+                //        new Point(winWidth / 2 - 100, column.LY/2*sf - i * h),
+                //        new Point(winWidth / 2 - 80, column.LY/2*sf - i * h),
+                //        new Point(winWidth / 2 - 80, column.LY/2*sf - (i+1) * h),
+                //        new Point(winWidth / 2 - 100, column.LY/2*sf - (i+1) * h)
+                //    });
                 tempContours[i].ScaleRectangles = new PointCollection(new List<Point>()
                     {
-                        new Point(winWidth / 2 - 100, column.LY/2*sf - i * h),
-                        new Point(winWidth / 2 - 80, column.LY/2*sf - i * h),
-                        new Point(winWidth / 2 - 80, column.LY/2*sf - (i+1) * h),
-                        new Point(winWidth / 2 - 100, column.LY/2*sf - (i+1) * h)
+                        new Point(winWidth / 2 - 100, 0.45*winHeight - i * h),
+                        new Point(winWidth / 2 - 80, 0.45*winHeight - i * h),
+                        new Point(winWidth / 2 - 80, 0.45*winHeight - (i+1) * h),
+                        new Point(winWidth / 2 - 100, 0.45*winHeight - (i+1) * h)
                     });
-                tempContours[i].KeyPos = new Point(winWidth / 2 - 70, column.LY / 2 * sf - (i + 1) * h - 5);
+                //tempContours[i].KeyPos = new Point(winWidth / 2 - 70, column.LY / 2 * sf - (i + 1) * h - 5);
+                tempContours[i].KeyPos = new Point(winWidth / 2 - 70, 0.45 * winHeight - (i + 1) * h - 5);
                 tempContours[i].Level = TempLevels[i];
             }
             

@@ -340,8 +340,8 @@
                             <!--<CheckBox IsChecked="false"  Content="Advanced fire design" Margin="0 4 5 0" Click="FireDesignChanged"/>-->
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
-                            <TextBox Text="{Binding SelectedColumn.CoverToLinks}" Margin="0 5 5 0" Width="70" Height="20" LostFocus="UpdateCover"/>
-                            <TextBox Text="{Binding SelectedColumn.EffectiveLength}" Margin="0 5 5 0" Width="70" Height="21" LostFocus="DesignChanged"/>
+                            <TextBox Text="{Binding SelectedColumn.CoverToLinks, Mode=OneTime}" Margin="0 5 5 0" Width="70" Height="20" LostFocus="UpdateCover"/>
+                            <TextBox Text="{Binding SelectedColumn.EffectiveLength, Mode=OneTime}" Margin="0 5 5 0" Width="70" Height="21" LostFocus="UpdateEffLength"/>
                             <!--<ComboBox ItemsSource="{Binding SteelGrades}" Margin="0 5 5 0" LX="60" Height="21" />-->
                             <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.BarDiameter}" LostFocus="DesignChanged" IsEditable="True"
                                   Margin="0 4 5 0" Width="70" Height="21"/>

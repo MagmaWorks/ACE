@@ -186,6 +186,7 @@ namespace ColumnDesign
             col.CustomSteelGrade = this.CustomSteelGrade;
             col.SelectedLoad = this.SelectedLoad;
             col.Loads = this.Loads.Select(l => l.Clone()).ToList();
+            col.FireLoad = this.FireLoad;
 
             col.NRebarX = this.NRebarX;
             col.NRebarY = this.NRebarY;
