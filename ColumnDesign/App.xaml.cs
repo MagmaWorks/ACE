@@ -30,7 +30,6 @@ namespace ColumnDesign
 
             //    filePath = di.FullName + "\\columnData.json";
             //}
-            
             if(File.Exists(filePath))
             {
                 filePath.Substring(0, filePath.Length - 1);
@@ -45,8 +44,20 @@ namespace ColumnDesign
                     var fileContents = reader.ReadToEnd();
                     cols = JsonConvert.DeserializeObject<List<ETABSColumnDesign_Plugin.Column>>(fileContents, settings).Select(c => new Column(c)).ToList();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    try
+                    {
+                        var settings = new JsonSerializerSettings()
+                        {
+                            TypeNameHandling = TypeNameHandling.Objects,
+                            PreserveReferencesHandling = PreserveReferencesHandling.Objects
+                        };
+                        reader = new StreamReader(filePath);
+                        var fileContents = reader.ReadToEnd();
+                        cols = new List<Column> { JsonConvert.DeserializeObject<Column>(fileContents, settings) };
+                    }
+                    catch { }
                     //var settings = new JsonSerializerSettings()
                     //{
                     //    TypeNameHandling = TypeNameHandling.Objects,
@@ -82,6 +93,7 @@ namespace ColumnDesign
             if(cols.Where(c => c.Name == "default").Count() == 0) cols.Insert(0, customCol);
 
             cols.ForEach(c => c.FireLoad = c.SelectedLoad.Clone());
+            cols.ForEach(c => c.FDMStr = "Table");
 
             mainWindow.myViewModel.MyColumns = cols;
 

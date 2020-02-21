@@ -20,6 +20,7 @@ namespace FireDesign
         int NT = 1800;
         int NX = 30;
         int NY = 30;
+
         public Matrix<double> Temp;
         public Vector<double> X;
         public Vector<double> Y;
@@ -34,6 +35,12 @@ namespace FireDesign
         //public List<Matrix<double>> Contours;
         public List<Contour> ContourPts { get; set; } = new List<Contour>();
         public List<double> Levels { get; set; } = new List<double>();
+
+        // constructor for deserialization
+        public TemperatureProfile()
+        {
+
+        }
 
         // For rectangular sections
         public TemperatureProfile(double lx, double ly, double time, FCurve fcurve)

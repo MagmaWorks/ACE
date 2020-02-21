@@ -315,7 +315,7 @@ namespace ColumnDesign
             f5.Expression.Add(@"r_{mx} = " + Math.Round(rmx,3));
             f5.Expression.Add(@"C = 1.7 - r_mx = "+ Math.Round(C, 3));
             f5.Expression.Add(@"n = N_{Ed} / \left( A_cf_{cd} \right) = "+ Math.Round(n,3));
-            f5.Expression.Add(@"\lambda_{limx} = 20ABC/\sqrt{n} = " + Math.Round(lambdaxlim,1));
+            f5.Expression.Add(@"\lambda_{xlim} = 20ABC/\sqrt{n} = " + Math.Round(lambdaxlim,1));
             if (lambdax < lambdaxlim)
             {
                 f5.Expression.Add(@"\lambda_x < \lambda_{xlim}");
@@ -353,7 +353,7 @@ namespace ColumnDesign
             f7.Expression.Add(@"r_{my} = " + Math.Round(rmy, 3));
             f7.Expression.Add(@"C = 1.7 - r_{my} = " + Math.Round(C, 3));
             f7.Expression.Add(@"n = N_{Ed} / \left( A_cf_{cd} \right) = " + Math.Round(n, 3));
-            f7.Expression.Add(@"\lambda_{limx} = 20ABC/\sqrt{n} = " + Math.Round(lambdaylim, 1));
+            f7.Expression.Add(@"\lambda_{ylim} = 20ABC/\sqrt{n} = " + Math.Round(lambdaylim, 1));
             if (lambday < lambdaylim)
             {
                 f7.Expression.Add(@"\lambda_y < \lambda_{ylim}");
@@ -593,6 +593,26 @@ namespace ColumnDesign
                 maxX = concPoints.Max(p => p.X);
                 minY = concPoints.Min(p => p.Y);
                 maxY = concPoints.Max(p => p.Y);
+            }
+            else if(col.Shape == GeoShape.LShaped)
+            {
+                rebars = col.GetLShapedRebars().Select(x => new MWPoint2D(x.X, x.Y)).ToList();
+                var p = col.GetLShapeCOG();
+                bary = new MWPoint2D(p.X, p.Y);
+                minX = -col.HX / 2;
+                maxX = col.HX / 2;
+                minY = -col.HY / 2;
+                maxY = col.HY / 2;
+            }
+            else if(col.Shape == GeoShape.TShaped)
+            {
+                rebars = col.GetTShapedRebars().Select(x => new MWPoint2D(x.X, x.Y)).ToList();
+                var p = col.GetTShapeCOG();
+                bary = new MWPoint2D(p.X, p.Y);
+                minX = -col.HX / 2;
+                maxX = col.HX / 2;
+                minY = -col.HY / 2;
+                maxY = col.HY / 2;
             }
 
             double area = Math.PI * Math.Pow(col.BarDiameter / 2.0, 2);

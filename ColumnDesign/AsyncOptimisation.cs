@@ -18,19 +18,21 @@ namespace ColumnDesign
     public static class AsyncOptimisation
     {
         public static Column Optimise(BackgroundWorker worker, Column column, bool[] shapes, bool[] activ, string[] mins, string[] maxs, string[] incrs, List<Concrete> concreteGrades, List<int> barDiameters,
-            List<int> linkDiameters, int Nmax, double Tinit, double[] Ws, double[] Fs, double alpha, bool square, double variance = 1, bool allLoads = false)
+            List<int> linkDiameters, int Nmax, double Tinit, double[] Ws, double[] Fs, double alpha, bool square, double variance = 1, bool allLoads = false, bool[] fireMethods = null)
 
         {
             double costRef = column.GetCost()[3];
 
             double carbonRef = column.GetEmbodiedCarbon()[2];
 
+            fireMethods = fireMethods ?? new bool[] { true, false, false, false };
+
             double Wcarb = Ws[1];
             double Wcost = Ws[0];
             double Fcarb = Fs[1];
             double Fcost = Fs[0];
 
-            var chekcs = Objective(column, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads);
+            var chekcs = Objective(column, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads, fireMethods);
             double f = chekcs.Item1;
             column.CapacityCheck = chekcs.Item2;
             column.FireCheck = chekcs.Item3;
@@ -114,7 +116,7 @@ namespace ColumnDesign
                 }
 
                 // delta f
-                var res = Objective(ColTemp, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads);
+                var res = Objective(ColTemp, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads, fireMethods);
                 ColTemp.CapacityCheck = res.Item2;
                 ColTemp.FireCheck = res.Item3;
                 ColTemp.SpacingCheck = res.Item4;
@@ -161,19 +163,21 @@ namespace ColumnDesign
         }
 
         public static Column Optimise(Column column, bool[] activ, string[] mins, string[] maxs, string[] incrs, List<Concrete> concreteGrades, List<int> barDiameters,
-            List<int> linkDiameters, int Nmax, double Tinit, double[] Ws, double[] Fs, double alpha, double variance = 1, bool allLoads = false)
+            List<int> linkDiameters, int Nmax, double Tinit, double[] Ws, double[] Fs, double alpha, double variance = 1, bool allLoads = false, bool[] fireMethods = null)
 
         {
             double costRef = column.GetCost()[3];
 
             double carbonRef = column.GetEmbodiedCarbon()[2];
 
+            fireMethods = fireMethods ?? new bool[] { true, false, false, false };
+
             double Wcarb = Ws[1];
             double Wcost = Ws[0];
             double Fcarb = Fs[1];
             double Fcost = Fs[0];
 
-            double f = Objective(column, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads).Item1;
+            double f = Objective(column, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads, fireMethods).Item1;
 
             double T = Tinit;
             int t = 0;
@@ -232,7 +236,7 @@ namespace ColumnDesign
                 }
 
                 // delta f
-                var res = Objective(ColTemp, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads);
+                var res = Objective(ColTemp, carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads, fireMethods);
                 ColTemp.CapacityCheck = res.Item2;
                 ColTemp.FireCheck = res.Item3;
                 ColTemp.SpacingCheck = res.Item4;
@@ -270,7 +274,7 @@ namespace ColumnDesign
         }
 
         public static void OptimiseGroup(BackgroundWorker worker, List<Column> columns, int[] indices, int Ndmin, int Ndmax, int Nmax, double Tinit, 
-            double[] Ws, double[] Fs, double alpha, double variance, List<Concrete> concreteGrades, List<int> barDiameters, List<int> linkDiameters, OptiState initialState, bool allLoads)
+            double[] Ws, double[] Fs, double alpha, double variance, List<Concrete> concreteGrades, List<int> barDiameters, List<int> linkDiameters, OptiState initialState, bool allLoads, bool[] fireMethods = null)
         {
             int Nc = columns.Count;
 
@@ -285,9 +289,10 @@ namespace ColumnDesign
             double Fcost = Fs[0];
             double Fcarb = Fs[1];
             int Nceff = indices.Length;
+            fireMethods = fireMethods ?? new bool[] { true, false, false, false };
 
             for (int i = 0; i < Nceff; i++)
-                columns[indices[i]].Cost = Objective(columns[i], carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads).Item1;
+                columns[indices[i]].Cost = Objective(columns[i], carbonRef, costRef, Wcost, Fcost, Wcarb, Fcarb, allLoads, fireMethods).Item1;
             
 
             Column[] optiColumns = new Column[Nceff];
@@ -696,7 +701,7 @@ namespace ColumnDesign
             }
         }
 
-        private static (double,bool?,bool?,bool?,bool?,bool?) Objective(Column c, double carbonRef, double costRef, double Wcost, double Fcost, double Wcarb, double Fcarb, bool allLoads)
+        private static (double,bool?,bool?,bool?,bool?,bool?) Objective(Column c, double carbonRef, double costRef, double Wcost, double Fcost, double Wcarb, double Fcarb, bool allLoads, bool[] fireM)
         {
             
             
@@ -704,6 +709,10 @@ namespace ColumnDesign
             bool? minmaxCheck = null;
             bool? spacingCheck = null;
             bool? fireCheck = null;
+            bool fireCheck0 = false;
+            bool fireCheck1 = false;
+            bool fireCheck2 = false;
+            bool fireCheck3 = false;
             bool? capacityCheck = null;
             if (minRebarCheck == true)
             {
@@ -713,7 +722,15 @@ namespace ColumnDesign
                     spacingCheck = c.CheckSpacing();
                     if(spacingCheck == true)
                     {
-                        fireCheck = c.CheckFire();
+                        if (fireM[0]) fireCheck0 = c.CheckFire();
+                        if (fireM[1]) fireCheck1 = c.CheckFireIsotherm500().Item1;
+                        if (fireM[2]) fireCheck2 = c.CheckFireZoneMethod().Item1;
+                        if (fireM[3])
+                        {
+                            c.UpdateFireID(true);
+                            fireCheck3 = c.CheckIsInsideFireID();
+                        }
+                        fireCheck = (fireCheck0 || fireCheck1 || fireCheck2 || fireCheck3);
                         if(fireCheck == true)
                         {
                             c.GetInteractionDiagram();

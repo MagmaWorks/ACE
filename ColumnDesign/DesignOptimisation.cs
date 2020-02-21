@@ -36,6 +36,7 @@ namespace ColumnDesign
         string[] incres;
         double[] weights;
         double[] factors;
+        bool[] fireMethods;
         int mode = 0;
 
         double carb0;
@@ -52,7 +53,7 @@ namespace ColumnDesign
         int iter = 0;
 
         public DesignOptimisation(ViewModel vm, bool[] sh, bool[] activ, string[] mins, string[] maxs, string[] incrs, 
-            int maxiter, double al, double vari, double[] drivers, double[] driversWeight, bool sq, int m = 0)
+            int maxiter, double al, double vari, double[] drivers, double[] driversWeight, bool sq, bool[] fmethods, int m = 0)
         {
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             InitializeBackgroundWorker();
@@ -67,6 +68,7 @@ namespace ColumnDesign
             weights = driversWeight;
             factors = drivers;
             shapes = sh;
+            fireMethods = fmethods;
 
             Wcost = driversWeight[0] / (driversWeight.Sum());
             Wcarb = driversWeight[1] / (driversWeight.Sum());
@@ -186,7 +188,7 @@ namespace ColumnDesign
             
             // ---- Async process ----
             AsyncOptimisation.Optimise(worker, column, shapes, activInputs, minis, maxis, incres, model.ConcreteGrades, model.BarDiameters, model.LinkDiameters, N, T0,
-                weights, factors, alpha, square, variance);
+                weights, factors, alpha, square, variance, fireMethods: fireMethods);
             //--------------------
             
         }

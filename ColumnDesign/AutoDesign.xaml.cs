@@ -81,6 +81,14 @@ namespace ColumnDesign
                 MaxCG.SelectedValue?.ToString() ?? "",
             };
 
+            bool[] FireDesignMethods = new bool[]
+            {
+                TableDataCB.IsChecked ?? false,
+                IsothermCB.IsChecked ?? false,
+                ZoneCB.IsChecked ?? false,
+                AdvancedCB.IsChecked ?? false
+            };
+
             bool error = false;
 
             for(int i = 0; i < Activations.Length; i++)
@@ -166,7 +174,7 @@ namespace ColumnDesign
                 bool sq = (SquareCB.IsChecked ?? false) && (LYCB.IsChecked ?? false); 
 
                 DesignOptimisation designO = new DesignOptimisation(vm, Shapes, Activations, Mins, Maxs, Incrs, Convert.ToInt32(MaxIter.Text), 
-                    Convert.ToDouble(Alpha.Text), Convert.ToDouble(Variance.Text), drivers, driversWeight, sq);
+                    Convert.ToDouble(Alpha.Text), Convert.ToDouble(Variance.Text), drivers, driversWeight, sq, FireDesignMethods);
                 //if (designO.newDesign)
                 //    vm.SelectedColumn = designO.column;
                 //this.Close();

@@ -8,6 +8,7 @@ using System.Windows.Media.Media3D;
 using FireDesign;
 using InteractionDiagram3D;
 using MWGeometry;
+using Newtonsoft.Json;
 using Material = InteractionDiagram3D.Material;
 
 namespace ColumnDesign
@@ -78,13 +79,18 @@ namespace ColumnDesign
         public string FDMStr { get; set; } = "Table";
         public FCurve FireCurve { get => (FCurve)Enum.Parse(typeof(FCurve), FCStr); }
         public string FCStr { get; set; } = "Standard";
+        [JsonIgnore]
         public TemperatureProfile TP;
 
         public int IDReduction { get; set; } = 100;
+        [JsonIgnore]
         public List<MWPoint3D> diagramVertices = new List<MWPoint3D>();
+        [JsonIgnore]
         public List<Tri3D> diagramFaces = new List<Tri3D>();
 
+        [JsonIgnore]
         public List<MWPoint3D> fireDiagramVertices = new List<MWPoint3D>();
+        [JsonIgnore]
         public List<Tri3D> fireDiagramFaces = new List<Tri3D>();
 
         // Checks
@@ -1154,6 +1160,12 @@ namespace ColumnDesign
             double y = -(HX - hX) * (HY - hY) * hY / 2;
             y /= (HX * HY - (HX - hX) * (HY - hY));
             return new Point(x, y);
+        }
+
+        public Point GetTShapeCOG()
+        {
+            double y = 0.5 * hY * (HX - hX) * (HY - hY) / (HX * hY + hX * (HY - hY));
+            return new Point(0, y);
         }
 
         public void UpdateTP(bool newdesign = true)

@@ -64,5 +64,10 @@ namespace ColumnDesign
         {
             Console.WriteLine("toto");
         }
+
+        private void GroupOptiChart_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

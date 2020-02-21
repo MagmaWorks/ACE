@@ -39,28 +39,33 @@
 
         </Grid>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="2">
-            <Image Height="30" VerticalAlignment="Center" Source="Resources/MagmaWorks_logo.png">
-                <Image.ToolTip>
-                    <StackPanel Background="White" Width="300">
-                        <Image HorizontalAlignment="Left" Height="30"  Source="Resources/MagmaWorks_logo.png"></Image>
-                        <TextBlock FontFamily="Franklin Gothic" FontSize="25" Text="Column Design"/>
-                        <TextBlock Text="v 0.0.2"/>
-                        <TextBlock Text="Tools for designing columns" TextWrapping="Wrap"/>
-                        <TextBlock Text="This software incorporates the open source libraries Helix Toolkit, DXF.NET and LiveCharts" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Image.ToolTip>
-            </Image>
-            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10 0 10 0">
-                <TextBlock>
+        <Grid Grid.Row="2">
+            <StackPanel Orientation="Horizontal">
+                <Image Height="30" VerticalAlignment="Center" Source="Resources/MagmaWorks_logo.png">
+                    <Image.ToolTip>
+                        <StackPanel Background="White" Width="300">
+                            <Image HorizontalAlignment="Left" Height="30"  Source="Resources/MagmaWorks_logo.png"></Image>
+                            <TextBlock FontFamily="Franklin Gothic" FontSize="25" Text="Column Design"/>
+                            <TextBlock Text="v 0.0.2"/>
+                            <TextBlock Text="Tools for designing columns" TextWrapping="Wrap"/>
+                            <TextBlock Text="This software incorporates the open source libraries Helix Toolkit, DXF.NET and LiveCharts" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Image.ToolTip>
+                </Image>
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10 0 10 0">
+                    <TextBlock>
                     Version: <Run Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MainWindow}}, Path=Version, Mode=OneWay}"/>
-                </TextBlock>
-                <TextBlock>
+                    </TextBlock>
+                    <TextBlock>
                     Build: <Run Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MainWindow}}, Path=Build, Mode=OneWay}"/>
-                </TextBlock>
+                    </TextBlock>
+                </StackPanel>
+
+                <TextBlock FontFamily="Franklin Gothic" FontSize="25" Text="ACE" VerticalAlignment="Center"  Margin="15 0 0 0"/>
             </StackPanel>
-            
-            <TextBlock FontFamily="Franklin Gothic" FontSize="25" Text="ACE" VerticalAlignment="Center"  Margin="15 0 0 0"/>
-        </StackPanel>
+
+            <Image Source="Resources/WhitbyWood.jpg" HorizontalAlignment="Right" Height="30" Margin="0 0 30 0"/>
+        </Grid>
+        
     </Grid>
 </Window>

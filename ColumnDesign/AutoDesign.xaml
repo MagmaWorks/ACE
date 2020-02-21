@@ -116,8 +116,9 @@
 
         </Grid>
         
-        <Grid Grid.Row="1" Margin="5 5 5 5">
+        <Grid Grid.Row="1" Margin="5 5 25 5">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -166,6 +167,24 @@
                     </StackPanel>
                 </StackPanel>
                 
+            </Grid>
+
+            <Grid Grid.Column="2" Margin="20 0 0 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Fire Design Methods" Grid.Row="0" FontWeight="SemiBold"/>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="1" >
+                    <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                        <CheckBox Content="Table data" Name="TableDataCB" Margin="5 5 5 5" IsChecked="true"/>
+                        <CheckBox Content="500 Isotherm" Name="IsothermCB" Margin="5 5 5 5"/>
+                        <CheckBox Content="Zone" Name="ZoneCB" Margin="5 5 5 5"/>
+                        <CheckBox Content="Advanced" Name="AdvancedCB" Margin="5 5 5 5"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
 
         </Grid>

@@ -321,8 +321,10 @@ namespace ColumnDesign
             try
             {
                 var saveDialog = new SaveFileDialog();
-                saveDialog.Filter = @"JSON files |*.JSON";
-                saveDialog.FileName = "Col_" + SelectedColumn.Name + @".JSON";
+                //saveDialog.Filter = @"JSON files |*.JSON";
+                saveDialog.Filter = @"ACE files |*.col";
+                //saveDialog.FileName = "Col_" + SelectedColumn.Name + @".JSON";
+                saveDialog.FileName = "Col_" + SelectedColumn.Name + @".col";
 
                 saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 if (saveDialog.ShowDialog() != DialogResult.OK) return;
@@ -353,8 +355,10 @@ namespace ColumnDesign
                     CalcsColumn cc = new CalcsColumn(MyColumns[i]);
                     var saveObj = Newtonsoft.Json.JsonConvert.SerializeObject(MyColumns[i], Newtonsoft.Json.Formatting.Indented);
                     var saveObj_Calcs = Newtonsoft.Json.JsonConvert.SerializeObject(cc, Newtonsoft.Json.Formatting.Indented);
-                    string filePath = folderName + @"\\Col_" + myColumns[i].Name + ".JSON";
-                    string filePath_Calcs = folderName + @"\\Col_" + myColumns[i].Name + "_Calcs.JSON";
+                    //string filePath = folderName + @"\\Col_" + myColumns[i].Name + ".JSON";
+                    string filePath = folderName + @"\\Col_" + myColumns[i].Name + ".col";
+                    //string filePath_Calcs = folderName + @"\\Col_" + myColumns[i].Name + "_Calcs.JSON";
+                    string filePath_Calcs = folderName + @"\\Col_" + myColumns[i].Name + "_Calcs.col";
                     System.IO.File.WriteAllText(filePath, saveObj);
                     System.IO.File.WriteAllText(filePath_Calcs, saveObj_Calcs);
                 }
@@ -369,7 +373,7 @@ namespace ColumnDesign
         public void Open()
         {
             var openDialog = new OpenFileDialog();
-            openDialog.Filter = @"Calc files |*.JSON";
+            openDialog.Filter = @"ACE files |*.JSON;*.col";
             openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openDialog.Multiselect = true;
             if (openDialog.ShowDialog() != DialogResult.OK) return;
@@ -377,14 +381,16 @@ namespace ColumnDesign
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
             if (!newCols.Select(x => x.Name).Contains(customCol.Name)) newCols.Insert(0, customCol);
             MyColumns = newCols;
-            SelectedColumn = MyColumns[Convert.ToInt32(Math.Min(newCols.Count-1,1))];
+            Column c = MyColumns[Convert.ToInt32(Math.Min(newCols.Count - 1, 1))];
+            c.FDMStr = "Table";
+            SelectedColumn = c; // MyColumns[Convert.ToInt32(Math.Min(newCols.Count-1,1))];
             NameSelectedColumn = SelectedColumn.Name;
         }
 
         public void OpenAdd()
         {
             var openDialog = new OpenFileDialog();
-            openDialog.Filter = @"Calc files |*.JSON";
+            openDialog.Filter = @"ACE files |*.JSON;*.col";
             openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openDialog.Multiselect = true;
             if (openDialog.ShowDialog() != DialogResult.OK) return;
