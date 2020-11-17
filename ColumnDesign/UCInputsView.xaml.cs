@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ColumnDesignCalc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,7 @@ namespace ColumnDesign
             }
             else
             {
-                vm.SelectedColumn.ConcreteGrade = vm.ConcreteGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
+                vm.SelectedColumn.ConcreteGrade = vm.ColumnCalcs.ConcreteGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
                 vm.IsCustom = false;
             }
             vm.UpdateColumn();
@@ -97,6 +98,7 @@ namespace ColumnDesign
                 if (w != vm.SelectedColumn.LX)
                 {
                     vm.SelectedColumn.LX = Convert.ToDouble(w);
+                    if (vm.SelectedColumn.TP != null) vm.SelectedColumn.TP.ContourPts = null;
                     vm.UpdateDesign();
                 }
             }
@@ -116,6 +118,7 @@ namespace ColumnDesign
                 if (d != vm.SelectedColumn.LY)
                 {
                     vm.SelectedColumn.LY = d;
+                    if(vm.SelectedColumn.TP != null) vm.SelectedColumn.TP.ContourPts = null;
                     vm.UpdateDesign();
                 }
             }
@@ -135,6 +138,7 @@ namespace ColumnDesign
                 if (d != vm.SelectedColumn.Radius)
                 {
                     vm.SelectedColumn.Radius = d;
+                    if(vm.SelectedColumn.TP != null) vm.SelectedColumn.TP.ContourPts = null;
                     vm.UpdateDesign();
                 }
             }
@@ -154,6 +158,7 @@ namespace ColumnDesign
                 if (d != vm.SelectedColumn.Diameter)
                 {
                     vm.SelectedColumn.Diameter = d;
+                    if (vm.SelectedColumn.TP != null) vm.SelectedColumn.TP.ContourPts = null;
                     vm.UpdateDesign();
                 }
             }
@@ -594,8 +599,8 @@ namespace ColumnDesign
                 {
                     Name = "0.7*[selected]",
                     P = 0.7 * fl.P,
-                    Mxd = 0.7 * fl.Mxd,
-                    Myd = 0.7 * fl.Myd,
+                    MEdx = 0.7 * fl.MEdx,
+                    MEdy = 0.7 * fl.MEdy,
                 };
                 vm.UpdateFire();
             }
@@ -642,8 +647,8 @@ namespace ColumnDesign
                 {
                     Name = "0.7*[selected]",
                     P = 0.7 * fl.P,
-                    Mxd = 0.7 * fl.Mxd,
-                    Myd = 0.7 * fl.Myd,
+                    MEdx = 0.7 * fl.MEdx,
+                    MEdy = 0.7 * fl.MEdy,
                 };
             }
             else if (load != null)

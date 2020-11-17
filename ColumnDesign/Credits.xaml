@@ -27,15 +27,15 @@
                     </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Image
-                            Source="resources/MagmaWorks_logo.png"
-                            Height="50"/>
-                        <TextBlock 
+                            Source="resources/MagmaWorksFullLogo.png"
+                            Height="75"/>
+                        <!--<TextBlock 
                             Margin="10 0 0 0"
                             FontSize="14"
                             FontWeight="Bold" 
                             VerticalAlignment="Center">
                             MAGMA WORKS
-                        </TextBlock>
+                        </TextBlock>-->
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -43,7 +43,7 @@
             <Grid Grid.Row="1">
                 <StackPanel Orientation="Vertical">
                     <TextBlock HorizontalAlignment="Center">
-                    ACE is built using the following great tools and libraries
+                        ACE is built using the following great tools and libraries
                     </TextBlock>
                     <Grid Margin="0 10 0 0">
                         <Grid.ColumnDefinitions>

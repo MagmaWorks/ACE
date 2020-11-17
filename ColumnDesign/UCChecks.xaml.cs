@@ -48,7 +48,7 @@ namespace ColumnDesign
         public void Open(object sender, RoutedEventArgs e)
         {
             ViewModel vm = (sender as Button).DataContext as ViewModel;
-            vm.Open();
+            vm.OpenAdd();
         }
 
         public void OpenAdd(object sender, RoutedEventArgs e)
@@ -82,6 +82,8 @@ namespace ColumnDesign
         public void ToWord(object sender, RoutedEventArgs e)
         {
             ViewModel vm = (sender as Button).DataContext as ViewModel;
+            vm.MyIDView.IsUpdated = !vm.MyIDView.IsUpdated;
+            vm.UpdateDesign();
             vm.ExportToWord();
         }
 

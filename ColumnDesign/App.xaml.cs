@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ColumnDesignCalc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -17,6 +18,7 @@ namespace ColumnDesign
     {
         void App_StartUp(object sender, StartupEventArgs e)
         {
+            Console.WriteLine("Checkpoint 0");
             TextReader reader = null;
             string filePath = "";
             List<Column> cols = new List<Column>();
@@ -73,6 +75,7 @@ namespace ColumnDesign
                         reader.Close();
                 }
             }
+            Console.WriteLine("Checkpoint 1");
 
             MainWindow mainWindow = new MainWindow();
 
@@ -100,6 +103,9 @@ namespace ColumnDesign
             mainWindow.myViewModel.SelectedColumn = mainWindow.myViewModel.MyColumns[0];
 
             mainWindow.Show();
+            mainWindow.myViewModel.initializing = false;
+            mainWindow.myViewModel.UpdateDesign();
+            mainWindow.myViewModel.UpdateLoad();
         }
     }
 }

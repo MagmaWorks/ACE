@@ -15,20 +15,22 @@ using WpfMath;
 using System.Windows.Media.Imaging;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
-using static ColumnDesign.CalcuationView;
+//using static ColumnDesign.CalcuationView;
+using ColumnDesignCalc;
+using CalcCore;
 
 namespace ColumnDesign
 {
     public static class OutputToODT
     {
-        public static void WriteToODT(CalcuationView calculation, bool includeInputs, bool includeBody, bool includeOutputs)
+        public static void WriteToODT(Calculations calculation, bool includeInputs, bool includeBody, bool includeOutputs)
         {
             string filePath;
             try
             {
                 var saveDialog = new SaveFileDialog();
                 saveDialog.Filter = @"Word files |*.docx";
-                saveDialog.FileName = "Design_Col_"+ calculation.column.Name + @".docx";
+                saveDialog.FileName = "Design_Col_"+ calculation.Column.Name + @".docx";
                 saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 if (saveDialog.ShowDialog() != DialogResult.OK) return;
                 filePath = saveDialog.FileName;
@@ -44,7 +46,7 @@ namespace ColumnDesign
         }
 
 
-        public static void WriteToODT(CalcuationView calculation, bool includeInputs, bool includeBody, bool includeOutputs, string filePath)
+        public static void WriteToODT(Calculations calculation, bool includeInputs, bool includeBody, bool includeOutputs, string filePath)
         {
             try
             {
@@ -64,7 +66,7 @@ namespace ColumnDesign
                 Body body = mainPart.Document.AppendChild(new Body());
 
                 var headerPart = mainPart.HeaderParts.First();
-                var line1 = new Paragraph(new Run(new Text("Design of column "+calculation.column.Name)));
+                var line1 = new Paragraph(new Run(new Text("Design of column "+calculation.Column.Name)));
                 line1.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
                 var line2 = new Paragraph(new Run(new Text("By: " + Environment.UserName + " on " + DateTime.Today.ToLongDateString())));
                 line2.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
@@ -73,6 +75,9 @@ namespace ColumnDesign
                 var line4 = new Paragraph(new Run(new Text("")));
                 line4.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
                 headerPart.RootElement.Append(line1, line2, line3, line4);
+
+                // update the SCaFFOLD inputs / outputs
+                calculation.UpdateInputOuput();
 
                 if (includeInputs)
                 {
@@ -101,7 +106,7 @@ namespace ColumnDesign
                     body.Append(para);
 
 
-                    var FormulaeTable = genFormulaeTable(calculation.Formulae, mainPart);
+                    var FormulaeTable = genFormulaeTable(calculation.Expressions, mainPart);
                     body.AppendChild(FormulaeTable);
                 }
 
@@ -124,7 +129,7 @@ namespace ColumnDesign
             }
         }
 
-        private static Table genFormulaeTable(List<FormulaeVM> formulae, MainDocumentPart mainPart)
+        private static Table genFormulaeTable(List<Formula> formulae, MainDocumentPart mainPart)
         {
             Table tableOfInputs = new Table();
             var tableGrid = new TableGrid();
@@ -213,7 +218,7 @@ namespace ColumnDesign
             return tableOfInputs;
         }
 
-        private static Table genTable(List<CalcValue> calcVals)
+        private static Table genTable(List<CalcValueBase> calcVals)
         {
             Table tableOfInputs = new Table();
             var tableGrid = new TableGrid();

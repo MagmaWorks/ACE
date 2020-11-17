@@ -7,11 +7,34 @@
              xmlns:local="clr-namespace:ColumnDesign"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <ContentControl x:Key="2DView">
+            <local:UC2DID />
+        </ContentControl>
+        <ContentControl x:Key="3DView">
+            <local:UC3DID  />
+        </ContentControl>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        
+        <Button
+            Name="button2D3D"
+            Tag="2D"
+            Click="Change3D2D"
+            Margin="2"
+            Grid.Row="0"
+            Padding="5"
+            Background="Transparent"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left">
+            <TextBlock Name="buttonText" Text="2D" FontWeight="Bold"/>
+        </Button>
         <StackPanel 
             Grid.Row="0" 
             Orientation="Horizontal"
@@ -28,7 +51,7 @@
                 AutoToolTipPlacement="TopLeft"
                 AutoToolTipPrecision="0"
                 ValueChanged="DiagramDiscChanged"
-                Value="30"/>
+                Value="{Binding SelectedColumn.DiagramDisc}"/>
             <StackPanel Orientation="Horizontal">
                 <ComboBox
                 Width="50"
@@ -41,41 +64,22 @@
                     Text="%"
                     Margin="0 5 5 5"/>
             </StackPanel>
-            
         </StackPanel>
         
-        <h:HelixViewport3D Grid.Row="1">
-            <h:DefaultLights/>
-            <h:GridLinesVisual3D 
-                Width="10" 
-                Length="10" 
-                MinorDistance="1"
-                MajorDistance="1" 
-                LengthDirection="1,0,0"
-                Normal="0,0,1"
-                Center="{Binding MyIDView.CenterXY}"
-                Thickness="0.03" Fill="DarkGray"/>
-            <h:GridLinesVisual3D 
-                Width="10" 
-                Length="10" 
-                MinorDistance="1"
-                MajorDistance="1" 
-                LengthDirection="0,0,1"
-                Normal="1,0,0"
-                Center="{Binding MyIDView.CenterYZ}"
-                Thickness="0.03" Fill="DarkGray"/>
-                <h:GridLinesVisual3D 
-                Width="10" 
-                Length="10" 
-                MinorDistance="1"
-                MajorDistance="1" 
-                LengthDirection="1,0,0"
-                Normal="0,1,0"
-                Center="{Binding MyIDView.CenterXZ}"
-                Thickness="0.03" Fill="DarkGray"/>
-            <h:CoordinateSystemVisual3D/>
-            <ModelVisual3D Content="{Binding MyIDView.FireIDHull}"/>
-            <ModelVisual3D Content="{Binding MyIDView.IDHull}"/>
-        </h:HelixViewport3D>
+        <ContentControl Grid.Row="1">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding MyIDView.Dimension}" Value="dim2D">
+                            <Setter Property="Content" Value="{StaticResource 2DView}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding MyIDView.Dimension}" Value="dim3D">
+                            <Setter Property="Content" Value="{StaticResource 3DView}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
     </Grid>
+
 </UserControl>

@@ -1,4 +1,5 @@
-﻿using FireDesign;
+﻿using ColumnDesignCalc;
+//using FireDesign;
 using MWGeometry;
 using OxyPlot;
 using OxyPlot.Series;
@@ -121,8 +122,8 @@ namespace ColumnDesign
 
         public List<double> TempLevels = new List<double>();
 
-        ObservableCollection<Contour> tempContours;
-        public ObservableCollection<Contour> TempContours
+        ObservableCollection<ContourVM> tempContours;
+        public ObservableCollection<ContourVM> TempContours
         {
             get { return tempContours; }
             set { tempContours = value; RaisePropertyChanged(nameof(TempContours)); }
@@ -242,7 +243,7 @@ namespace ColumnDesign
             else if (shape == GeoShape.LShaped)
             {
                 rebars = new List<RebarObj>();
-                List<Point> pts = column.GetLShapedRebars();
+                List<MWPoint2D> pts = column.GetLShapedRebars();
                 for (int i = 0; i < pts.Count; i++)
                 {
                     rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
@@ -251,7 +252,7 @@ namespace ColumnDesign
             else if (shape == GeoShape.TShaped)
             {
                 rebars = new List<RebarObj>();
-                List<Point> pts = column.GetTShapedRebars();
+                List<MWPoint2D> pts = column.GetTShapedRebars();
                 for (int i = 0; i < pts.Count; i++)
                 {
                     rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
@@ -295,7 +296,7 @@ namespace ColumnDesign
             //TP = new TemperatureProfile(c.LX / 1000, c.LY / 1000, c.R * 60);
             //TP.GetContours();
             //c.TP = TP;
-            TempContours = new ObservableCollection<Contour>(c.TP.ContourPts.Select(x => new Contour(x)));
+            TempContours = new ObservableCollection<ContourVM>(c.TP.ContourPts.Select(x => new ContourVM(x)));
             TempLevels = c.TP.Levels;
             
             GetContourPolygons();
@@ -428,7 +429,7 @@ namespace ColumnDesign
         
     }
 
-    public class Contour : ViewModelBase
+    public class ContourVM : ViewModelBase
     {
         public List<MWPoint2D> Points { get; set; }
         public PointCollection DisplayPoints { get; set; }
@@ -455,12 +456,12 @@ namespace ColumnDesign
             set { keyPos = value; RaisePropertyChanged(nameof(KeyPos)); }
         }
 
-        public Contour()
+        public ContourVM()
         {
 
         }
 
-        public Contour(FireDesign.Contour c)
+        public ContourVM(Contour c)
         {
             Points = c.Points;
         }

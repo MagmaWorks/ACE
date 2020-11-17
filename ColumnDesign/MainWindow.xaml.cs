@@ -78,5 +78,10 @@ namespace ColumnDesign
             }
             base.OnClosing(e);
         }
+
+        private void MWLogo_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/magmaworks");
+        }
     }
 }

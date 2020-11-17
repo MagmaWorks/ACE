@@ -12,6 +12,7 @@ using InteractionDiagram3D;
 //using InteractionDiagram3D_Windows;
 using MWGeometry;
 using System.Windows.Media.Media3D;
+using ColumnDesignCalc;
 
 namespace ColumnDesign
 {
@@ -21,9 +22,9 @@ namespace ColumnDesign
             List<int> linkDiameters, int Nmax, double Tinit, double[] Ws, double[] Fs, double alpha, bool square, double variance = 1, bool allLoads = false, bool[] fireMethods = null)
 
         {
-            double costRef = column.GetCost()[3];
-
-            double carbonRef = column.GetEmbodiedCarbon()[2];
+            Calculations calc = new Calculations(column);
+            double costRef = calc.GetCost()[3];
+            double carbonRef = calc.GetEmbodiedCarbon()[2];
 
             fireMethods = fireMethods ?? new bool[] { true, false, false, false };
 
@@ -69,7 +70,7 @@ namespace ColumnDesign
                 if (activ[0])
                     ColTemp.LX = Math.Max(Convert.ToDouble(mins[0]), Math.Min(column.LX + eps[0] * Convert.ToDouble(incrs[0]), Convert.ToDouble(maxs[0])));
                 if (activ[1])
-                    ColTemp.LY = Math.Max(Convert.ToDouble(mins[1]), Math.Min(column.LY + eps[1] * Convert.ToDouble(incrs[1]), Convert.ToDouble(maxs[1])));
+                    ColTemp.LY = square ? ColTemp.LX : Math.Max(Convert.ToDouble(mins[1]), Math.Min(column.LY + eps[1] * Convert.ToDouble(incrs[1]), Convert.ToDouble(maxs[1])));
                 if (activ[2])
                     ColTemp.NRebarX = Math.Max(Convert.ToInt32(mins[2]), Math.Min(column.NRebarX + eps[2], Convert.ToInt32(maxs[2])));
                 if (activ[3])
@@ -163,12 +164,13 @@ namespace ColumnDesign
         }
 
         public static Column Optimise(Column column, bool[] activ, string[] mins, string[] maxs, string[] incrs, List<Concrete> concreteGrades, List<int> barDiameters,
-            List<int> linkDiameters, int Nmax, double Tinit, double[] Ws, double[] Fs, double alpha, double variance = 1, bool allLoads = false, bool[] fireMethods = null)
+            List<int> linkDiameters, int Nmax, double Tinit, double[] Ws, double[] Fs, double alpha, bool square, double variance = 1, bool allLoads = false, bool[] fireMethods = null)
 
         {
-            double costRef = column.GetCost()[3];
+            Calculations calc = new Calculations(column);
+            double costRef = calc.GetCost()[3];
 
-            double carbonRef = column.GetEmbodiedCarbon()[2];
+            double carbonRef = calc.GetEmbodiedCarbon()[2];
 
             fireMethods = fireMethods ?? new bool[] { true, false, false, false };
 
@@ -201,7 +203,7 @@ namespace ColumnDesign
                 if (activ[0])
                     ColTemp.LX = Math.Max(Convert.ToDouble(mins[0]), Math.Min(column.LX + eps[0] * Convert.ToDouble(incrs[0]), Convert.ToDouble(maxs[0])));
                 if (activ[1])
-                    ColTemp.LY = Math.Max(Convert.ToDouble(mins[1]), Math.Min(column.LY + eps[1] * Convert.ToDouble(incrs[1]), Convert.ToDouble(maxs[1])));
+                    ColTemp.LY = square ? ColTemp.LX : Math.Max(Convert.ToDouble(mins[1]), Math.Min(column.LY + eps[1] * Convert.ToDouble(incrs[1]), Convert.ToDouble(maxs[1])));
                 if (activ[2])
                     ColTemp.Diameter = Math.Max(Convert.ToDouble(mins[2]), Math.Min(column.Diameter + eps[2] * Convert.ToDouble(incrs[2]), Convert.ToDouble(maxs[2])));
                 if (activ[3])
@@ -714,6 +716,7 @@ namespace ColumnDesign
             bool fireCheck2 = false;
             bool fireCheck3 = false;
             bool? capacityCheck = null;
+
             if (minRebarCheck == true)
             {
                 minmaxCheck = c.CheckSteelQtty();
@@ -722,12 +725,13 @@ namespace ColumnDesign
                     spacingCheck = c.CheckSpacing();
                     if(spacingCheck == true)
                     {
-                        if (fireM[0]) fireCheck0 = c.CheckFire();
-                        if (fireM[1]) fireCheck1 = c.CheckFireIsotherm500().Item1;
-                        if (fireM[2]) fireCheck2 = c.CheckFireZoneMethod().Item1;
+                        Calculations calc = new Calculations(c);
+                        if (fireM[0]) fireCheck0 = calc.CheckFireDesignTable();
+                        if (fireM[1]) fireCheck1 = calc.CheckFireIsotherm500().Item1;
+                        if (fireM[2]) fireCheck2 = calc.CheckFireZoneMethod().Item1;
                         if (fireM[3])
                         {
-                            c.UpdateFireID(true);
+                            calc.UpdateFireID(true);
                             fireCheck3 = c.CheckIsInsideFireID();
                         }
                         fireCheck = (fireCheck0 || fireCheck1 || fireCheck2 || fireCheck3);
@@ -755,7 +759,8 @@ namespace ColumnDesign
             double penSteelQtty =  minmaxCheck == true ? 1 : (minmaxCheck == null ? 5 : 10);
             double penMinRebar = minRebarCheck == true ? 1 : 10;
 
-            double f = (Wcarb * Fcarb * c.GetEmbodiedCarbon()[2] / carbonRef + Wcost * Fcost * c.GetCost()[3] / costRef) * penCapacity * penFire * penSpacing * penSteelQtty;
+            Calculations calc2 = new Calculations(c);
+            double f = (Wcarb * Fcarb * calc2.GetEmbodiedCarbon()[2] / carbonRef + Wcost * Fcost * calc2.GetCost()[3] / costRef) * penCapacity * penFire * penSpacing * penSteelQtty;
 
             return (f,capacityCheck,fireCheck,spacingCheck,minmaxCheck,minRebarCheck);
 

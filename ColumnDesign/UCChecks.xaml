@@ -54,10 +54,10 @@
                         Text="{Binding SelectedColumn.SelectedLoad.P}"
                         Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="{Binding SelectedColumn.SelectedLoad.Mxd}"
+                        Text="{Binding SelectedColumn.SelectedLoad.MEdx}"
                         Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="{Binding SelectedColumn.SelectedLoad.Myd}"
+                        Text="{Binding SelectedColumn.SelectedLoad.MEdy}"
                         Margin="0 4 5 2"/>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
@@ -107,17 +107,24 @@
                         Text="Design moment about Y : "
                         Background="Transparent" 
                         Margin="0 4 5 2"/>
+                        <TextBlock
+                        Text="Radial utilisation : "
+                        Background="Transparent" 
+                        Margin="0 4 5 2"/>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Text="{Binding SelectedColumn.UtilP}"
-                        Margin="0 4 5 2"/>
+                            Text="{Binding SelectedColumn.UtilP}"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="{Binding SelectedColumn.UtilMx}"
-                        Margin="0 4 5 2"/>
+                            Text="{Binding SelectedColumn.UtilMx}"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="{Binding SelectedColumn.UtilMy}"
-                        Margin="0 4 5 2"/>
+                            Text="{Binding SelectedColumn.UtilMy}"
+                            Margin="0 4 5 2"/>
+                        <TextBlock
+                            Text="{Binding SelectedColumn.Util3D}"
+                            Margin="0 4 5 2"/>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
@@ -398,7 +405,7 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Background="Gray" Margin="4 0 0 0" VerticalAlignment="Top" >
-                    <Button 
+                    <!--<Button 
                     Click="Save"
                     BorderBrush="Transparent"
                     HorizontalAlignment="Right"
@@ -408,7 +415,7 @@
                     Width="50"
                     ToolTip="Save all your designs in the file which is automatically loaded when the app opens.">
                         <Image Source="resources/Save.png"/>
-                    </Button>
+                    </Button>-->
                     <Button 
                     Click="SaveAs"
                     BorderBrush="Transparent"
@@ -439,10 +446,10 @@
                     Background="Transparent"
                     Height="50"
                     Width="50"
-                    ToolTip="Open designs from a .Json file">
+                    ToolTip="Open designs from a .col file">
                         <Image Source="resources/Open.png"/>
                     </Button>
-                    <Button 
+                    <!--<Button 
                     Click="OpenAdd"
                     BorderBrush="Transparent"
                     HorizontalAlignment="Right"
@@ -450,9 +457,9 @@
                     Background="Transparent"
                     Height="50"
                     Width="50"
-                    ToolTip="Open and add designs from a .Json file">
+                    ToolTip="Open and add designs from a .col file">
                         <Image Source="resources/OpenAdd.png"/>
-                    </Button>
+                    </Button>-->
                     <Button 
                     Click="ToWord"
                     BorderBrush="Transparent"

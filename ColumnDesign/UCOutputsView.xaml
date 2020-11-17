@@ -14,7 +14,7 @@
             <local:UCYieldSurface/>
         </ContentControl>
         <ContentControl x:Key="Calcs">
-            <local:UCCalcs DataContext="{Binding MyCalcView}"/>
+            <local:UCCalcs/>
         </ContentControl>
         <ContentControl x:Key="Fire">
             <local:UCFireDesign DataContext="{Binding MyFireDesignView}"/>

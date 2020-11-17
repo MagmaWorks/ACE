@@ -1,4 +1,5 @@
-﻿using LiveCharts;
+﻿using ColumnDesignCalc;
+using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using System;
@@ -107,6 +108,8 @@ namespace ColumnDesign
                 ScalesYAt = 2
 
             });*/
+
+            Calculations calc = new Calculations(column);
             
             OptiR = new OptimisationResults
             {
@@ -148,13 +151,13 @@ namespace ColumnDesign
             OptiR.SVtb.Text = Math.Round(column.SteelVol() / 1e3).ToString();
             OptiR.CVtb.Text = Math.Round(column.ConcreteVol() / 1e9, 2).ToString();
 
-            double[] Carb = column.GetEmbodiedCarbon();
+            double[] Carb = calc.GetEmbodiedCarbon();
             OptiR.CCtb.Text = Math.Round(Carb[0]).ToString();
             OptiR.SCtb.Text = Math.Round(Carb[1]).ToString();
             carb0 = Carb[2];
             OptiR.TotCtb.Text = Math.Round(carb0).ToString();
 
-            double[] Costs = column.GetCost();
+            double[] Costs = calc.GetCost();
             OptiR.CCosttb.Text = Math.Round(Costs[0]).ToString();
             OptiR.SCosttb.Text = Math.Round(Costs[1]).ToString();
             OptiR.FCosttb.Text = Math.Round(Costs[2]).ToString();
@@ -162,7 +165,7 @@ namespace ColumnDesign
             OptiR.TotCosttb.Text = Math.Round(cost0).ToString();
 
             OptiR.CapaImage.Source = (column.isInsideCapacity()) ? yes : no;
-            OptiR.FireImage.Source = (column.CheckFire()) ? yes : no;
+            OptiR.FireImage.Source = (calc.CheckFireDesignTable()) ? yes : no;
             OptiR.SpacImage.Source = (column.CheckSpacing()) ? yes : no;
             OptiR.SteelImage.Source = (column.CheckSteelQtty()) ? yes : no;
             OptiR.RebarImage.Source = (column.CheckMinRebarNo()) ? yes : no;
@@ -187,7 +190,7 @@ namespace ColumnDesign
             BackgroundWorker worker = sender as BackgroundWorker;
             
             // ---- Async process ----
-            AsyncOptimisation.Optimise(worker, column, shapes, activInputs, minis, maxis, incres, model.ConcreteGrades, model.BarDiameters, model.LinkDiameters, N, T0,
+            AsyncOptimisation.Optimise(worker, column, shapes, activInputs, minis, maxis, incres, model.ColumnCalcs.ConcreteGrades, model.BarDiameters, model.LinkDiameters, N, T0,
                 weights, factors, alpha, square, variance, fireMethods: fireMethods);
             //--------------------
             
@@ -195,6 +198,7 @@ namespace ColumnDesign
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            Calculations calc = new Calculations(column);
             OptiR.OptiLXtb.Text = column.LX.ToString();
             OptiR.OptiLYtb.Text = column.LY.ToString();
             OptiR.OptiDtb.Text = column.Diameter.ToString();
@@ -210,14 +214,14 @@ namespace ColumnDesign
             OptiR.OptiSVtb.Text = Math.Round(column.SteelVol() / 1e3).ToString();
             OptiR.OptiCVtb.Text = Math.Round(column.ConcreteVol() / 1e9, 2).ToString();
 
-            double[] Carb = column.GetEmbodiedCarbon();
+            double[] Carb = calc.GetEmbodiedCarbon();
             OptiR.OptiCCtb.Text = Math.Round(Carb[0]).ToString();
             OptiR.OptiSCtb.Text = Math.Round(Carb[1]).ToString();
             double carb = Carb[2];
             double gaincarb = Math.Round((carb - carb0) / carb0 * 100);
             OptiR.OptiTotCtb.Text = Math.Round(carb).ToString() + " (" + gaincarb + "%)";
 
-            double[] Costs = column.GetCost();
+            double[] Costs = calc.GetCost();
             OptiR.OptiCCosttb.Text = Math.Round(Costs[0]).ToString();
             OptiR.OptiSCosttb.Text = Math.Round(Costs[1]).ToString();
             OptiR.OptiFCosttb.Text = Math.Round(Costs[2]).ToString();
@@ -259,6 +263,7 @@ namespace ColumnDesign
             
             column = BestCol;
 
+            Calculations calc = new Calculations(column);
             OptiR.OptiLXtb.Text = column.LX.ToString();
             OptiR.OptiLYtb.Text = column.LY.ToString();
             OptiR.OptiDtb.Text = column.Diameter.ToString();
@@ -274,14 +279,14 @@ namespace ColumnDesign
             OptiR.OptiSVtb.Text = Math.Round(column.SteelVol() / 1e3).ToString();
             OptiR.OptiCVtb.Text = Math.Round(column.ConcreteVol() / 1e9, 2).ToString();
 
-            double[] Carb = column.GetEmbodiedCarbon();
+            double[] Carb = calc.GetEmbodiedCarbon();
             OptiR.OptiCCtb.Text = Math.Round(Carb[0]).ToString();
             OptiR.OptiSCtb.Text = Math.Round(Carb[1]).ToString();
             double carb = Carb[2];
             double gaincarb = Math.Round((carb - carb0) / carb0 * 100);
             OptiR.OptiTotCtb.Text = Math.Round(carb).ToString() + " (" + gaincarb + "%)";
 
-            double[] Costs = column.GetCost();
+            double[] Costs = calc.GetCost();
             OptiR.OptiCCosttb.Text = Math.Round(Costs[0]).ToString();
             OptiR.OptiSCosttb.Text = Math.Round(Costs[1]).ToString();
             OptiR.OptiFCosttb.Text = Math.Round(Costs[2]).ToString();

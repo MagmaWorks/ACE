@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ColumnDesignCalc;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -110,10 +111,11 @@ namespace ColumnDesign
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            double[] Carb = column.GetEmbodiedCarbon();
+            Calculations calc = new Calculations(column);
+            double[] Carb = calc.GetEmbodiedCarbon();
             double carb = Carb[2];
 
-            double[] Costs = column.GetCost();
+            double[] Costs = calc.GetCost();
             double cost = Costs[3];
 
             groupdesignopti.asyncStatus[idx] = true;

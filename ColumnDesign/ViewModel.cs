@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FireDesign;
+//using FireDesign;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,12 +12,15 @@ using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
+using Column = ColumnDesignCalc.Column;
+using ColumnDesignCalc;
+using CalcCore;
 
 namespace ColumnDesign
 {
     public class ViewModel : ViewModelBase
     {
-
+        public bool initializing = true;
         
         List<Column> myColumns = new List<Column>();
         public List<Column> MyColumns
@@ -61,12 +64,22 @@ namespace ColumnDesign
             set { myLayoutView = value; RaisePropertyChanged(nameof(MyLayoutView)); }
         }
 
-        CalcuationView myCalcView = new CalcuationView();
-        public CalcuationView MyCalcView
+        //CalcuationView myCalcView = new CalcuationView();
+        //public CalcuationView MyCalcView
+        //{
+        //    get { return myCalcView; }
+        //    set { myCalcView = value; RaisePropertyChanged(nameof(MyCalcView)); }
+        //}
+
+        Calculations columnCalcs = new Calculations();
+        public Calculations ColumnCalcs
         {
-            get { return myCalcView; }
-            set { myCalcView = value; RaisePropertyChanged(nameof(MyCalcView)); }
+            get { return columnCalcs; }
+            set { columnCalcs = value; RaisePropertyChanged(nameof(ColumnCalcs)); }
         }
+
+        public List<Formula> CalcExpressions { get => columnCalcs.Expressions; }
+
 
         FireDesignView myFireDesignView = new FireDesignView();
         public FireDesignView MyFireDesignView
@@ -76,16 +89,16 @@ namespace ColumnDesign
         }
 
         // Design checks
-        //bool sectionCheck = false;
+        bool sectionCheck = false;
         public bool SectionCheck
         {
             get
             {
                 //sectionCheck = SelectedColumn?.isInsideCapacity() ?? false;
-                return SelectedColumn?.isInsideCapacity() ?? false;
-                //return sectionCheck;
+                //return SelectedColumn?.isInsideCapacity() ?? false;
+                return sectionCheck;
             }
-            //set { sectionCheck = value; RaisePropertyChanged(nameof(SectionCheck)); }
+            set { sectionCheck = value; RaisePropertyChanged(nameof(SectionCheck)); }
         }
         
         bool fireCheck = false;
@@ -157,17 +170,17 @@ namespace ColumnDesign
             }
         }
 
-        public List<string> ConcreteNames { get => ConcreteGrades.Select(c => c.Name).ToList(); }
+        public List<string> ConcreteNames { get => columnCalcs.ConcreteGrades.Select(c => c.Name).ToList(); }
 
-        public List<Concrete> ConcreteGrades { get; } = new List<Concrete>()
-        {
-            new Concrete("Custom"),
-            new Concrete("32/40",32,33),
-            new Concrete("35/45",35,34),
-            new Concrete("40/50",40,35),
-            //new Concrete("45/55",45,36),
-            new Concrete("50/60",50,37),
-        };
+        //public List<Concrete> ConcreteGrades { get; } = new List<Concrete>()
+        //{
+        //    new Concrete("Custom"),
+        //    new Concrete("32/40",32,33),
+        //    new Concrete("35/45",35,34),
+        //    new Concrete("40/50",40,35),
+        //    //new Concrete("45/55",45,36),
+        //    new Concrete("50/60",50,37),
+        //};
 
         public List<string> SteelNames { get => SteelGrades.Select(c => c.Name).ToList(); }
 
@@ -220,17 +233,20 @@ namespace ColumnDesign
 
         public void UpdateDesign()
         {
+            if (initializing) return;
             this.SelectedColumn.GetInteractionDiagram();
             UpdateFire();
-            this.MyIDView.UpdateIDHull(this.selectedColumn);
+            //this.MyIDView.UpdateIDHull(this.selectedColumn);
             UpdateCalculation();
             this.MyLayoutView.UpdateLayout(this.selectedColumn);
+            this.MyIDView.UpdateIDHull(this.selectedColumn);
             RaisePropertyChanged(nameof(SectionCheck));
             RaisePropertyChanged(nameof(MyIDView));
         }
 
         public void UpdateLoad()
         {
+            if (initializing) return;
             UpdateCalculation();
             this.MyIDView.UpdateIDHull(this.selectedColumn);
             RaisePropertyChanged(nameof(MyIDView));
@@ -240,6 +256,7 @@ namespace ColumnDesign
 
         public void UpdateFire(bool updateContours = true)
         {
+            if (initializing) return;
             Column col = this.SelectedColumn;
             updateContours = this.SelectedColumn?.TP?.ContourPts == null ? true : updateContours;
             switch (col.FireDesignMethod)
@@ -253,7 +270,7 @@ namespace ColumnDesign
                     MyLayoutView.LoadGraph(col);
                     break;
                 case (FDesignMethod.Advanced):
-                    col.UpdateFireID(updateContours);
+                    columnCalcs.UpdateFireID(updateContours);
                     MyLayoutView.LoadGraph(col);
                     break;
             }
@@ -262,26 +279,44 @@ namespace ColumnDesign
 
         public void UpdateCalculation(bool all = false)
         {
-            if(this.selectedColumn != null)
+            if (initializing) return;
+            if (this.selectedColumn != null)
             {
-                myCalcView.column = this.selectedColumn;
-                myCalcView.Formulae = new List<FormulaeVM>();
+                //myCalcView.column = this.selectedColumn;
+                //myCalcView.Formulae = new List<FormulaeVM>();
+                ////myFireDesignView.LoadGraph(this.selectedColumn);
+                //MinMaxSteelCheck = myCalcView.UpdateMinMaxSteelCheck(this.SelectedColumn);
+                //SpacingCheck = myCalcView.UpdateSecondOrderCheck();
+                //FireCheck = myCalcView.UpdateFireDesign(this.SelectedColumn);
+                //MinRebarCheck = SelectedColumn.CheckMinRebarNo();
+                //SelectedColumn.CheckGuidances();
+                //GetEmbodiedCarbon();
+                //this.SelectedColumn.GetUtilisation();
+                //RaisePropertyChanged(nameof(SelectedColumn));
+
+                columnCalcs.Column = this.selectedColumn;
+                columnCalcs.InitExpressions();
                 //myFireDesignView.LoadGraph(this.selectedColumn);
-                MinMaxSteelCheck = myCalcView.UpdateMinMaxSteelCheck(this.SelectedColumn);
-                SpacingCheck = myCalcView.UpdateSecondOrderCheck();
-                FireCheck = myCalcView.UpdateFireDesign(this.SelectedColumn);
+                MinMaxSteelCheck = columnCalcs.CheckMinMaxSteel();
+                SpacingCheck = columnCalcs.UpdateSecondOrderCheck();
+                SectionCheck = SelectedColumn.isInsideCapacity();
+                columnCalcs.GetLinkSpacing();
+                FireCheck = columnCalcs.UpdateFireDesign();
+                columnCalcs.AddInteractionDiagramFormulae();
                 MinRebarCheck = SelectedColumn.CheckMinRebarNo();
                 SelectedColumn.CheckGuidances();
                 GetEmbodiedCarbon();
                 this.SelectedColumn.GetUtilisation();
+                this.SelectedColumn.Get2DMaps();
                 RaisePropertyChanged(nameof(SelectedColumn));
+                RaisePropertyChanged(nameof(CalcExpressions));
             }
         
         }
 
         private void GetEmbodiedCarbon()
         {
-            var carbon = selectedColumn.GetEmbodiedCarbon();
+            var carbon = columnCalcs.GetEmbodiedCarbon();
 
             ConcreteCarbon = carbon[0];
             RebarCarbon = carbon[1];
@@ -423,7 +458,7 @@ namespace ColumnDesign
                         LY = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Ly").ValueAsString),
                         Length = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Length").ValueAsString),
                         Angle = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Angle").ValueAsString),
-                        ConcreteGrade = ConcreteGrades.First(c => c.Name == (dObj.Inputs.First(x => x.Name == "Concrete grade").ValueAsString)),
+                        ConcreteGrade = columnCalcs.ConcreteGrades.First(c => c.Name == (dObj.Inputs.First(x => x.Name == "Concrete grade").ValueAsString)),
                         MaxAggSize = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Max agg. size").ValueAsString),
                         EffectiveLength = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Effective length").ValueAsString),
                         CoverToLinks = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Cover to links").ValueAsString),
@@ -456,7 +491,7 @@ namespace ColumnDesign
 
         public void ExportToWord()
         {
-            OutputToODT.WriteToODT(myCalcView, true, true, true);
+            OutputToODT.WriteToODT(columnCalcs, true, true, true);
         }
         
     }

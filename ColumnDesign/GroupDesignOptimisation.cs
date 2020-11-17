@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using ColumnDesignCalc;
 
 namespace ColumnDesign
 {
@@ -224,7 +225,7 @@ namespace ColumnDesign
                     for (int i = 0; i < Nceff; i++)
                     {
                         DONs[i] = new DesignOptimisationNoWindow(this, indices[i], i, Nceff, shapes, activs, mins, maxs, incrs, indmaxiter, indalpha, indvari, drivers, driversWeight,
-                            model.ConcreteGrades, model.BarDiameters, model.LinkDiameters, AllLoads);
+                            model.ColumnCalcs.ConcreteGrades, model.BarDiameters, model.LinkDiameters, AllLoads);
                     }
                 }
                 else
@@ -234,13 +235,14 @@ namespace ColumnDesign
             }
             else
             {
+                bool square = false; // to add as a parameter
                 Stopwatch clock = new Stopwatch();
                 for (int i = 0; i < Nceff; i++)
                 {
                     clock.Restart();
                     Column c = columns[indices[i]];
-                    c = AsyncOptimisation.Optimise(c, activs, mins, maxs, incrs, model.ConcreteGrades, model.BarDiameters, model.LinkDiameters, indmaxiter, indTinit,
-                            weights, factors, alpha, variance);
+                    c = AsyncOptimisation.Optimise(c, activs, mins, maxs, incrs, model.ColumnCalcs.ConcreteGrades, model.BarDiameters, model.LinkDiameters, indmaxiter, indTinit,
+                            weights, factors, alpha, square, variance);
                     Console.WriteLine("{0}: capacity = {1}, fire = {2}, spacing = {3}, steel = {4}, time = {5}s", i, c.CapacityCheck, c.FireCheck,
                         c.SpacingCheck, c.MinMaxSteelCheck, clock.ElapsedMilliseconds / 1000.0);
                 }
@@ -351,7 +353,7 @@ namespace ColumnDesign
 
             // ---- Async process ----
             AsyncOptimisation.OptimiseGroup(worker, columns, indices, minNd, maxNd, maxGlobIter, globT0, weights, factors, alpha, variance,
-                model.ConcreteGrades, model.BarDiameters, model.LinkDiameters, InitialState, AllLoads);
+                model.ColumnCalcs.ConcreteGrades, model.BarDiameters, model.LinkDiameters, InitialState, AllLoads);
             //--------------------
             Console.WriteLine("Job done.");
         }
@@ -561,7 +563,6 @@ namespace ColumnDesign
                 
             }
             
-
         }
 
         private (double, double, double) GetTotals()
@@ -571,12 +572,14 @@ namespace ColumnDesign
             double concVol = 0;
             double steelVol = 0;
             double embodiedCarb = 0;
+            Calculations calc = new Calculations();
             for (int i = 0; i < columns.Count; i++)
             {
+                calc.Column = columns[i];
                 Column colDesign = costOderedCols[Math.Abs(bestDesign[n][i])];
                 concVol += colDesign.GetConcreteArea()*colDesign.Length;
                 steelVol += colDesign.GetSteelArea()*colDesign.Length;
-                embodiedCarb += colDesign.GetEmbodiedCarbon()[2];
+                embodiedCarb += calc.GetEmbodiedCarbon()[2];
             }
 
             return (concVol, steelVol, embodiedCarb);
@@ -609,10 +612,12 @@ namespace ColumnDesign
             double[] carbonCosts = new double[BestDesigns[n].Count];
             double[] costCosts = new double[BestDesigns[n].Count];
             List<Column> costOderedCols = columns.Where(x => x.Cost != 0).OrderBy(x => x.Cost).ToList();
+            Calculations calc = new Calculations();
             for (int i = 0; i < BestDesigns[n].Count; i++)
             {
-                carbonCosts[i] = BestDesigns[n][i].GetEmbodiedCarbon()[2];
-                costCosts[i] = BestDesigns[n][i].GetCost()[3];
+                calc.Column = BestDesigns[n][i];
+                carbonCosts[i] = calc.GetEmbodiedCarbon()[2];
+                costCosts[i] = calc.GetCost()[3];
             }
             for (int i = 0; i < bestDesign[n].Length; i++)
             {

@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ListView ItemsSource="{Binding Formulae}" Grid.Row="1" ScrollViewer.CanContentScroll="False">
+        <ListView ItemsSource="{Binding CalcExpressions}" Grid.Row="1" ScrollViewer.CanContentScroll="False">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="BorderThickness" Value="0 0 0 1"/>

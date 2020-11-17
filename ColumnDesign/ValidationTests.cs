@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ColumnDesignCalc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +37,9 @@ namespace ColumnDesign
                 SteelGrade = new Steel("S500", 500)
             };
 
-            testColumn.SetFireData();
+            Calculations calc = new Calculations(testColumn);
+
+            calc.SetFireData();
 
             for (int i = 0; i <= 20; i++)
             {
@@ -59,17 +62,17 @@ namespace ColumnDesign
                     testColumn.GetDesignMoments();
 
                     // table check
-                    mapTable[i, j] = testColumn.CheckFire() ? 1 : 0;
+                    mapTable[i, j] = calc.CheckFireDesignTable() ? 1 : 0;
 
                     // iso500 check
-                    mapIso500[i, j] = testColumn.CheckFireIsotherm500(true).Item1 ? 1 : 0;
+                    mapIso500[i, j] = calc.CheckFireIsotherm500(true).Item1 ? 1 : 0;
 
                     // iso500 check
-                    mapZone[i, j] = testColumn.CheckFireZoneMethod(false).Item1 ? 1 : 0;
+                    mapZone[i, j] = calc.CheckFireZoneMethod(false).Item1 ? 1 : 0;
 
                     // advanced check
                     testColumn.SelectedLoad.P = fireComb;
-                    testColumn.UpdateFireID(true);
+                    calc.UpdateFireID(true);
                     mapAdvanced[i, j] = testColumn.CheckIsInsideFireID() ? 1 : 0;
 
 
@@ -178,8 +181,9 @@ namespace ColumnDesign
                 ConcreteGrade = new Concrete("C50/60", 50, 37),
                 SteelGrade = new Steel("S500", 500)
             };
+            Calculations calc = new Calculations(testColumn);
 
-            testColumn.SetFireData();
+            calc.SetFireData();
 
             double ULS = 1.0 * (1.35 * DL + 1.35 * SDL + 1.5 * LL);
 
@@ -205,14 +209,14 @@ namespace ColumnDesign
                     testColumn.FireLoad = new Load()
                     {
                         P = ULS,
-                        Mxd = testColumn.SelectedLoad.Mxd,
-                        Myd = testColumn.SelectedLoad.Myd
+                        MEdx = testColumn.SelectedLoad.MEdx,
+                        MEdy = testColumn.SelectedLoad.MEdy
                     };
 
                     // table check
                     if (table)
                     {
-                        if (testColumn.CheckFire())
+                        if (calc.CheckFireDesignTable())
                         {
                             mapTable[i] = b;
                             table = false;
@@ -222,7 +226,7 @@ namespace ColumnDesign
                     // iso500 check
                     if (iso500)
                     {
-                        if (testColumn.CheckFireIsotherm500(true).Item1)
+                        if (calc.CheckFireIsotherm500(true).Item1)
                         {
                             mapIso500[i] = b;
                             iso500 = false;
@@ -232,7 +236,7 @@ namespace ColumnDesign
                     // zone method check
                     if (zone)
                     {
-                        if (testColumn.CheckFireZoneMethod(true).Item1)
+                        if (calc.CheckFireZoneMethod(true).Item1)
                         {
                             mapZone[i] = b;
                             zone = false;
@@ -243,7 +247,7 @@ namespace ColumnDesign
                     if (advanced)
                     {
                         //testColumn.SelectedLoad.P = fireComb;
-                        testColumn.UpdateFireID(true);
+                        calc.UpdateFireID(true);
                         if (testColumn.CheckIsInsideFireID())
                         {
                             mapAdvanced[i] = b;
