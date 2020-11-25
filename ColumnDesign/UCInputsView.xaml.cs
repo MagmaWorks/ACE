@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,16 +31,19 @@ namespace ColumnDesign
         {
             ComboBox cb = (sender as ComboBox);
             ViewModel vm = cb.DataContext as ViewModel;
-            if(cb.SelectedValue as string == "Custom")
-            {
-                vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade ?? new Concrete("Custom", 32, 33);
-                vm.IsCustom = true;
-            }
-            else
-            {
-                vm.SelectedColumn.ConcreteGrade = vm.ColumnCalcs.ConcreteGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
-                vm.IsCustom = false;
-            }
+            if (vm.initializing) return;
+            //if (cb.SelectedValue as string == "Custom")
+            //{
+            //    vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade ?? new Concrete("Custom", 32, 33);
+            //    vm.IsConcreteCustom = true;
+            //}
+            //else
+            //{
+            //    vm.SelectedColumn.ConcreteGrade = vm.ColumnCalcs.ConcreteGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
+            //    vm.IsConcreteCustom = false;
+            //}
+            vm.IsConcreteCustom = cb.SelectedValue as string == "Custom";
+            vm.SelectedColumn.ConcreteGrade = vm.ColumnCalcs.ConcreteGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
             vm.UpdateColumn();
             vm.UpdateDesign();
         }
@@ -48,25 +52,51 @@ namespace ColumnDesign
         {
             ComboBox cb = (sender as ComboBox);
             ViewModel vm = cb.DataContext as ViewModel;
-            if (cb.SelectedValue as string == "Custom")
-            {
-                vm.SelectedColumn.CustomSteelGrade = vm.SelectedColumn.CustomSteelGrade ?? new Steel("Custom", 400);
-                vm.SelectedColumn.SteelGrade = vm.SelectedColumn.CustomSteelGrade;
-                vm.IsCustom = true;
-            }
-            else
-            {
-                vm.SelectedColumn.SteelGrade = vm.SteelGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
-                vm.IsCustom = false;
-            }
+            if (vm.initializing) return;
+            //if (cb.SelectedValue as string == "Custom")
+            //{
+            //    vm.SelectedColumn.CustomSteelGrade = vm.SelectedColumn.CustomSteelGrade ?? new Steel("Custom", 400);
+            //    vm.SelectedColumn.SteelGrade = vm.SelectedColumn.CustomSteelGrade;
+            //    vm.IsSteelCustom = true;
+            //}
+            //else
+            //{
+            //    vm.SelectedColumn.SteelGrade = vm.ColumnCalcs.SteelGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
+            //    vm.IsSteelCustom = false;
+            //}
+            vm.IsSteelCustom = cb.SelectedValue as string == "Custom";
+            vm.SelectedColumn.SteelGrade = vm.ColumnCalcs.SteelGrades.FirstOrDefault(c => c.Name == cb.SelectedValue as string);
             vm.UpdateColumn();
             vm.UpdateDesign();
         }
+
+
+        //private void DeleteColumn(object sender, RoutedEventArgs e)
+        //{
+        //    ViewModel vm = this.DataContext as ViewModel;
+        //    if (vm.MyColumns.Count == 1)
+        //        MessageBox.Show("You need at least one column in your list.");
+        //    else
+        //    {
+        //        var res = MessageBox.Show(String.Format("Do you want to delete column '{0}'?", vm.SelectedColumn.Name),
+        //                                  "Delete column", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+        //        if(res == MessageBoxResult.Yes)
+        //        {
+        //            vm.DeleteColumn();
+        //        }
+        //    }
+        //}
+
+        //private void AddColumn(object sender, RoutedEventArgs e)
+        //{
+        //    ViewModel vm = this.DataContext as ViewModel;
+        //    vm.AddColumn();
+        //}
         
-        private void DesignChanged(object sender, RoutedEventArgs e)
+        private void DesignChangedNotFire(object sender, RoutedEventArgs e)
         {
             ViewModel vm = this.DataContext as ViewModel;
-            vm.UpdateDesign();
+            vm.UpdateDesign(updateFire: false);
         }
 
         private void BarDiameterChanged(object sender, RoutedEventArgs e)
@@ -250,6 +280,23 @@ namespace ColumnDesign
             }
         }
 
+        private void UpdateCustomShape(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            ViewModel vm = this.DataContext as ViewModel;
+            try
+            {
+                double l = Convert.ToDouble(tb.Text);
+                double val = Convert.ToDouble(vm.SelectedColumn.GetType().GetProperty(tb.Name).GetValue(vm.SelectedColumn));
+                if(l != val)
+                {
+                    vm.SelectedColumn.GetType().GetProperty(tb.Name).SetValue(vm.SelectedColumn, l);
+                    vm.UpdateDesign();
+                }
+            }
+            catch(Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
         private void UpdateEffLength(object sender, RoutedEventArgs e)
         {
             TextBox tb = sender as TextBox;
@@ -293,10 +340,10 @@ namespace ColumnDesign
             try
             {
                 double val = Convert.ToDouble(tb.Text);
-                if (val != vm.SelectedColumn.CustomConcreteGrade.E)
+                if (val != vm.SelectedColumn.ConcreteGrade.E)
                 {
-                    vm.SelectedColumn.CustomConcreteGrade.E = val;
-                    vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade;
+                    vm.SelectedColumn.ConcreteGrade.E = val;
+                    vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.ConcreteGrade;
                     vm.UpdateDesign();
                 }
             }
@@ -313,9 +360,9 @@ namespace ColumnDesign
             try
             {
                 double val = Convert.ToDouble(tb.Text);
-                if (val != vm.SelectedColumn.CustomConcreteGrade.Fc)
+                if (val != vm.SelectedColumn.ConcreteGrade.Fc)
                 {
-                    vm.SelectedColumn.CustomConcreteGrade.Fc = val;
+                    vm.SelectedColumn.ConcreteGrade.Fc = val;
                     vm.UpdateDesign();
                 }
             }
@@ -332,14 +379,13 @@ namespace ColumnDesign
             try
             {
                 double val = Convert.ToDouble(tb.Text);
-                if (val != vm.SelectedColumn.CustomSteelGrade.E)
+                if (val != vm.SelectedColumn.SteelGrade.E)
                 {
-                    vm.SelectedColumn.CustomSteelGrade.E = val;
-                    vm.SelectedColumn.SteelGrade = vm.SelectedColumn.CustomSteelGrade;
+                    vm.SelectedColumn.SteelGrade.E = val;
                     vm.UpdateDesign();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -352,13 +398,13 @@ namespace ColumnDesign
             try
             {
                 double val = Convert.ToDouble(tb.Text);
-                if (val != vm.SelectedColumn.CustomSteelGrade.Fy)
+                if (val != vm.SelectedColumn.SteelGrade.Fy)
                 {
-                    vm.SelectedColumn.CustomSteelGrade.Fy = val;
+                    vm.SelectedColumn.SteelGrade.Fy = val;
                     vm.UpdateDesign();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -522,6 +568,7 @@ namespace ColumnDesign
             PolygonalSection.Visibility = (PolygonalCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
             LShapedSection.Visibility = (LShapedCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
             TShapedSection.Visibility = (TShapedCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
+            CustomShapedSection.Visibility = (CustomShapeCB.IsChecked ?? false) ? Visibility.Visible : Visibility.Collapsed;
 
             //FireDesignMethodCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
             FireCurveCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
@@ -557,6 +604,12 @@ namespace ColumnDesign
                 if (c.FireDesignMethod == FDesignMethod.Isotherm_500 || c.FireDesignMethod == FDesignMethod.Zone_Method)
                     FireDesignMethodCB.SelectedItem = "Table";
             }
+            else if (CustomShapeCB.IsChecked ?? false)
+            {
+                c.Shape = GeoShape.CustomShape;
+                if (c.FireDesignMethod == FDesignMethod.Isotherm_500 || c.FireDesignMethod == FDesignMethod.Zone_Method)
+                    FireDesignMethodCB.SelectedItem = "Table";
+            }
 
             // Update the fire design methods
 
@@ -577,6 +630,9 @@ namespace ColumnDesign
                 case (GeoShape.TShaped):
                     vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString(), FDesignMethod.Advanced.ToString() };
                     break;
+                case (GeoShape.CustomShape):
+                    vm.FireDesignMethods = new List<string> { FDesignMethod.Table.ToString(), FDesignMethod.Advanced.ToString() };
+                    break;
 
             }
 
@@ -594,7 +650,8 @@ namespace ColumnDesign
 
             if (col?.FireLoad?.Name == "0.7*[selected]")
             {
-                Load fl = col.SelectedLoad.Name == "ALL LOADS" ? col.Loads[1] : col.SelectedLoad;
+                //Load fl = col.SelectedLoad.Name == "ALL LOADS" ? col.Loads[1] : col.SelectedLoad;
+                Load fl = col.SelectedLoad;
                 col.FireLoad = new Load()
                 {
                     Name = "0.7*[selected]",
@@ -613,8 +670,8 @@ namespace ColumnDesign
             ViewModel vm = this.DataContext as ViewModel;
             Column col = vm.SelectedColumn;
             vm.UpdateFire(true);
-            //vm.MyCalcView.UpdateFireDesign(col);
             vm.UpdateCalculation();
+            vm.MyIDView.UpdateIDHull(col);
         }
 
         private void FireDesignMethodChanged(object sender, RoutedEventArgs e)
@@ -622,8 +679,8 @@ namespace ColumnDesign
             ViewModel vm = this.DataContext as ViewModel;
             Column col = vm.SelectedColumn;
             vm.UpdateFire(false);
-            //vm.MyCalcView.UpdateFireDesign(col);
             vm.UpdateCalculation();
+            vm.MyIDView.UpdateIDHull(col);
         }
 
         private void FireCurveChanged(object sender, RoutedEventArgs e)
@@ -631,8 +688,8 @@ namespace ColumnDesign
             ViewModel vm = this.DataContext as ViewModel;
             Column col = vm.SelectedColumn;
             vm.UpdateFire(true);
-            //vm.MyCalcView.UpdateFireDesign(col);
             vm.UpdateCalculation();
+            vm.MyIDView.UpdateIDHull(col);
         }
 
         private void FireLoadChanged(object sender, RoutedEventArgs e)
@@ -642,7 +699,8 @@ namespace ColumnDesign
             string load = (sender as ComboBox).SelectedValue as string;
             if (load == "0.7*[selected]")
             {
-                Load fl = col.SelectedLoad.Name == "ALL LOADS" ? col.Loads[1] : col.SelectedLoad;
+                //Load fl = col.SelectedLoad.Name == "ALL LOADS" ? col.Loads[1] : col.SelectedLoad;
+                Load fl = col.SelectedLoad;
                 col.FireLoad = new Load()
                 {
                     Name = "0.7*[selected]",
@@ -698,5 +756,136 @@ namespace ColumnDesign
                 DesignSection.Visibility = Visibility.Visible;
         }
 
+        private void ShowLoads(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = this.DataContext as ViewModel;
+            Button b = sender as Button;
+            Point position = b.PointToScreen(new Point(0d, 0d));
+            Window w = new Window()
+            {
+                Title = "Edit loads",
+                Owner = Application.Current.MainWindow,
+                Content = new UCLoads(),
+                DataContext = vm,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                Left = position.X,
+                Top = position.Y,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                ResizeMode = ResizeMode.NoResize
+            };
+            w.ShowDialog();
+
+            vm.UpdateColumn();
+        }
+
+        private void AllLoadsClicked(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            ViewModel vm = this.DataContext as ViewModel;
+            if(cb.IsChecked ?? false)
+            {
+                vm.SelectedColumn.AllLoads = true;
+                vm.UpdateColumn();
+                Loadcb.IsEnabled = false;
+                Ptb.IsEnabled = false;
+                Mxtoptb.IsEnabled = false;
+                Mxbottb.IsEnabled = false;
+                Mytoptb.IsEnabled = false;
+                Mybottb.IsEnabled = false;
+            }
+            else
+            {
+                vm.SelectedColumn.AllLoads = false;
+                vm.UpdateColumn();
+                Loadcb.IsEnabled = true;
+                Ptb.IsEnabled = true;
+                Mxtoptb.IsEnabled = true;
+                Mxbottb.IsEnabled = true;
+                Mytoptb.IsEnabled = true;
+                Mybottb.IsEnabled = true;
+            }
+            vm.UpdateLoad();
+        }
+
+        private void EditColumns(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = this.DataContext as ViewModel;
+            Button b = sender as Button;
+            Point position = b.PointToScreen(new Point(0d, 0d));
+            Window w = new Window()
+            {
+                Title = "Edit columns",
+                Owner = Application.Current.MainWindow,
+                Content = new UCColumns(),
+                DataContext = vm,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                Left = position.X,
+                Top = position.Y,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                ResizeMode = ResizeMode.NoResize
+            };
+            w.ShowDialog();
+            PropertyInfo[] colProperties = Type.GetType(typeof(Column).AssemblyQualifiedName).GetProperties();
+
+            foreach(var c in vm.MyColumns)
+            {
+                foreach(var i in colProperties)
+                {
+                    if(i.GetValue(c) == null)
+                    {
+                        var def = i.GetValue(vm.MySettings.DefaultColumn);
+                        i.SetValue(c, def);
+                    }
+                }
+            }
+            //vm.NameSelectedColumn = vm.MyColumns[vm.MyColumns.Count - 1].Name;
+            //vm.UpdateColumnNames();
+        }
+
+        private void EditAdvancedRebars(object sender, RoutedEventArgs e)
+        {
+            
+            ViewModel vm = this.DataContext as ViewModel;
+            vm.AdvancedRebarPos = vm.SelectedColumn.AdvancedRebarsPos.Select(r => new RebarPosition(r.X, r.Y)).ToList();
+            Button b = sender as Button;
+            Point position = b.PointToScreen(new Point(0d, 0d));
+            Window w = new Window()
+            {
+                Title = "Edit rebars",
+                Owner = Application.Current.MainWindow,
+                Content = new UCAdvancedRebars(),
+                DataContext = vm,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                Left = position.X,
+                Top = position.Y-200,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                ResizeMode = ResizeMode.NoResize
+            };
+            w.ShowDialog();
+
+            vm.SelectedColumn.AdvancedRebarsPos = vm.AdvancedRebarPos.Select(r => new MWGeometry.MWPoint2D(r.X, r.Y)).ToList();
+            vm.UpdateDesign();
+        }
+
+        private void SelectAdvancedRebarFile(object sender, RoutedEventArgs e)
+        {
+            string filePath;
+            try
+            {
+                var openDialog = new System.Windows.Forms.OpenFileDialog();
+                openDialog.Filter = @"csv files |*.csv";
+                //saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                if (openDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+                filePath = openDialog.FileName;
+                Properties.Settings.Default.Reload();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show("Oops..." + Environment.NewLine + ex.Message);
+                return;
+            }
+            ViewModel vm = this.DataContext as ViewModel;
+            vm.SelectedColumn.AdvancedRebarFile = filePath;
+        }
     }
 }

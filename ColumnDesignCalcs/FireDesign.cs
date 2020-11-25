@@ -3,6 +3,7 @@ using MWGeometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,8 +19,11 @@ namespace ColumnDesignCalc
         int NX = 30;
         int NY = 30;
 
+        [JsonIgnore]
         public Matrix<double> Temp;
+        [JsonIgnore]
         public Vector<double> X;
+        [JsonIgnore]
         public Vector<double> Y;
 
         double Lx;
@@ -28,6 +32,7 @@ namespace ColumnDesignCalc
         double ly;
         double Theta;
 
+        [JsonIgnore]
         public Dictionary<double, Matrix<double>> TempMap = new Dictionary<double, Matrix<double>>();
         //public List<Matrix<double>> Contours;
         public List<Contour> ContourPts { get; set; } = new List<Contour>();
@@ -334,6 +339,124 @@ namespace ColumnDesignCalc
             }
         }
 
+        // For Custom Shape sections
+        public TemperatureProfile(double cLx, double cLy, double d1x, double d1y, double d2x, double d2y, double d3x, double d3y, double d4x, double d4y, double time, FCurve fcurve)
+        {
+            NT = Convert.ToInt32((time / 7200) * 1800);
+            double dt = time / NT;
+            while (NX < 3000)
+            {
+                double t1 = (NX - 1) * d1x / cLx;
+                double t2 = (NX - 1) * d2x / cLx;
+                double t3 = (NX - 1) * d3x / cLx;
+                double t4 = (NX - 1) * d4x / cLx;
+                if (t1 - Convert.ToInt32(t1) == 0 && t2 - Convert.ToInt32(t2) == 0 && t3 - Convert.ToInt32(t3) == 0 && t4 - Convert.ToInt32(t4) == 0)
+                    break;
+                else
+                    NX++;
+            }
+            while (NY < 3000)
+            {
+                double t1 = (NY - 1) * d1y / cLy;
+                double t2 = (NY - 1) * d2y / cLy;
+                double t3 = (NY - 1) * d3y / cLy;
+                double t4 = (NY - 1) * d4y / cLy;
+                if (t1 - Convert.ToInt32(t1) == 0 && t2 - Convert.ToInt32(t2) == 0 && t3 - Convert.ToInt32(t3) == 0 && t4 - Convert.ToInt32(t4) == 0)
+                    break;
+                else
+                    NY++;
+            }
+            double dx = cLx / (NX - 1);
+            double dy = cLy / (NY - 1);
+
+            int n1x = Convert.ToInt32(d1x / dx);
+            int n1y = Convert.ToInt32(d1y / dy);
+            int n2x = Convert.ToInt32(d2x / dx);
+            int n2y = Convert.ToInt32(d2y / dy);
+            int n3x = Convert.ToInt32(d3x / dx);
+            int n3y = Convert.ToInt32(d3y / dy);
+            int n4x = Convert.ToInt32(d4x / dx);
+            int n4y = Convert.ToInt32(d4y / dy);
+
+            double[] fireResistances = new double[] { 30, 60, 90, 120, 180, 240 };
+
+            Lx = cLx;
+            Ly = cLy;
+
+            //lx = hx;
+            //ly = hy;
+
+            var M = Matrix<double>.Build;
+            var V = Vector<double>.Build;
+
+            Temp = M.Dense(NX, NY, 20.0);
+
+            Matrix<double> A;
+            Matrix<double> B;
+
+            X = V.Dense(NX, i => i * dx + dx / 2);
+            Y = V.Dense(NY, i => i * dy + dy / 2);
+
+            double Tfire = 0;
+
+            for (int n = 0; n <= NT; n++)
+            {
+                double t = n * dt / 60;
+                if (fcurve == FCurve.Standard)
+                    Tfire = 20 + 345 * Math.Log10(8 * t + 1);
+                else if (fcurve == FCurve.Hydrocarbon)
+                    Tfire = 1080 * (1 - 0.325 * Math.Exp(-0.167 * t) - 0.675 * Math.Exp(-2.5 * t)) + 20;
+                // conditions due to symmetry
+                //Temp.SetColumn(NX - 1, Temp.Column(NX - 2));
+                //Temp.SetRow(NY - 1, Temp.Row(NY - 2));
+
+                A = M.Dense(NX, NY, (i, j) => (GetA(i, j)));
+                B = M.Dense(NX, NY, (i, j) => (GetB(i, j)));
+
+                // Boundary conditions
+
+                Temp.SetRow(0, V.Dense(NY, j =>
+                {
+                    double l = 1.36 - 0.136 * Temp[0, j] / 100 + 0.0057 * (Temp[0, j] / 100) * (Temp[0, j] / 100);
+                    return Temp[0, j] + 25 * dx / l * (Tfire - Temp[0, j]) - dt * B[0, j] / l * 0.7 * 5.6703E-8 * Math.Pow(Temp[0, j] + 273, 4);
+                }));
+
+                Temp.SetRow(NX - 1, V.Dense(NY, j =>
+                {
+                    double l = 1.36 - 0.136 * Temp[NX - 1, j] / 100 + 0.0057 * (Temp[NX - 1, j] / 100) * (Temp[NX - 1, j] / 100);
+                    return Temp[NX - 1, j] + 25 * dx / l * (Tfire - Temp[NX - 1, j]) - dt * B[NX - 1, j] / l * 0.7 * 5.6703E-8 * Math.Pow(Temp[NX - 1, j] + 273, 4);
+                }));
+
+                Temp.SetColumn(0, V.Dense(NX, i =>
+                {
+                    double l = 1.36 - 0.136 * Temp[i, 0] / 100 + 0.0057 * (Temp[i, 0] / 100) * (Temp[i, 0] / 100);
+                    return Temp[i, 0] + 25 * dy / l * (Tfire - Temp[i, 0]) - dt * B[i, 0] / l * 0.7 * 5.6703E-8 * Math.Pow(Temp[i, 0] + 273, 4);
+                }));
+
+                Temp.SetColumn(NY - 1, V.Dense(NX, i =>
+                {
+                    double l = 1.36 - 0.136 * Temp[i, NY - 1] / 100 + 0.0057 * (Temp[i, NY - 1] / 100) * (Temp[i, NY - 1] / 100);
+                    return Temp[i, NY - 1] + 25 * dy / l * (Tfire - Temp[i, NY - 1]) - dt * B[i, NY - 1] / l * 0.7 * 5.6703E-8 * Math.Pow(Temp[i, NY - 1] + 273, 4);
+                }));
+
+                Temp.SetSubMatrix(0, 0, M.Dense(n1x + 1, n1y + 1, Tfire));
+                Temp.SetSubMatrix(NX - n2x - 1 , 0, M.Dense(n2x + 1, n2y + 1, Tfire));
+                Temp.SetSubMatrix(NX - n3x - 1, NY - n3y - 1, M.Dense(n3x + 1, n3y + 1, Tfire));
+                Temp.SetSubMatrix(0 , NY - n4y - 1, M.Dense(n4x + 1, n4y + 1, Tfire));
+
+                var Temp2 = Temp.SubMatrix(1, NX - 2, 1, NY - 2)
+                          + dt / (4 * dx * dx) * A.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(2, NX - 2, 1, NY - 2).PointwisePower(2) - 2 * Temp.SubMatrix(2, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(0, NX - 2, 1, NY - 2)) + Temp.SubMatrix(0, NX - 2, 1, NY - 2).PointwisePower(2))
+                          + dt / (4 * dy * dy) * A.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(1, NX - 2, 2, NY - 2).PointwisePower(2) - 2 * Temp.SubMatrix(1, NX - 2, 2, NY - 2).PointwiseMultiply(Temp.SubMatrix(1, NX - 2, 0, NY - 2)) + Temp.SubMatrix(1, NX - 2, 0, NY - 2).PointwisePower(2))
+                          + dt / (dx * dx) * B.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(2, NX - 2, 1, NY - 2) - 2 * Temp.SubMatrix(1, NX - 2, 1, NY - 2) + Temp.SubMatrix(0, NX - 2, 1, NY - 2))
+                          + dt / (dy * dy) * B.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(1, NX - 2, 2, NY - 2) - 2 * Temp.SubMatrix(1, NX - 2, 1, NY - 2) + Temp.SubMatrix(1, NX - 2, 0, NY - 2));
+
+                Temp.SetSubMatrix(1, 1, Temp2);
+
+                //double t = (n + 1) * dt / 60;
+                if (fireResistances.Contains(t))
+                    TempMap.Add(t, Temp.Clone());
+            }
+        }
         private double GetA(int i, int j)
         {
             double res = 0;
@@ -373,7 +496,7 @@ namespace ColumnDesignCalc
         }
 
 
-        public void GetContours(double R, string shape)
+        public void GetContours(double R, string shape, Column col = null)
         {
             var M = Matrix<double>.Build;
             var V = Vector<double>.Build;
@@ -507,6 +630,17 @@ namespace ColumnDesignCalc
                     Level = level
                 });
                 ContourPts.ForEach(d => d.Points = d.Points.Select(p => new MWPoint2D((p.X - Lx / 2) * 1e3, (p.Y - Ly / 2) * 1e3)).ToList());
+                ContourPts.ForEach(d => d.Points.Add(d.Points[0])); // we add the first point to have closed contours.
+            }
+            else if (shape == "CustomShape")
+            {
+                ContourPts.ForEach(d => d.Points = d.Points.Select(p => new MWPoint2D((p.X - Lx / 2) * 1e3, (p.Y - Ly / 2) * 1e3)).ToList());
+                List<MWPoint2D> contour = col.GetCustomShapeContour();
+                ContourPts.Add(new Contour()
+                {
+                    Points = contour,
+                    Level = level
+                });
                 ContourPts.ForEach(d => d.Points.Add(d.Points[0])); // we add the first point to have closed contours.
             }
             Levels.Add(level);

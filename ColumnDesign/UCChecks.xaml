@@ -373,7 +373,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" >
-                <StackPanel Orientation="Vertical" Background="Gray" Margin="4 0 0 0" VerticalAlignment="Top" >
+                <StackPanel Orientation="Vertical" Background="DarkGray" Margin="4 0 0 0" VerticalAlignment="Top" >
                     <Button
                         Click="OptimiseDesign"
                         BorderBrush="Transparent"
@@ -404,7 +404,11 @@
                         <Image Source="resources/FireInfo.png"/>
                     </Button>
                 </StackPanel>
-                <StackPanel Orientation="Vertical" Background="Gray" Margin="4 0 0 0" VerticalAlignment="Top" >
+                <StackPanel 
+                    Orientation="Vertical" 
+                    Background="DarkGray"
+                    Margin="4 0 0 0" 
+                    VerticalAlignment="Top" >
                     <!--<Button 
                     Click="Save"
                     BorderBrush="Transparent"
@@ -470,6 +474,17 @@
                     Width="50"
                     ToolTip="Export a word report of your current design">
                         <Image Source="resources/ToWord.png"/>
+                    </Button>
+                    <Button 
+                    Click="OpenSettings"
+                    BorderBrush="Transparent"
+                    HorizontalAlignment="Right"
+                    Margin="5 5 5 5"
+                    Background="Transparent"
+                    Height="50"
+                    Width="50"
+                    ToolTip="Settings">
+                        <Image Source="resources/Settings.png"/>
                     </Button>
                 </StackPanel>
             </StackPanel>

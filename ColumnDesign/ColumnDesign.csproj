@@ -92,9 +92,8 @@
     <Reference Include="HelixToolkit.Wpf, Version=2.8.0.0, Culture=neutral, PublicKeyToken=52aa3500039caf0d, processorArchitecture=MSIL">
       <HintPath>..\packages\HelixToolkit.Wpf.2.8.0\lib\net45\HelixToolkit.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="InteractionDiagram3D, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Resources\InteractionDiagram3D.dll</HintPath>
+    <Reference Include="InteractionDiagram3D">
+      <HintPath>..\packages\InteractionDiagram3D\InteractionDiagram3D.dll</HintPath>
     </Reference>
     <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
       <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
@@ -111,9 +110,8 @@
     <Reference Include="Microsoft.Maps.MapControl.WPF, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Maps.MapControl.WPF.1.0.0.3\lib\net40-Client\Microsoft.Maps.MapControl.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="MWGeometry, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Resources\MWGeometry.dll</HintPath>
+    <Reference Include="MWGeometry">
+      <HintPath>..\packages\MWGeometry\MWGeometry.dll</HintPath>
     </Reference>
     <Reference Include="netDxf.netstandard, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\netDxf.netstandard.2.3.0\lib\net45\netDxf.netstandard.dll</HintPath>
@@ -202,11 +200,9 @@
       <DependentUpon>AutoGroupDesign.xaml</DependentUpon>
     </Compile>
     <Compile Include="CalcsColumn.cs" />
-    <Compile Include="CalcuationView.cs" />
     <Compile Include="ClosingWindow.xaml.cs">
       <DependentUpon>ClosingWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Column.cs" />
     <Compile Include="ColumnMap.xaml.cs">
       <DependentUpon>ColumnMap.xaml</DependentUpon>
     </Compile>
@@ -232,11 +228,15 @@
     </Compile>
     <Compile Include="OutputToODT.cs" />
     <Compile Include="SaveOnQuitVM.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="UC2DID.xaml.cs">
       <DependentUpon>UC2DID.xaml</DependentUpon>
     </Compile>
     <Compile Include="UC3DID.xaml.cs">
       <DependentUpon>UC3DID.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UCAdvancedRebars.xaml.cs">
+      <DependentUpon>UCAdvancedRebars.xaml</DependentUpon>
     </Compile>
     <Compile Include="UCCalcs.xaml.cs">
       <DependentUpon>UCCalcs.xaml</DependentUpon>
@@ -247,14 +247,23 @@
     <Compile Include="UCColumnLayout.xaml.cs">
       <DependentUpon>UCColumnLayout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UCColumns.xaml.cs">
+      <DependentUpon>UCColumns.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCFireDesign.xaml.cs">
       <DependentUpon>UCFireDesign.xaml</DependentUpon>
     </Compile>
     <Compile Include="UCInputsView.xaml.cs">
       <DependentUpon>UCInputsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UCLoads.xaml.cs">
+      <DependentUpon>UCLoads.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCOutputsView.xaml.cs">
       <DependentUpon>UCOutputsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UCSettings.xaml.cs">
+      <DependentUpon>UCSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="UCYieldSurface.xaml.cs">
       <DependentUpon>UCYieldSurface.xaml</DependentUpon>
@@ -314,6 +323,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCAdvancedRebars.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCCalcs.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -326,6 +339,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCColumns.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCFireDesign.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -334,7 +351,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCLoads.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCOutputsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UCSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -426,16 +451,19 @@
     <Resource Include="Resources\fire.gif" />
     <Resource Include="Resources\Eye.png" />
     <Resource Include="Resources\Closed_Eye.png" />
-    <Content Include="Resources\InteractionDiagram3D.dll" />
-    <Content Include="Resources\InteractionDiagram3D_Windows.dll" />
     <Resource Include="Resources\MagmaWorksFullLogo.PNG" />
-    <Content Include="Resources\MWGeometry.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ColumnDesignCalcs\ColumnDesignCalcs.csproj">
       <Project>{e79e5edd-7597-4224-8545-526570dcf30e}</Project>
       <Name>ColumnDesignCalcs</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\List.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

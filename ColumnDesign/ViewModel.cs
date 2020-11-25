@@ -30,25 +30,10 @@ namespace ColumnDesign
             {
                 myColumns = value;
                 RaisePropertyChanged(nameof(MyColumns));
-                RaisePropertyChanged(nameof(ColumnNames));
             }
         }
 
-        private Column customCol = new Column()
-        {
-            Name = "default",
-            LX = 350,
-            LY = 350,
-            Length = 3000,
-            CustomConcreteGrade = new Concrete("Custom", 50, 37),
-            ConcreteGrade = new Concrete("50/60", 50, 37),
-            SelectedLoad = new Load() { Name = "default", P = 5000 },
-            FireLoad = new Load() { Name = "default", P = 5000 },
-            Loads = new List<Load>() { new Load() { Name = "default", P = 5000 } }
-            //P = 5000
-        };
-
-        public ObservableCollection<string> ColumnNames { get { return new ObservableCollection<string>(MyColumns.Select(c => c.Name)); } }
+        public bool CanColumnBeDeleted { get { return MyColumns.Count > 1; } }
 
         IDView myIDView = new IDView();
         public IDView MyIDView
@@ -133,9 +118,11 @@ namespace ColumnDesign
         public string NameSelectedColumn
         {
             get { return nameSelectedColumn; }
-            set { nameSelectedColumn = value;
-                  RaisePropertyChanged(nameof(NameSelectedColumn));
-                  SelectedColumn = MyColumns.FirstOrDefault(c => c.Name == nameSelectedColumn);
+            set
+            {
+                nameSelectedColumn = value;
+                RaisePropertyChanged(nameof(NameSelectedColumn));
+                SelectedColumn = MyColumns.FirstOrDefault(c => c.Name == nameSelectedColumn);
             }
         }
 
@@ -164,7 +151,7 @@ namespace ColumnDesign
         public Column SelectedColumn
         {
             get { return selectedColumn ; }
-            set { selectedColumn = value;
+            set { selectedColumn = value ?? myColumns.FirstOrDefault(c => c!= null);
                   UpdateDesign();
                   RaisePropertyChanged(nameof(SelectedColumn));
             }
@@ -172,23 +159,7 @@ namespace ColumnDesign
 
         public List<string> ConcreteNames { get => columnCalcs.ConcreteGrades.Select(c => c.Name).ToList(); }
 
-        //public List<Concrete> ConcreteGrades { get; } = new List<Concrete>()
-        //{
-        //    new Concrete("Custom"),
-        //    new Concrete("32/40",32,33),
-        //    new Concrete("35/45",35,34),
-        //    new Concrete("40/50",40,35),
-        //    //new Concrete("45/55",45,36),
-        //    new Concrete("50/60",50,37),
-        //};
-
-        public List<string> SteelNames { get => SteelGrades.Select(c => c.Name).ToList(); }
-
-        public List<Steel> SteelGrades { get; } = new List<Steel>()
-        {
-            new Steel("Custom",400),
-            new Steel("500B",500)
-        };
+        public List<string> SteelNames { get => columnCalcs.SteelGrades.Select(c => c.Name).ToList(); }
 
         public List<int> NoBars { get; set; } = new List<int> { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
@@ -209,17 +180,35 @@ namespace ColumnDesign
 
         public Dictionary<double, double> CarbonData = new Dictionary<double, double>();
 
-        const double concreteVolMass = 2.5e3;
-        const double steelVolMass = 7.5e3;
-
-        bool isCustom = true;
-        public bool IsCustom
+        Settings mySettings = new Settings();
+        public Settings MySettings
         {
-            get { return isCustom; }
-            set { isCustom = value; RaisePropertyChanged(nameof(IsCustom)); }
+            get { return mySettings; }
+            set { mySettings = value; RaisePropertyChanged(nameof(MySettings)); }
         }
 
-        
+        bool isConcreteCustom = false;
+        public bool IsConcreteCustom
+        {
+            get { return isConcreteCustom; }
+            set { isConcreteCustom = value; RaisePropertyChanged(nameof(IsConcreteCustom)); }
+        }
+
+        bool isSteelCustom = false;
+        public bool IsSteelCustom
+        {
+            get { return isSteelCustom; }
+            set { isSteelCustom = value; RaisePropertyChanged(nameof(IsSteelCustom)); }
+        }
+
+        List<RebarPosition> advancedRebarPos = new List<RebarPosition>();
+        public List<RebarPosition> AdvancedRebarPos
+        {
+            get { return advancedRebarPos; }
+            set { advancedRebarPos = value; RaisePropertyChanged(nameof(AdvancedRebarPos)); }
+        }
+
+
         public ViewModel()
         {
             MyLayoutView.myViewModel = this;
@@ -231,15 +220,14 @@ namespace ColumnDesign
             RaisePropertyChanged(nameof(SelectedColumn));
         }
 
-        public void UpdateDesign()
+        public void UpdateDesign(bool updateFire = true)
         {
             if (initializing) return;
             this.SelectedColumn.GetInteractionDiagram();
-            UpdateFire();
-            //this.MyIDView.UpdateIDHull(this.selectedColumn);
+            if(updateFire) UpdateFire();
             UpdateCalculation();
-            this.MyLayoutView.UpdateLayout(this.selectedColumn);
-            this.MyIDView.UpdateIDHull(this.selectedColumn);
+            this.myLayoutView.UpdateLayout(this.selectedColumn);
+            this.myIDView.UpdateIDHull(this.selectedColumn);
             RaisePropertyChanged(nameof(SectionCheck));
             RaisePropertyChanged(nameof(MyIDView));
         }
@@ -248,7 +236,7 @@ namespace ColumnDesign
         {
             if (initializing) return;
             UpdateCalculation();
-            this.MyIDView.UpdateIDHull(this.selectedColumn);
+            this.myIDView.UpdateIDHull(this.selectedColumn);
             RaisePropertyChanged(nameof(MyIDView));
             RaisePropertyChanged(nameof(SectionCheck));
             RaisePropertyChanged(nameof(SelectedColumn));
@@ -274,7 +262,6 @@ namespace ColumnDesign
                     MyLayoutView.LoadGraph(col);
                     break;
             }
-            MyIDView.UpdateIDHull(col);
         }
 
         public void UpdateCalculation(bool all = false)
@@ -322,14 +309,6 @@ namespace ColumnDesign
             RebarCarbon = carbon[1];
             TotalCarbon = carbon[2];
 
-        }
-
-        private void InitializeCarbonData()
-        {
-            CarbonData.Add(32, 0.163);
-            CarbonData.Add(40, 0.188);
-            CarbonData.Add(50, 0.205);
-            CarbonData.Add(60, 0.23);
         }
 
         public void Save()
@@ -414,12 +393,12 @@ namespace ColumnDesign
             if (openDialog.ShowDialog() != DialogResult.OK) return;
             List<Column> newCols = new List<Column>();
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
-            if (!newCols.Select(x => x.Name).Contains(customCol.Name)) newCols.Insert(0, customCol);
+            //if (!newCols.Select(x => x.Name).Contains(customCol.Name)) newCols.Insert(0, customCol);
             MyColumns = newCols;
             Column c = MyColumns[Convert.ToInt32(Math.Min(newCols.Count - 1, 1))];
             c.FDMStr = "Table";
             SelectedColumn = c; // MyColumns[Convert.ToInt32(Math.Min(newCols.Count-1,1))];
-            NameSelectedColumn = SelectedColumn.Name;
+            //NameSelectedColumn = SelectedColumn.Name;
         }
 
         public void OpenAdd()
@@ -433,7 +412,7 @@ namespace ColumnDesign
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
             MyColumns = newCols;
             SelectedColumn = MyColumns[MyColumns.Count - 1];
-            NameSelectedColumn = SelectedColumn.Name;
+            //NameSelectedColumn = SelectedColumn.Name;
         }
 
         public IEnumerable<Column> OpenDesigns(string[] fileNames)
@@ -491,8 +470,45 @@ namespace ColumnDesign
 
         public void ExportToWord()
         {
-            OutputToODT.WriteToODT(columnCalcs, true, true, true);
+            if(mySettings.AllCalcs)
+            {
+                List<ICalc> calcs = new List<ICalc>();
+                foreach (var c in myColumns)
+                {
+                    Calculations calc = new Calculations();
+                    calc.Column = c;
+                    calc.UpdateInputOuput();
+                    IDView.Generate2DIDs(c);
+                    calc.UpdateCalc();
+                    calcs.Add(calc);
+                }
+                
+                if (mySettings.CombinedReport)
+                    OutputToODT.WriteToODT(calcs, true, true, true, mySettings);
+                else
+                    OutputToODT.WriteToODT2(calcs, true, true, true, mySettings);
+            }
+            else
+                OutputToODT.WriteToODT(columnCalcs, true, true, true, mySettings);
         }
         
+    }
+
+    public class RebarPosition
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+
+        public RebarPosition(double x, double y)
+        {
+            X = x;
+            Y = y;
+        }
+
+        public RebarPosition()
+        {
+            X = 0;
+            Y = 0;
+        }
     }
 }

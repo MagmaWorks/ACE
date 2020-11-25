@@ -1,38 +1,39 @@
-﻿using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+using System.Windows.Forms;
 using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 using M = DocumentFormat.OpenXml.Math;
-using System.Windows.Forms;
-using System.Reflection;
+using DocumentFormat.OpenXml.Wordprocessing;
 using WpfMath;
+using System.Windows.Media.Imaging;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+//using static ColumnDesign.CalcuationView;
+using ColumnDesignCalc;
 using CalcCore;
 
 namespace ColumnDesign
 {
     public static class OutputToODT
     {
-        public static void WriteToODT(ICalc calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett)
+        public static void WriteToODT(Calculations calculation, bool includeInputs, bool includeBody, bool includeOutputs)
         {
             string filePath;
             try
             {
                 var saveDialog = new SaveFileDialog();
                 saveDialog.Filter = @"Word files |*.docx";
-                saveDialog.FileName = calculation.InstanceName + @".docx";
-                //saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                saveDialog.FileName = "Design_Col_"+ calculation.Column.Name + @".docx";
+                saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 if (saveDialog.ShowDialog() != DialogResult.OK) return;
                 filePath = saveDialog.FileName;
-                Properties.Settings.Default.Reload();
             }
             catch (Exception ex)
             {
@@ -40,58 +41,13 @@ namespace ColumnDesign
                 return;
             }
 
-            WriteToODT(new List<ICalc> { calculation }, includeInputs, includeBody, includeOutputs, filePath, sett);
+            WriteToODT(calculation, includeInputs, includeBody, includeOutputs, filePath);
 
         }
 
-        public static void WriteToODT(List<ICalc> calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett)
+
+        public static void WriteToODT(Calculations calculation, bool includeInputs, bool includeBody, bool includeOutputs, string filePath)
         {
-            string filePath;
-            try
-            {
-                var saveDialog = new SaveFileDialog();
-                saveDialog.Filter = @"Word files |*.docx";
-                saveDialog.FileName = "calculations" + @".docx";
-                //saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                if (saveDialog.ShowDialog() != DialogResult.OK) return;
-                filePath = saveDialog.FileName;
-                Properties.Settings.Default.Reload();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Oops..." + Environment.NewLine + ex.Message);
-                return;
-            }
-
-            WriteToODT(calculation, includeInputs, includeBody, includeOutputs, filePath, sett);
-        }
-
-        public static void WriteToODT2(List<ICalc> calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett)
-        {
-            string filePath;
-            try
-            {
-                var fbd = new FolderBrowserDialog();
-                Properties.Settings.Default.Reload();
-                if (fbd.ShowDialog() != DialogResult.OK) return;
-                    filePath = fbd.SelectedPath;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Oops..." + Environment.NewLine + ex.Message);
-                return;
-            }
-
-            foreach(var c in calculation)
-            {
-                string path = filePath + @"\" + c.InstanceName + ".docx";
-                WriteToODT(new List<ICalc> { c }, includeInputs, includeBody, includeOutputs, path, sett);
-            }
-        }
-
-        public static void WriteToODT(List<ICalc> calculations, bool includeInputs, bool includeBody, bool includeOutputs, string filePath, Settings sett = null)
-        {
-            if (sett == null) sett = new Settings();
             try
             {
                 var libraryPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\Libraries";
@@ -110,81 +66,66 @@ namespace ColumnDesign
                 Body body = mainPart.Document.AppendChild(new Body());
 
                 var headerPart = mainPart.HeaderParts.First();
-                //var line1 = new Paragraph(new Run(new Text(calculation.TypeName + " - " + calculation.InstanceName)));
-                //line1.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
-                var line2 = new Paragraph(new Run(new Text("By: " + sett.ReportBy + " on " + DateTime.Today.ToLongDateString())));
+                var line1 = new Paragraph(new Run(new Text("Design of column "+calculation.Column.Name)));
+                line1.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
+                var line2 = new Paragraph(new Run(new Text("By: " + Environment.UserName + " on " + DateTime.Today.ToLongDateString())));
                 line2.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
-                var line3 = new Paragraph(new Run(new Text("Checked by : " + sett.ReportCheckedBy)));
+                var line3 = new Paragraph(new Run(new Text("Checked by : ")));
                 line3.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
                 var line4 = new Paragraph(new Run(new Text("")));
                 line4.PrependChild<ParagraphProperties>(new ParagraphProperties() { ParagraphStyleId = new ParagraphStyleId() { Val = "NoSpacing" } });
-                headerPart.RootElement.Append(
-                    /*line1,*/
-                    line2,
-                    line3,
-                    line4);
+                headerPart.RootElement.Append(line1, line2, line3, line4);
 
-                bool firstCalc = true;
-                foreach (var calculation in calculations)
+                // update the SCaFFOLD inputs / outputs
+                calculation.UpdateInputOuput();
+
+                if (includeInputs)
                 {
-                    if (!firstCalc)
-                    {
-                        body.Append(new Paragraph(new Run(new Break() { Type = BreakValues.Page })));
-                    }
+                    Paragraph para = new Paragraph(new Run(new Text("Inputs")));
+                    var paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
+                    paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Heading1" };
+                    body.Append(para);
+                    para = new Paragraph(new Run(new Text("Input values for calculation.")));
+                    paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
+                    paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Normal" };
+                    body.Append(para);
+                    var tableOfInputs = genTable(calculation.GetInputs());
+                    body.Append(tableOfInputs);
+                }
 
-                    Paragraph para = new Paragraph(new Run(new Text(calculation.TypeName + " - " + calculation.InstanceName)));
+                if (includeBody)
+                {
+                    Paragraph para = new Paragraph(new Run(new Text("Body")));
                     var paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
                     paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Heading1" };
                     body.Append(para);
 
-                    if (includeInputs)
-                    {
-                        para = new Paragraph(new Run(new Text("Inputs")));
-                        paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
-                        paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Heading2" };
-                        body.Append(para);
-                        para = new Paragraph(new Run(new Text("Input values for calculation.")));
-                        paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
-                        paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Normal" };
-                        body.Append(para);
-                        var tableOfInputs = genTable(calculation.GetInputs(), mainPart);
-                        body.Append(tableOfInputs);
-                    }
-
-                    if (includeBody)
-                    {
-                        para = new Paragraph(new Run(new Text("Body")));
-                        paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
-                        paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Heading2" };
-                        body.Append(para);
-
-                        para = new Paragraph(new Run(new Text("Main calculation including diagrams, working, narrative and conclusions.")));
-                        paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
-                        paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Normal" };
-                        body.Append(para);
+                    para = new Paragraph(new Run(new Text("Main calculation including diagrams, working, narrative and conclusions.")));
+                    paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
+                    paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Normal" };
+                    body.Append(para);
 
 
-                        var FormulaeTable = genFormulaeTable(calculation.GetFormulae(), mainPart);
-                        body.AppendChild(FormulaeTable);
-                    }
-
-                    if (includeOutputs)
-                    {
-                        para = new Paragraph(new Run(new Text("Calculated values")));
-                        paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
-                        paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Heading2" };
-                        body.Append(para);
-
-                        para = new Paragraph(new Run(new Text("List of calculated values.")));
-                        paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
-                        paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Normal" };
-                        body.Append(para);
-
-                        var tableOfOutputs = genTable(calculation.GetOutputs(), mainPart);
-                        body.Append(tableOfOutputs);
-                    }
-                    firstCalc = false;
+                    var FormulaeTable = genFormulaeTable(calculation.Expressions, mainPart);
+                    body.AppendChild(FormulaeTable);
                 }
+
+                if (includeOutputs)
+                {
+                    var para = new Paragraph(new Run(new Text("Calculated values")));
+                    var paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
+                    paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Heading1" };
+                    body.Append(para);
+
+                    para = new Paragraph(new Run(new Text("List of calculated values.")));
+                    paraProps = para.PrependChild<ParagraphProperties>(new ParagraphProperties());
+                    paraProps.ParagraphStyleId = new ParagraphStyleId() { Val = "Normal" };
+                    body.Append(para);
+
+                    var tableOfOutputs = genTable(calculation.GetOutputs());
+                    body.Append(tableOfOutputs);
+                }
+
             }
         }
 
@@ -218,47 +159,26 @@ namespace ColumnDesign
                 TableCell cell2 = new TableCell();
                 cell2.Append(new TableCellProperties(new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "6100" }));
                 cell2.AppendChild(new Paragraph(new Run(new Text(item.Narrative))));
-                //foreach (var formula in item.Expression)
-                //{
-                //    var mathPara = new Paragraph();
-                //    var myMath = new M.OfficeMath(new M.Run(new M.Text(formula + Environment.NewLine) { Space = SpaceProcessingModeValues.Preserve }));
-                //    mathPara.AppendChild(myMath);
-                //    mathPara.AppendChild(new Run(new Text(" ") { Space = SpaceProcessingModeValues.Preserve }));
-                //    cell2.AppendChild(mathPara);
-                //}
                 foreach (var formula in item.Expression)
                 {
                     if (formula != "")
                     {
-                        TexFormula formulaToParse = new TexFormula();
-                        try
+                        var mathPara = new Paragraph();
+                        var parser = new TexFormulaParser();
+                        var formulaToParse = parser.Parse(formula);
+                        var formulaImage = formulaToParse.RenderToPng(20, 20, 20, "Franklin Gothic Book");
+                        ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
+                        using (var stream = new MemoryStream(formulaImage))
                         {
-                            var parser = new TexFormulaParser();
-                            formulaToParse = parser.Parse(formula);
-
-                        }
-                        catch (Exception)
-                        {
-                            var parser = new TexFormulaParser();
-                            formulaToParse = parser.Parse("Error in LaTeX string...");
-                        }
-                        var test = formulaToParse.GetRenderer(TexStyle.Script, 100, "Franklin Gothic Book");
-                        if (test.RenderSize.Width > 0 && test.RenderSize.Height > 0)
-                        {
-                            var formulaImage = formulaToParse.RenderToPng(100, 0, 0, "Franklin Gothic Book");
-                            ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
-                            using (var stream = new MemoryStream(formulaImage))
-                            {
-                                imagePart.FeedData(stream);
-                                var img = new BitmapImage();
-                                img.BeginInit();
-                                img.StreamSource = stream;
-                                img.CacheOption = BitmapCacheOption.OnLoad;
-                                img.EndInit();
-                                img.Freeze();
-                                var paraImage = AddImageToBody(mainPart.GetIdOfPart(imagePart), img.Width * 2.54 / 600, img.Height * 2.54 / 600);
-                                cell2.AppendChild(new Paragraph(new Run(paraImage)));
-                            }
+                            imagePart.FeedData(stream);
+                            var img = new BitmapImage();
+                            img.BeginInit();
+                            img.StreamSource = stream;
+                            img.CacheOption = BitmapCacheOption.OnLoad;
+                            img.EndInit();
+                            img.Freeze();
+                            var paraImage = AddImageToBody(mainPart.GetIdOfPart(imagePart), img.Width, img.Height);
+                            cell2.AppendChild(paraImage);
                         }
                     }
                     //var myMath = new M.OfficeMath(new M.Run(new M.Text(formula + Environment.NewLine) { Space = SpaceProcessingModeValues.Preserve }));
@@ -275,7 +195,7 @@ namespace ColumnDesign
                     //CHANGEBITMAP
                     //png.Frames.Add(BitmapFrame.Create(item.Image));
                     var width = Math.Min(10d, item.Image.Width * 2.54 / 96);
-                    var height = ((double)item.Image.Height / (double)item.Image.Width) * width;
+                    var height =  ((double)item.Image.Height / (double)item.Image.Width) * width;
                     using (SkiaSharp.SKWStream stm = new SkiaSharp.SKFileWStream(tempFile))
                     {
                         item.Image.Encode(stm, SkiaSharp.SKEncodedImageFormat.Png, 0);
@@ -285,7 +205,7 @@ namespace ColumnDesign
                         imagePart.FeedData(stream);
                     }
                     var paraImage = AddImageToBody(mainPart.GetIdOfPart(imagePart), width, height);
-                    cell2.AppendChild(new Paragraph(new Run(paraImage)));
+                    cell2.AppendChild(paraImage);
                 }
 
                 TableCell cell3 = new TableCell();
@@ -298,7 +218,7 @@ namespace ColumnDesign
             return tableOfInputs;
         }
 
-        private static Table genTable(List<CalcCore.CalcValueBase> calcVals, MainDocumentPart mainPart)
+        private static Table genTable(List<CalcValueBase> calcVals)
         {
             Table tableOfInputs = new Table();
             var tableGrid = new TableGrid();
@@ -322,47 +242,10 @@ namespace ColumnDesign
             {
                 TableRow row = new TableRow();
                 var para1 = new Paragraph();
+                var myMath = new M.OfficeMath(new M.Run(new M.Text(item.Symbol) { Space = SpaceProcessingModeValues.Preserve }));
+                para1.AppendChild(myMath);
+                para1.AppendChild(new Run(new Text(" ") { Space = SpaceProcessingModeValues.Preserve }));
                 TableCell cell1 = new TableCell();
-
-                // insert symbol as image
-                var parser = new TexFormulaParser();
-                if (item.Symbol != "")
-                {
-                    TexFormula formulaToParse = new TexFormula();
-                    try
-                    {
-                        parser = new TexFormulaParser();
-                        formulaToParse = parser.Parse(item.Symbol);
-
-                    }
-                    catch (Exception)
-                    {
-                        parser = new TexFormulaParser();
-                        formulaToParse = parser.Parse("Error in LaTeX string...");
-                    }
-                    var formulaImage = formulaToParse.RenderToPng(100, 0, 0, "Franklin Gothic Book");
-                    ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
-                    using (var stream = new MemoryStream(formulaImage))
-                    {
-                        imagePart.FeedData(stream);
-                        var img = new BitmapImage();
-                        img.BeginInit();
-                        img.StreamSource = stream;
-                        img.CacheOption = BitmapCacheOption.OnLoad;
-                        img.EndInit();
-                        img.Freeze();
-                        var paraImage = AddImageToBody(mainPart.GetIdOfPart(imagePart), img.Width * 2.54 / 600, img.Height * 2.54 / 600);
-                        para1.AppendChild(new Run(paraImage));
-                    }
-                }
-                else
-                    para1.AppendChild(new Run(new Text(" ")));
-
-
-                //var myMath = new M.OfficeMath(new M.Run(new M.Text(item.Symbol) { Space = SpaceProcessingModeValues.Preserve }));
-                //para1.AppendChild(myMath);
-                //para1.AppendChild(new Run(new Text(" ") { Space = SpaceProcessingModeValues.Preserve }));
-
                 cell1.Append(para1);
                 cell1.Append(new TableCellProperties(new TableCellWidth() { Type = TableWidthUnitValues.Dxa, Width = "1200" }));
                 var para2 = new Paragraph(new Run(new Text(item.Name)));
@@ -372,43 +255,9 @@ namespace ColumnDesign
                 var para3 = new Paragraph();
                 if (item.Type == CalcValueType.DOUBLE)
                 {
-                    // insert symbol as image
-                    parser = new TexFormulaParser();
-                    string toRender = item.ValueAsString + item.Unit;
-                    if (toRender != "")
-                    {
-                        TexFormula formulaToParse = new TexFormula();
-                        try
-                        {
-                            parser = new TexFormulaParser();
-                            formulaToParse = parser.Parse(toRender);
-
-                        }
-                        catch (Exception)
-                        {
-                            parser = new TexFormulaParser();
-                            formulaToParse = parser.Parse("Error in LaTeX string...");
-                        }
-                        var formulaImage = formulaToParse.RenderToPng(100, 0, 0, "Franklin Gothic Book");
-                        ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
-                        using (var stream = new MemoryStream(formulaImage))
-                        {
-                            imagePart.FeedData(stream);
-                            var img = new BitmapImage();
-                            img.BeginInit();
-                            img.StreamSource = stream;
-                            img.CacheOption = BitmapCacheOption.OnLoad;
-                            img.EndInit();
-                            img.Freeze();
-                            var paraImage = AddImageToBody(mainPart.GetIdOfPart(imagePart), img.Width * 2.54 / 600, img.Height * 2.54 / 600);
-                            para3.AppendChild(new Run(paraImage));
-                        }
-                    }
-                    else
-                        para3.AppendChild(new Run(new Text(" ")));
-                    //myMath = new DocumentFormat.OpenXml.Math.OfficeMath(new M.Run(new M.Text(item.ValueAsString + item.Unit) { Space = SpaceProcessingModeValues.Preserve }));
-                    //para3.AppendChild(myMath);
-                    //para3.AppendChild(new Run(new Text(" ") { Space = SpaceProcessingModeValues.Preserve }));
+                    myMath = new M.OfficeMath(new M.Run(new M.Text(item.ValueAsString + item.Unit) { Space = SpaceProcessingModeValues.Preserve }));
+                    para3.AppendChild(myMath);
+                    para3.AppendChild(new Run(new Text(" ") { Space = SpaceProcessingModeValues.Preserve }));
                 }
                 else if (item.Type == CalcValueType.SELECTIONLIST)
                 {
@@ -429,7 +278,7 @@ namespace ColumnDesign
 
         }
 
-        private static Drawing AddImageToBody(string relationshipId, double width, double height)
+        private static Paragraph AddImageToBody(string relationshipId, double width, double height)
         {
             var cx = (int)(width * 914400 / 2.54);
             var cy = (int)(height * 914400 / 2.54);
@@ -499,7 +348,7 @@ namespace ColumnDesign
                      });
 
             // Append the reference to body, the element should be in a Run.
-            return element;
+            return new Paragraph(new Run(element));
         }
     }
 }

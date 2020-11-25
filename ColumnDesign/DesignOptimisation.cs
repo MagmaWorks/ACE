@@ -166,7 +166,7 @@ namespace ColumnDesign
 
             OptiR.CapaImage.Source = (column.isInsideCapacity()) ? yes : no;
             OptiR.FireImage.Source = (calc.CheckFireDesignTable()) ? yes : no;
-            OptiR.SpacImage.Source = (column.CheckSpacing()) ? yes : no;
+            OptiR.SpacImage.Source = (calc.CheckSpacing()) ? yes : no;
             OptiR.SteelImage.Source = (column.CheckSteelQtty()) ? yes : no;
             OptiR.RebarImage.Source = (column.CheckMinRebarNo()) ? yes : no;
 

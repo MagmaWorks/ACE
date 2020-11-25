@@ -61,7 +61,7 @@ namespace ColumnDesign
         }
 
         public List<TextVisual3D> GridLabels { get; set; }
-        
+
         Point3D centerXY;
         public Point3D CenterXY
         {
@@ -109,16 +109,17 @@ namespace ColumnDesign
         public PlotModel MyNID
         {
             get { return myNID; }
-            set { myNID = value; RaisePropertyChanged(nameof(MyNID));}
+            set { myNID = value; RaisePropertyChanged(nameof(MyNID)); }
         }
 
         public IDView()
         {
 
         }
-        
+
         public void UpdateIDHull(Column column)
         {
+            if (column.diagramVertices.Count == 0) return;
             Update3DID(column);
             Update2DIDs(column);
         }
@@ -136,10 +137,10 @@ namespace ColumnDesign
             double minX = column.diagramVertices.Min(pt => pt.X);
             double minY = column.diagramVertices.Min(pt => pt.Y);
             double minZ = column.diagramVertices.Min(pt => pt.Z);
-            
-            CenterXY = new Point3D(5, 5, -minZ/(maxZ-minZ)*scaleXYZ); //new Point3D(minX + LengthX/2 / 2, minY + LengthY / 2, minZ);
-            CenterXZ = new Point3D(5, -minY/(maxY-minY) * scaleXYZ, 5); //new Point3D(minX + LengthX / 2, minY / 2, minZ + LengthZ / 2);
-            CenterYZ = new Point3D(-minX/(maxX-minX) * scaleXYZ, 5, 5); // new Point3D(minX, minY + LengthY / 2, minZ + LengthZ / 2);
+
+            CenterXY = new Point3D(5, 5, -minZ / (maxZ - minZ) * scaleXYZ); //new Point3D(minX + LengthX/2 / 2, minY + LengthY / 2, minZ);
+            CenterXZ = new Point3D(5, -minY / (maxY - minY) * scaleXYZ, 5); //new Point3D(minX + LengthX / 2, minY / 2, minZ + LengthZ / 2);
+            CenterYZ = new Point3D(-minX / (maxX - minX) * scaleXYZ, 5, 5); // new Point3D(minX, minY + LengthY / 2, minZ + LengthZ / 2);
 
             GridLabels = new List<TextVisual3D>();
 
@@ -149,7 +150,7 @@ namespace ColumnDesign
                 Position = new Point3D(scaleXYZ, -minY / (maxY - minY) * scaleXYZ, -1),
                 Height = 0.5,
                 FontWeight = FontWeights.SemiBold,
-                TextDirection = new Vector3D(1,0,0),
+                TextDirection = new Vector3D(1, 0, 0),
             });
             GridLabels.Add(new TextVisual3D()
             {
@@ -181,7 +182,7 @@ namespace ColumnDesign
                 Position = new Point3D(-minX / (maxX - minX) * scaleXYZ, scaleXYZ, -1),
                 Height = 0.5,
                 FontWeight = FontWeights.SemiBold,
-                TextDirection = new Vector3D(0,1,0)
+                TextDirection = new Vector3D(0, 1, 0)
             });
             GridLabels.Add(new TextVisual3D()
             {
@@ -210,15 +211,15 @@ namespace ColumnDesign
             GridLabels.Add(new TextVisual3D()
             {
                 Text = string.Format("N = {0}", (int)maxZ),
-                Position = new Point3D(- 1, -minY / (maxY - minY) * scaleXYZ, scaleXYZ),
+                Position = new Point3D(-1, -minY / (maxY - minY) * scaleXYZ, scaleXYZ),
                 Height = 0.5,
                 FontWeight = FontWeights.SemiBold,
-                TextDirection = new Vector3D(1,0,0)
+                TextDirection = new Vector3D(1, 0, 0)
             });
             GridLabels.Add(new TextVisual3D()
             {
                 Text = string.Format("N = {0}", (int)minZ),
-                Position = new Point3D(- 1, -minY / (maxY - minY) * scaleXYZ, 0),
+                Position = new Point3D(-1, -minY / (maxY - minY) * scaleXYZ, 0),
                 Height = 0.5,
                 FontWeight = FontWeights.SemiBold,
                 TextDirection = new Vector3D(1, 0, 0)
@@ -233,7 +234,7 @@ namespace ColumnDesign
             });
             GridLabels.Add(new TextVisual3D()
             {
-                Text = string.Format("N = {0}",(int)minZ),
+                Text = string.Format("N = {0}", (int)minZ),
                 Position = new Point3D(-minX / (maxX - minX) * scaleXYZ, -1, 0),
                 Height = 0.5,
                 FontWeight = FontWeights.SemiBold,
@@ -244,7 +245,7 @@ namespace ColumnDesign
 
             List<Load> loads = column.AllLoads ? column.Loads : new List<Load>() { column.SelectedLoad };
 
-            
+
             for (int i = 0; i < loads.Count; i++)
             {
                 var pointMesh = new MeshBuilder(false, true);
@@ -259,7 +260,7 @@ namespace ColumnDesign
 
             }
 
-            if(column.FireDesignMethod == FDesignMethod.Advanced || column.FireDesignMethod == FDesignMethod.Isotherm_500 || column.FireDesignMethod == FDesignMethod.Zone_Method)
+            if (column.FireDesignMethod == FDesignMethod.Advanced || column.FireDesignMethod == FDesignMethod.Isotherm_500 || column.FireDesignMethod == FDesignMethod.Zone_Method)
             {
                 var pointMesh = new MeshBuilder(false, true);
                 var center = new Point3D((column.FireLoad.MEdx * 1.0 - minX) / (maxX - minX) * scaleXYZ, (column.FireLoad.MEdy * 1.0 - minY) / (maxY - minY) * scaleXYZ, (-column.FireLoad.P * 1.0 - minZ) / (maxZ - minZ) * scaleXYZ);
@@ -269,8 +270,8 @@ namespace ColumnDesign
                 mesh0.BackMaterial = mesh0.Material;
                 fireModelGroup.Children.Add(mesh0);
             }
-            
-            List<Point3D>  normalPoints = column.diagramVertices.Select(x => new Point3D((x.X - minX) / (maxX - minX), (x.Y - minY) / (maxY - minY), (x.Z - minZ) / (maxZ - minZ))).ToList();
+
+            List<Point3D> normalPoints = column.diagramVertices.Select(x => new Point3D((x.X - minX) / (maxX - minX), (x.Y - minY) / (maxY - minY), (x.Z - minZ) / (maxZ - minZ))).ToList();
             normalPoints = normalPoints.Select(x => new Point3D(scaleXYZ * x.X, scaleXYZ * x.Y, scaleXYZ * x.Z)).ToList();
 
             List<Point3D> normalFirePoints = column.fireDiagramVertices.Select(x => new Point3D((x.X - minX) / (maxX - minX), (x.Y - minY) / (maxY - minY), (x.Z - minZ) / (maxZ - minZ))).ToList();
@@ -307,7 +308,7 @@ namespace ColumnDesign
             // column fire interaction diagram
             if (column.FireDesignMethod == FDesignMethod.Advanced)
             {
-                
+
                 for (int i = 0; i < normalFirePoints.Count; i++)
                 {
                     Point3D pt = normalFirePoints[i];
@@ -353,24 +354,24 @@ namespace ColumnDesign
             };
             sp1.Points.Add(new DataPoint(column.SelectedLoad.MEdx, column.SelectedLoad.MEdy));
 
-            MxMyID = new PlotModel() 
-            { 
-                Title = "Mx-My interaction diagram", 
+            MxMyID = new PlotModel()
+            {
+                Title = "Mx-My interaction diagram",
                 Subtitle = "(N = " + Math.Round(column.SelectedLoad.P) + "kN)"
             };
-            MxMyID.Axes.Add(new LinearAxis() 
-            { 
-                Position = AxisPosition.Bottom, 
-                Title="Mx",
+            MxMyID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Bottom,
+                Title = "Mx",
                 MajorGridlineColor = OxyColors.LightGray,
                 MajorGridlineStyle = LineStyle.Dash,
                 MinorGridlineColor = OxyColors.LightGray,
                 MinorGridlineStyle = LineStyle.Dash,
             });
-            MxMyID.Axes.Add(new LinearAxis() 
-            { 
-                Position = AxisPosition.Left, 
-                Title="My",
+            MxMyID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Left,
+                Title = "My",
                 MajorGridlineColor = OxyColors.LightGray,
                 MajorGridlineStyle = LineStyle.Dash,
                 MinorGridlineColor = OxyColors.LightGray,
@@ -400,23 +401,23 @@ namespace ColumnDesign
             };
             sp2.Points.Add(new DataPoint(column.SelectedLoad.MEdx, -column.SelectedLoad.P));
 
-            MxNID = new PlotModel() 
-            { 
+            MxNID = new PlotModel()
+            {
                 Title = "Mx-N interaction diagram",
                 Subtitle = "(My = " + Math.Round(column.SelectedLoad.MEdy) + "kN.m)"
             };
-            MxNID.Axes.Add(new LinearAxis() 
-            { 
-                Position = AxisPosition.Bottom, 
-                Title = "Mx", 
+            MxNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Bottom,
+                Title = "Mx",
                 MajorGridlineColor = OxyColors.LightGray,
                 MajorGridlineStyle = LineStyle.Dash,
                 MinorGridlineColor = OxyColors.LightGray,
                 MinorGridlineStyle = LineStyle.Dash,
             });
-            MxNID.Axes.Add(new LinearAxis() 
-            { 
-                Position = AxisPosition.Left, 
+            MxNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Left,
                 Title = "N",
                 MajorGridlineColor = OxyColors.LightGray,
                 MajorGridlineStyle = LineStyle.Dash,
@@ -444,27 +445,27 @@ namespace ColumnDesign
                 MarkerFill = OxyColors.Black,
                 MarkerStrokeThickness = 1,
                 LabelFormatString = "({0},{1})",
-                
+
             };
             sp3.Points.Add(new DataPoint(column.SelectedLoad.MEdy, -column.SelectedLoad.P));
 
-            MyNID = new PlotModel() 
-            { 
+            MyNID = new PlotModel()
+            {
                 Title = "My-N interaction diagram",
                 Subtitle = "(Mx = " + Math.Round(column.SelectedLoad.MEdx) + "kN.m)",
             };
-            MyNID.Axes.Add(new LinearAxis() 
-            { 
-                Position = AxisPosition.Bottom, 
+            MyNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Bottom,
                 Title = "My",
                 MajorGridlineColor = OxyColors.LightGray,
                 MajorGridlineStyle = LineStyle.Dash,
                 MinorGridlineColor = OxyColors.LightGray,
                 MinorGridlineStyle = LineStyle.Dash,
             });
-            MyNID.Axes.Add(new LinearAxis() 
-            { 
-                Position = AxisPosition.Left, 
+            MyNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Left,
                 Title = "N",
                 MajorGridlineColor = OxyColors.LightGray,
                 MajorGridlineStyle = LineStyle.Dash,
@@ -483,8 +484,20 @@ namespace ColumnDesign
             MyNID.Series.Add(s3);
             MyNID.Series.Add(sp3);
 
-            if(column.FireDesignMethod == FDesignMethod.Advanced)
+            if (column.FireDesignMethod == FDesignMethod.Advanced)
             {
+                LineSeries spf1 = new LineSeries()
+                {
+                    Color = OxyColors.Black,
+                    MarkerType = MarkerType.Plus,
+                    MarkerSize = 4,
+                    MarkerStroke = OxyColors.Black,
+                    MarkerFill = OxyColors.Black,
+                    MarkerStrokeThickness = 1,
+                    LabelFormatString = "fire ({0},{1})"
+                };
+                spf1.Points.Add(new DataPoint(column.FireLoad.MEdx, column.FireLoad.MEdy));
+
                 LineSeries sf1 = new LineSeries()
                 {
                     Color = OxyColors.DarkRed,
@@ -494,6 +507,19 @@ namespace ColumnDesign
                 foreach (var p in column.fireMxMyPts)
                     sf1.Points.Add(new DataPoint(p.X, p.Y));
                 MxMyID.Series.Add(sf1);
+                MxMyID.Series.Add(spf1);
+
+                LineSeries spf2 = new LineSeries()
+                {
+                    Color = OxyColors.Black,
+                    MarkerType = MarkerType.Plus,
+                    MarkerSize = 4,
+                    MarkerStroke = OxyColors.Black,
+                    MarkerFill = OxyColors.Black,
+                    MarkerStrokeThickness = 1,
+                    LabelFormatString = "fire ({0},{1})"
+                };
+                spf2.Points.Add(new DataPoint(column.FireLoad.MEdx, -column.FireLoad.P));
 
                 LineSeries sf2 = new LineSeries()
                 {
@@ -504,7 +530,19 @@ namespace ColumnDesign
                 foreach (var p in column.fireMxNPts)
                     sf2.Points.Add(new DataPoint(p.X, p.Y));
                 MxNID.Series.Add(sf2);
+                MxNID.Series.Add(spf2);
 
+                LineSeries spf3 = new LineSeries()
+                {
+                    Color = OxyColors.Black,
+                    MarkerType = MarkerType.Plus,
+                    MarkerSize = 4,
+                    MarkerStroke = OxyColors.Black,
+                    MarkerFill = OxyColors.Black,
+                    MarkerStrokeThickness = 1,
+                    LabelFormatString = "fire ({0},{1})"
+                };
+                spf3.Points.Add(new DataPoint(column.FireLoad.MEdy, -column.FireLoad.P));
                 LineSeries sf3 = new LineSeries()
                 {
                     Color = OxyColors.DarkGreen,
@@ -514,6 +552,7 @@ namespace ColumnDesign
                 foreach (var p in column.fireMyNPts)
                     sf3.Points.Add(new DataPoint(p.X, p.Y));
                 MyNID.Series.Add(sf3);
+                MyNID.Series.Add(spf3);
             }
 
             MxMyID.InvalidatePlot(true);
@@ -522,8 +561,269 @@ namespace ColumnDesign
             RaisePropertyChanged(nameof(MxMyID));
             RaisePropertyChanged(nameof(MxNID));
             RaisePropertyChanged(nameof(MyNID));
+
+            Print2DIDs();
         }
 
-    }
+        private void Print2DIDs()
+        {
+            string[] plots = new string[] { "MxMy", "MxN", "MyN" };
+            foreach (var p in plots)
+            {
+                var pngExporter = new OxyPlot.Wpf.PngExporter { Width = 600, Height = 400, Background = OxyColors.White };
+                var bitmap = pngExporter.ExportToBitmap(this.GetType().GetProperty(p + "ID").GetValue(this) as PlotModel);
 
+                MemoryStream stream = new MemoryStream();
+                BitmapEncoder encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                encoder.Save(stream);
+
+                Bitmap bmp = new Bitmap(stream);
+
+                ImageConverter converter = new ImageConverter();
+                byte[] output = (byte[])converter.ConvertTo(bmp, typeof(byte[]));
+
+                string path = System.IO.Path.GetTempPath() + p + ".tmp";
+                File.WriteAllBytes(path, output);
+            }
+
+        }
+
+        public static void Generate2DIDs(Column col)
+        {
+            LineSeries sp1 = new LineSeries()
+            {
+                Color = OxyColors.Black,
+                MarkerType = MarkerType.Plus,
+                MarkerSize = 4,
+                MarkerStroke = OxyColors.Black,
+                MarkerFill = OxyColors.Black,
+                MarkerStrokeThickness = 1,
+                LabelFormatString = "({0},{1})"
+            };
+            sp1.Points.Add(new DataPoint(col.SelectedLoad.MEdx, col.SelectedLoad.MEdy));
+
+            PlotModel colMxMyID = new PlotModel()
+            {
+                Title = "Mx-My interaction diagram",
+                Subtitle = "(N = " + Math.Round(col.SelectedLoad.P) + "kN)"
+            };
+            colMxMyID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Bottom,
+                Title = "Mx",
+                MajorGridlineColor = OxyColors.LightGray,
+                MajorGridlineStyle = LineStyle.Dash,
+                MinorGridlineColor = OxyColors.LightGray,
+                MinorGridlineStyle = LineStyle.Dash,
+            });
+            colMxMyID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Left,
+                Title = "My",
+                MajorGridlineColor = OxyColors.LightGray,
+                MajorGridlineStyle = LineStyle.Dash,
+                MinorGridlineColor = OxyColors.LightGray,
+                MinorGridlineStyle = LineStyle.Dash,
+            });
+
+            LineSeries s1 = new LineSeries()
+            {
+                Color = OxyColors.Red,
+                MarkerType = MarkerType.None,
+                StrokeThickness = 1
+            };
+            foreach (var p in col.MxMyPts)
+                s1.Points.Add(new DataPoint(p.X, p.Y));
+            colMxMyID.Series.Add(s1);
+            colMxMyID.Series.Add(sp1);
+
+            LineSeries sp2 = new LineSeries()
+            {
+                Color = OxyColors.Black,
+                MarkerType = MarkerType.Plus,
+                MarkerSize = 4,
+                MarkerStroke = OxyColors.Black,
+                MarkerFill = OxyColors.Black,
+                MarkerStrokeThickness = 1,
+                LabelFormatString = "({0},{1})"
+            };
+            sp2.Points.Add(new DataPoint(col.SelectedLoad.MEdx, -col.SelectedLoad.P));
+
+            PlotModel colMxNID = new PlotModel()
+            {
+                Title = "Mx-N interaction diagram",
+                Subtitle = "(My = " + Math.Round(col.SelectedLoad.MEdy) + "kN.m)"
+            };
+            colMxNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Bottom,
+                Title = "Mx",
+                MajorGridlineColor = OxyColors.LightGray,
+                MajorGridlineStyle = LineStyle.Dash,
+                MinorGridlineColor = OxyColors.LightGray,
+                MinorGridlineStyle = LineStyle.Dash,
+            });
+            colMxNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Left,
+                Title = "N",
+                MajorGridlineColor = OxyColors.LightGray,
+                MajorGridlineStyle = LineStyle.Dash,
+                MinorGridlineColor = OxyColors.LightGray,
+                MinorGridlineStyle = LineStyle.Dash,
+            });
+
+            LineSeries s2 = new LineSeries()
+            {
+                Color = OxyColors.Blue,
+                MarkerType = MarkerType.None,
+                StrokeThickness = 1
+            };
+            foreach (var p in col.MxNPts)
+                s2.Points.Add(new DataPoint(p.X, p.Y));
+            colMxNID.Series.Add(s2);
+            colMxNID.Series.Add(sp2);
+
+            LineSeries sp3 = new LineSeries()
+            {
+                Color = OxyColors.Black,
+                MarkerType = MarkerType.Plus,
+                MarkerSize = 4,
+                MarkerStroke = OxyColors.Black,
+                MarkerFill = OxyColors.Black,
+                MarkerStrokeThickness = 1,
+                LabelFormatString = "({0},{1})",
+
+            };
+            sp3.Points.Add(new DataPoint(col.SelectedLoad.MEdy, -col.SelectedLoad.P));
+
+            PlotModel colMyNID = new PlotModel()
+            {
+                Title = "My-N interaction diagram",
+                Subtitle = "(Mx = " + Math.Round(col.SelectedLoad.MEdx) + "kN.m)",
+            };
+            colMyNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Bottom,
+                Title = "My",
+                MajorGridlineColor = OxyColors.LightGray,
+                MajorGridlineStyle = LineStyle.Dash,
+                MinorGridlineColor = OxyColors.LightGray,
+                MinorGridlineStyle = LineStyle.Dash,
+            });
+            colMyNID.Axes.Add(new LinearAxis()
+            {
+                Position = AxisPosition.Left,
+                Title = "N",
+                MajorGridlineColor = OxyColors.LightGray,
+                MajorGridlineStyle = LineStyle.Dash,
+                MinorGridlineColor = OxyColors.LightGray,
+                MinorGridlineStyle = LineStyle.Dash,
+            });
+
+            LineSeries s3 = new LineSeries()
+            {
+                Color = OxyColors.Green,
+                MarkerType = MarkerType.None,
+                StrokeThickness = 1
+            };
+            foreach (var p in col.MyNPts)
+                s3.Points.Add(new DataPoint(p.X, p.Y));
+            colMyNID.Series.Add(s3);
+            colMyNID.Series.Add(sp3);
+
+            if (col.FireDesignMethod == FDesignMethod.Advanced)
+            {
+                LineSeries spf1 = new LineSeries()
+                {
+                    Color = OxyColors.Black,
+                    MarkerType = MarkerType.Plus,
+                    MarkerSize = 4,
+                    MarkerStroke = OxyColors.Black,
+                    MarkerFill = OxyColors.Black,
+                    MarkerStrokeThickness = 1,
+                    LabelFormatString = "fire ({0},{1})"
+                };
+                spf1.Points.Add(new DataPoint(col.FireLoad.MEdx, col.FireLoad.MEdy));
+
+                LineSeries sf1 = new LineSeries()
+                {
+                    Color = OxyColors.DarkRed,
+                    MarkerType = MarkerType.None,
+                    StrokeThickness = 1
+                };
+                foreach (var p in col.fireMxMyPts)
+                    sf1.Points.Add(new DataPoint(p.X, p.Y));
+                colMxMyID.Series.Add(sf1);
+                colMxMyID.Series.Add(spf1);
+
+                LineSeries spf2 = new LineSeries()
+                {
+                    Color = OxyColors.Black,
+                    MarkerType = MarkerType.Plus,
+                    MarkerSize = 4,
+                    MarkerStroke = OxyColors.Black,
+                    MarkerFill = OxyColors.Black,
+                    MarkerStrokeThickness = 1,
+                    LabelFormatString = "fire ({0},{1})"
+                };
+                spf2.Points.Add(new DataPoint(col.FireLoad.MEdx, -col.FireLoad.P));
+
+                LineSeries sf2 = new LineSeries()
+                {
+                    Color = OxyColors.DarkBlue,
+                    MarkerType = MarkerType.None,
+                    StrokeThickness = 1
+                };
+                foreach (var p in col.fireMxNPts)
+                    sf2.Points.Add(new DataPoint(p.X, p.Y));
+                colMxNID.Series.Add(sf2);
+                colMxNID.Series.Add(spf2);
+
+                LineSeries spf3 = new LineSeries()
+                {
+                    Color = OxyColors.Black,
+                    MarkerType = MarkerType.Plus,
+                    MarkerSize = 4,
+                    MarkerStroke = OxyColors.Black,
+                    MarkerFill = OxyColors.Black,
+                    MarkerStrokeThickness = 1,
+                    LabelFormatString = "fire ({0},{1})"
+                };
+                spf3.Points.Add(new DataPoint(col.FireLoad.MEdy, -col.FireLoad.P));
+                LineSeries sf3 = new LineSeries()
+                {
+                    Color = OxyColors.DarkGreen,
+                    MarkerType = MarkerType.None,
+                    StrokeThickness = 1
+                };
+                foreach (var p in col.fireMyNPts)
+                    sf3.Points.Add(new DataPoint(p.X, p.Y));
+                colMyNID.Series.Add(sf3);
+                colMyNID.Series.Add(spf3);
+            }
+
+            PlotModel[] plots = new PlotModel[] { colMxMyID, colMxNID, colMyNID };
+            string[] plotNames = new string[] { "MxMy", "MxN", "MyN" };
+            for (int i = 0; i < plots.Length; i++)
+            {
+                var pngExporter = new OxyPlot.Wpf.PngExporter { Width = 600, Height = 400, Background = OxyColors.White };
+                var bitmap = pngExporter.ExportToBitmap(plots[i]);
+
+                MemoryStream stream = new MemoryStream();
+                BitmapEncoder encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                encoder.Save(stream);
+
+                Bitmap bmp = new Bitmap(stream);
+
+                ImageConverter converter = new ImageConverter();
+                byte[] output = (byte[])converter.ConvertTo(bmp, typeof(byte[]));
+
+                string path = System.IO.Path.GetTempPath() + plotNames[i] + ".tmp";
+                File.WriteAllBytes(path, output);
+            }
+        }
+    }
 }

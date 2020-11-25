@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -18,6 +19,9 @@ namespace ColumnDesign
     {
         void App_StartUp(object sender, StartupEventArgs e)
         {
+            //AppDomain currentDomain = AppDomain.CurrentDomain;
+            //currentDomain.AssemblyResolve += new ResolveEventHandler(LoadIDdll);
+            
             Console.WriteLine("Checkpoint 0");
             TextReader reader = null;
             string filePath = "";
@@ -60,14 +64,6 @@ namespace ColumnDesign
                         cols = new List<Column> { JsonConvert.DeserializeObject<Column>(fileContents, settings) };
                     }
                     catch { }
-                    //var settings = new JsonSerializerSettings()
-                    //{
-                    //    TypeNameHandling = TypeNameHandling.Objects,
-                    //    PreserveReferencesHandling = PreserveReferencesHandling.Objects
-                    //};
-                    //reader = new StreamReader(filePath);
-                    //var fileContents = reader.ReadToEnd();
-                    //cols = JsonConvert.DeserializeObject<List<Column>>(fileContents, settings);
                 }
                 finally
                 {
@@ -75,31 +71,15 @@ namespace ColumnDesign
                         reader.Close();
                 }
             }
-            Console.WriteLine("Checkpoint 1");
-
             MainWindow mainWindow = new MainWindow();
 
-            Column customCol = new Column()
+
+            if(cols.Count == 0)
             {
-                Name = "default",
-                LX = 350,
-                LY = 350,
-                Length = 3000,
-                CustomConcreteGrade = new Concrete("Custom", 50, 37),
-                ConcreteGrade = new Concrete("50/60", 50, 37),
-                SelectedLoad = new Load() { Name = "default", P = 5000 },
-                Loads = new List<Load>() { new Load() { Name = "default", P = 5000 } },
-                FireLoad = new Load() { Name = "default", P = 5000 } 
-                //P = 5000
-            };
-
-            if(cols.Where(c => c.Name == "default").Count() == 0) cols.Insert(0, customCol);
-
-            cols.ForEach(c => c.FireLoad = c.SelectedLoad.Clone());
-            cols.ForEach(c => c.FDMStr = "Table");
-
+                Column col = mainWindow.myViewModel.MySettings.DefaultColumn.Clone();
+                cols.Add(col);
+            }
             mainWindow.myViewModel.MyColumns = cols;
-
             mainWindow.myViewModel.SelectedColumn = mainWindow.myViewModel.MyColumns[0];
 
             mainWindow.Show();
@@ -107,5 +87,14 @@ namespace ColumnDesign
             mainWindow.myViewModel.UpdateDesign();
             mainWindow.myViewModel.UpdateLoad();
         }
+
+        //private Assembly LoadIDdll(object sender, ResolveEventArgs args)
+        //{
+        //    if (!args.Name.Contains("InteractionDiagram")) return null;
+        //    string assemblyPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/Magma Works/Scaffold/Libraries/InteractionDiagram3D.dll";
+        //    if (!File.Exists(assemblyPath)) return null;
+        //    Assembly assembly = Assembly.LoadFrom(assemblyPath);
+        //    return assembly;
+        //}
     }
 }

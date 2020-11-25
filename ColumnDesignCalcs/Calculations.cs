@@ -13,7 +13,7 @@ using System.Windows;
 
 namespace ColumnDesignCalc
 {
-    [CalcName("Advanced Column Engineering")]
+    [CalcName("Advanced Column Design")]
     [CalcAlternativeName("ACE.ColumnDesign")]
     public class Calculations : CalcBase
     {
@@ -28,6 +28,7 @@ namespace ColumnDesignCalc
 
         // Material
         CalcSelectionList ConcreteGrade;
+        CalcSelectionList SteelGrade;
         CalcDouble MaxAggSize;
 
         // Loads
@@ -46,12 +47,12 @@ namespace ColumnDesignCalc
         CalcSelectionList NRebarY;
         CalcSelectionList R; // fire resistance in min
         CalcSelectionList FireDesignMethod;
-        
-        // Checks
-        bool CapacityCheck = false;
-        bool FireCheck = false;
-        bool SpacingCheck = false;
-        bool MinMaxSteelCheck = false;
+
+        //Checks
+        CalcBool CapacityCheck;
+        CalcBool FireCheck;
+        CalcBool SpacingCheck;
+        CalcBool MinMaxSteelCheck;
 
         // Outputs
         CalcDouble Nd;
@@ -60,10 +61,10 @@ namespace ColumnDesignCalc
         CalcDouble LinkSpacing;
 
         CalcDouble CapacityCheckO;
-        CalcDouble FireCheckO;
-        CalcDouble SpacingCheckO;
-        CalcDouble MinMaxSteelCheckO;
-        
+        //CalcDouble FireCheckO;
+        //CalcDouble SpacingCheckO;
+        //CalcDouble MinMaxSteelCheckO;
+
         CalcDouble ConcreteCarbon;
         CalcDouble RebarCarbon;
         CalcDouble TotalCarbon;
@@ -71,12 +72,17 @@ namespace ColumnDesignCalc
         public List<Formula> Expressions { get; set; }
         public List<Concrete> ConcreteGrades = new List<Concrete>()
         {
-            new Concrete("Custom"),
-            new Concrete("32/40",32,33),
-            new Concrete("35/45",35,34),
-            new Concrete("40/50",40,35),
-            //new Concrete("45/55",45,36),
-            new Concrete("50/60",50,37),
+            new Concrete("Custom",50,37),
+            //new Concrete("32/40",32,33),
+            //new Concrete("35/45",35,34),
+            //new Concrete("40/50",40,35),
+            ////new Concrete("45/55",45,36),
+            //new Concrete("50/60",50,37),
+        };
+        public List<Steel> SteelGrades = new List<Steel>()
+        {
+            new Steel("500B",500),
+            new Steel("Custom",415)
         };
         public List<int> BarDiameters = new List<int>();
         public List<int> LinkDiameters = new List<int>();
@@ -97,9 +103,13 @@ namespace ColumnDesignCalc
         public Dictionary<double, double> CarbonData = new Dictionary<double, double>();
         public Dictionary<double, double[]> SteelCosts = new Dictionary<double, double[]>();
         public Dictionary<double, double[]> ConcreteCosts = new Dictionary<double, double[]>();
-        
+
+        public string DataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/Magma Works/Scaffold/Data/";
+
         public Calculations()
         {
+            ImportConcreteGrades();
+
             Console.WriteLine("Entering Calculations");
             // Geometry
             InstanceName = "My Column Design";
@@ -109,7 +119,8 @@ namespace ColumnDesignCalc
             Angle = inputValues.CreateDoubleCalcValue("Angle", @"\alpha", @"\deg", 0);
 
             // Material
-            ConcreteGrade = inputValues.CreateCalcSelectionList("Concrete grade", "40/50", new List<string> { "32/40", "35/45", "40/50", "50/60", "Custom" });
+            ConcreteGrade = inputValues.CreateCalcSelectionList("Concrete grade", "40/50", ConcreteGrades.Select(c => c.Name).ToList());
+            SteelGrade = inputValues.CreateCalcSelectionList("Steel grade", "500B", SteelGrades.Select(c => c.Name).ToList());
             MaxAggSize = inputValues.CreateDoubleCalcValue("Max agg. size", "Ag", "mm", 20);
 
             // Loads
@@ -135,10 +146,11 @@ namespace ColumnDesignCalc
             MEdy = outputValues.CreateDoubleCalcValue("MEdy", "M_{Ed,y}", "kN/m", 0);
             LinkSpacing = outputValues.CreateDoubleCalcValue("sLink", "s_{link}", "mm", 0);
 
-            MinMaxSteelCheckO = outputValues.CreateDoubleCalcValue("Steel Check", "", "", 0);
-            FireCheckO = outputValues.CreateDoubleCalcValue("Fire Check", "", "", 0);
-            SpacingCheckO = outputValues.CreateDoubleCalcValue("Spacing Check", "", "", 0);
-            CapacityCheckO = outputValues.CreateDoubleCalcValue("Capacity Check", "", "", 0);
+            MinMaxSteelCheck = outputValues.CreateBoolCalcValue("Steel Check", "", "", false);
+            FireCheck = outputValues.CreateBoolCalcValue("Fire Check", "", "", false);
+            SpacingCheck = outputValues.CreateBoolCalcValue("Spacing Check", "", "", false);
+            CapacityCheck = outputValues.CreateBoolCalcValue("Capacity Check", "", "", false);
+            CapacityCheckO = outputValues.CreateDoubleCalcValue("Capacity Util", "", "", 0);
 
             ConcreteCarbon = outputValues.CreateDoubleCalcValue("Concrete carbon", "", @"kg\text{ } CO_2", 0);
             RebarCarbon = outputValues.CreateDoubleCalcValue("Rebar carbon", "", @"kg\text{ } CO_2", 0);
@@ -164,17 +176,40 @@ namespace ColumnDesignCalc
         public void UpdateInputOuput()
         {
             // Geometry
-            InstanceName = "My Column Design";
-            Lx.Value = Column.LX;
-            Ly.Value = Column.LY;
+            InstanceName = Column.Name;
+            switch(Column.Shape)
+            {
+                case (GeoShape.Rectangular):
+                    Lx.Value = Column.LX;
+                    Ly.Value = Column.LY;
+                    break;
+                case (GeoShape.Circular):
+                    Lx.Value = Column.Diameter;
+                    Ly.Value = Column.Diameter;
+                    break;
+                case (GeoShape.TShaped):
+                    Lx.Value = Column.HX;
+                    Ly.Value = Column.HY;
+                    break;
+                case (GeoShape.LShaped):
+                    Lx.Value = Column.HX;
+                    Ly.Value = Column.HY;
+                    break;
+                case (GeoShape.CustomShape):
+                    Lx.Value = Column.customLX;
+                    Ly.Value = Column.customLY;
+                    break;
+            }
             Length.Value = Column.Length;
             Angle.Value = Column.Angle;
             NRebarX.ValueAsString = Column.NRebarX.ToString();
             NRebarY.ValueAsString = Column.NRebarY.ToString();
+            BarDiameter.ValueAsString = Column.BarDiameter.ToString();
 
             // Material
             MaxAggSize.Value = Column.MaxAggSize;
             ConcreteGrade.ValueAsString = Column.ConcreteGrade.Name;
+            SteelGrade.ValueAsString = Column.SteelGrade.Name;
 
             // Loads
             MxTop.Value = Column.SelectedLoad.MxTop;
@@ -195,9 +230,9 @@ namespace ColumnDesignCalc
             MEdy.Value = Column.SelectedLoad.MEdy;
             LinkSpacing.Value = Column.LinkSpacing;
 
-            MinMaxSteelCheckO.Value = Column.MinMaxSteelCheck ?? false ? 1 : 0;
-            FireCheckO.Value = Column.FireCheck ?? false ? 1 : 0;
-            SpacingCheckO.Value = SpacingCheck ? 1 : 0;
+            //MinMaxSteelCheckO.Value = Column.MinMaxSteelCheck ?? false ? 1 : 0;
+            //FireCheckO.Value = Column.FireCheck ?? false ? 1 : 0;
+            //SpacingCheckO.Value = SpacingCheck.Value ? 1 : 0;
             CapacityCheckO.Value = Column.Util3D;
 
             var carb = GetEmbodiedCarbon();
@@ -218,7 +253,7 @@ namespace ColumnDesignCalc
         {
             InitExpressions();
             Console.WriteLine("Expressions initialized");
-
+            Console.WriteLine(ConcreteGrades.Count);
             // Import Scaffold data
             Column = new Column()
             {
@@ -227,7 +262,7 @@ namespace ColumnDesignCalc
                 Length = Length.Value,
                 Angle = Angle.Value,
                 ConcreteGrade = ConcreteGrades.First(c => c.Name == ConcreteGrade.ValueAsString),
-                SteelGrade = new Steel("500B", 500),
+                SteelGrade = SteelGrades.First(c => c.Name == SteelGrade.ValueAsString),
                 MaxAggSize = MaxAggSize.Value,
                 EffectiveLength = EffectiveLength.Value,
                 CoverToLinks = CoverToLinks.Value,
@@ -261,19 +296,19 @@ namespace ColumnDesignCalc
                 ConcreteCarbon.Value = GetEmbodiedCarbon()[0];
                 RebarCarbon.Value = GetEmbodiedCarbon()[1];
                 TotalCarbon.Value = GetEmbodiedCarbon()[2];
-                Column.GetInteractionDiagram();
 
-                MinMaxSteelCheck = CheckMinMaxSteel();
-                FireCheck = UpdateFireDesign();
-                SpacingCheck = UpdateSecondOrderCheck();
-                CapacityCheck = Column.isInsideCapacity();
+                Column.GetInteractionDiagram();
+                MinMaxSteelCheck.Value = CheckMinMaxSteel();
+                FireCheck.Value = UpdateFireDesign();
+                SpacingCheck.Value = UpdateSecondOrderCheck();
+                CapacityCheck.Value = Column.isInsideCapacity();
                 GetLinkSpacing();
                 AddInteractionDiagramFormulae();
 
-                MinMaxSteelCheckO.Status = MinMaxSteelCheck ? CalcStatus.PASS : CalcStatus.FAIL;
-                FireCheckO.Status = FireCheck ? CalcStatus.PASS : CalcStatus.FAIL;
-                SpacingCheckO.Status = SpacingCheck ? CalcStatus.PASS : CalcStatus.FAIL;
-                CapacityCheckO.Status = CapacityCheck ? CalcStatus.PASS : CalcStatus.FAIL;
+                MinMaxSteelCheck.Status = MinMaxSteelCheck.Value ? CalcStatus.PASS : CalcStatus.FAIL;
+                FireCheck.Status = FireCheck.Value ? CalcStatus.PASS : CalcStatus.FAIL;
+                SpacingCheck.Status = SpacingCheck.Value ? CalcStatus.PASS : CalcStatus.FAIL;
+                CapacityCheck.Status = CapacityCheck.Value ? CalcStatus.PASS : CalcStatus.FAIL;
 
                 Column.GetUtilisation();
                 CapacityCheckO.Value = Column.Util3D;
@@ -332,15 +367,28 @@ namespace ColumnDesignCalc
                 var filepath = path + name;
                 if (File.Exists(filepath))
                 {
+                    Formula f = new Formula();
+
                     byte[] arr = File.ReadAllBytes(filepath);
                     SkiaSharp.SKBitmap pic = SkiaSharp.SKBitmap.Decode(arr);
                     //SkiaSharp.SKImageInfo info = new SkiaSharp.SKImageInfo(3000, 3000);
                     //pic = pic.Resize(info, SkiaSharp.SKFilterQuality.High);
                     Console.WriteLine("width = {0}", pic.Width);
-                    Formula f = new Formula();
+
                     f.AddImage(pic);
-                    Expressions.Add(f);
                     File.Delete(filepath);
+
+                    //var keyImage = new SkiaSharp.SKBitmap(3000, 3000);
+                    //using (SkiaSharp.SKCanvas canvas = new SkiaSharp.SKCanvas(keyImage))
+                    //{
+                    //    var paintText = new SkiaSharp.SKPaint { TextSize = 250, TextAlign = SkiaSharp.SKTextAlign.Left };
+                    //    var paint = new SkiaSharp.SKPaint { StrokeWidth = 15, Color = SkiaSharp.SKColors.Red };
+                    //    canvas.DrawLine(0, 0, 3000, 3000, paint);
+                    //    canvas.DrawText("TEST TEXT", 250, 35, paintText);
+
+                    //}
+                    //f.AddImage(keyImage);
+                    Expressions.Add(f);
                 }
             }
 
@@ -403,8 +451,8 @@ namespace ColumnDesignCalc
             double[] Inertias = GetSecondMomentInertia(f2, f3);
             double Ix = Inertias[0];
             double Iy = Inertias[1];
-            double A = GetColumnArea(c);
-            double Ac = GetConcreteArea(c);
+            double A = c.GetColumnArea();
+            double Ac = c.GetConcreteArea();
 
             double ix = Math.Sqrt(Ix / A);
             double iy = Math.Sqrt(Iy / A);
@@ -678,6 +726,8 @@ namespace ColumnDesignCalc
                 return 2 * (col.HX + col.HY);
             else if (col.Shape == GeoShape.TShaped)
                 return 2 * (col.HX + col.HY);
+            else if (col.Shape == GeoShape.CustomShape)
+                return 2 * (col.customLX + col.customLY);
             return 0;
         }
 
@@ -706,6 +756,8 @@ namespace ColumnDesignCalc
                 return new double[] { col.HX, col.HY };
             else if (col.Shape == GeoShape.TShaped)
                 return new double[] { col.HX, col.HY };
+            else if (col.Shape == GeoShape.CustomShape)
+                return new double[] { col.customLX, col.customLY };
             return null;
         }
 
@@ -728,7 +780,7 @@ namespace ColumnDesignCalc
                 fy.Expression.Add(@"I_y = \frac{\pi D^4}{64} = " + Math.Round(I / 1e4) + " cm^4");
                 return new double[] { I, I, Math.PI * Math.Pow(col.Diameter / 2.0, 2) };
             }
-            else if (col.Shape == GeoShape.Polygonal || col.Shape == GeoShape.LShaped || col.Shape == GeoShape.TShaped)
+            else if (col.Shape == GeoShape.Polygonal || col.Shape == GeoShape.LShaped || col.Shape == GeoShape.TShaped || col.Shape == GeoShape.CustomShape)
             {
                 double Ix = 0;
                 double Iy = 0;
@@ -762,95 +814,104 @@ namespace ColumnDesignCalc
         {
             Column col = Column;
             List<MWPoint2D> rebars = new List<MWPoint2D>();
-            double minX = 0;
-            double maxX = 0;
-            double minY = 0;
-            double maxY = 0;
-            MWPoint2D bary = new MWPoint2D();
-            if (col.Shape == GeoShape.Rectangular)
-            {
-                bary = new MWPoint2D(col.LX / 2, col.LY / 2);
-                // Creation of the rebar positions
-                double xspace = (col.LX - 2 * (col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0)) / (col.NRebarX - 1);
-                double yspace = (col.LY - 2 * (col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0)) / (col.NRebarY - 1);
-                for (int i = 0; i < col.NRebarX; i++)
-                {
-                    var x = col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0 + i * xspace;
-                    for (int j = 0; j < col.NRebarY; j++)
-                    {
-                        if (i == 0 || i == col.NRebarX - 1 || j == 0 || j == col.NRebarY - 1)
-                        {
-                            var y = col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0 + j * yspace;
-                            rebars.Add(new MWPoint2D(x, y));
-                        }
-                    }
-                }
-                minX = -col.LX / 2;
-                maxX = col.LX / 2;
-                minY = -col.LY / 2;
-                maxY = col.LY / 2;
-            }
-            else if (col.Shape == GeoShape.Circular)
-            {
-                bary = new MWPoint2D(col.Diameter / 2, col.Diameter / 2);
-                // Creation of the rebar positions
-                double inc = 2 * Math.PI / col.NRebarCirc;
-                double theta = 0;
-                for (int i = 0; i < col.NRebarCirc; i++)
-                {
-                    theta = i * inc;
-                    double x = (col.Diameter / 2.0 - col.CoverToLinks - col.LinkDiameter - col.BarDiameter / 2.0) * Math.Cos(theta);
-                    double y = (col.Diameter / 2.0 - col.CoverToLinks - col.LinkDiameter - col.BarDiameter / 2.0) * Math.Sin(theta);
-                    rebars.Add(new MWPoint2D(x, y));
-                }
-                minX = -col.Diameter / 2.0;
-                maxX = col.Diameter / 2.0;
-                minY = -col.Diameter / 2.0;
-                maxY = col.Diameter / 2.0;
-            }
-            else if (col.Shape == GeoShape.Polygonal)
-            {
-                List<MWPoint2D> concPoints = new List<MWPoint2D>();
-                // Creation of the rebar positions
-                double inc = 2 * Math.PI / col.Edges;
-                double theta = 0;
-                double dd = (col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0) / Math.Sin((col.Edges - 2.0) * Math.PI / (2.0 * col.Edges));
-                for (int i = 0; i < col.Edges; i++)
-                {
-                    theta = i * inc;
-                    double x = (col.Radius - dd) * Math.Cos(theta);
-                    double y = (col.Radius - dd) * Math.Sin(theta);
-                    rebars.Add(new MWPoint2D(x, y));
-                    double xx = col.Radius * Math.Cos(theta);
-                    double yy = col.Radius * Math.Sin(theta);
-                    concPoints.Add(new MWPoint2D(xx, yy));
-                }
-                bary = Points.GetBarycenter(concPoints);
-                minX = concPoints.Min(p => p.X);
-                maxX = concPoints.Max(p => p.X);
-                minY = concPoints.Min(p => p.Y);
-                maxY = concPoints.Max(p => p.Y);
-            }
-            else if (col.Shape == GeoShape.LShaped)
-            {
-                rebars = col.GetLShapedRebars().Select(x => new MWPoint2D(x.X, x.Y)).ToList();
-                var p = col.GetLShapeCOG();
-                bary = new MWPoint2D(p.X, p.Y);
-                minX = -col.HX / 2;
-                maxX = col.HX / 2;
-                minY = -col.HY / 2;
-                maxY = col.HY / 2;
-            }
-            else if (col.Shape == GeoShape.TShaped)
-            {
-                rebars = col.GetTShapedRebars().Select(x => new MWPoint2D(x.X, x.Y)).ToList();
-                var p = col.GetTShapeCOG();
-                bary = new MWPoint2D(p.X, p.Y);
-                minX = -col.HX / 2;
-                maxX = col.HX / 2;
-                minY = -col.HY / 2;
-                maxY = col.HY / 2;
-            }
+            double minX = col.ContourPoints.Min(c => c.X);
+            double maxX = col.ContourPoints.Max(c => c.X);
+            double minY = col.ContourPoints.Min(c => c.Y);
+            double maxY = col.ContourPoints.Max(c => c.Y);
+            MWPoint2D bary = col.GetCOG();
+            //if (col.Shape == GeoShape.Rectangular)
+            //{
+            //    bary = new MWPoint2D(col.LX / 2, col.LY / 2);
+            //    // Creation of the rebar positions
+            //    double xspace = (col.LX - 2 * (col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0)) / (col.NRebarX - 1);
+            //    double yspace = (col.LY - 2 * (col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0)) / (col.NRebarY - 1);
+            //    for (int i = 0; i < col.NRebarX; i++)
+            //    {
+            //        var x = col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0 + i * xspace;
+            //        for (int j = 0; j < col.NRebarY; j++)
+            //        {
+            //            if (i == 0 || i == col.NRebarX - 1 || j == 0 || j == col.NRebarY - 1)
+            //            {
+            //                var y = col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0 + j * yspace;
+            //                rebars.Add(new MWPoint2D(x, y));
+            //            }
+            //        }
+            //    }
+            //    minX = -col.LX / 2;
+            //    maxX = col.LX / 2;
+            //    minY = -col.LY / 2;
+            //    maxY = col.LY / 2;
+            //}
+            //else if (col.Shape == GeoShape.Circular)
+            //{
+            //    bary = new MWPoint2D(col.Diameter / 2, col.Diameter / 2);
+            //    // Creation of the rebar positions
+            //    double inc = 2 * Math.PI / col.NRebarCirc;
+            //    double theta = 0;
+            //    for (int i = 0; i < col.NRebarCirc; i++)
+            //    {
+            //        theta = i * inc;
+            //        double x = (col.Diameter / 2.0 - col.CoverToLinks - col.LinkDiameter - col.BarDiameter / 2.0) * Math.Cos(theta);
+            //        double y = (col.Diameter / 2.0 - col.CoverToLinks - col.LinkDiameter - col.BarDiameter / 2.0) * Math.Sin(theta);
+            //        rebars.Add(new MWPoint2D(x, y));
+            //    }
+            //    minX = -col.Diameter / 2.0;
+            //    maxX = col.Diameter / 2.0;
+            //    minY = -col.Diameter / 2.0;
+            //    maxY = col.Diameter / 2.0;
+            //}
+            //else if (col.Shape == GeoShape.Polygonal)
+            //{
+            //    List<MWPoint2D> concPoints = new List<MWPoint2D>();
+            //    // Creation of the rebar positions
+            //    double inc = 2 * Math.PI / col.Edges;
+            //    double theta = 0;
+            //    double dd = (col.CoverToLinks + col.LinkDiameter + col.BarDiameter / 2.0) / Math.Sin((col.Edges - 2.0) * Math.PI / (2.0 * col.Edges));
+            //    for (int i = 0; i < col.Edges; i++)
+            //    {
+            //        theta = i * inc;
+            //        double x = (col.Radius - dd) * Math.Cos(theta);
+            //        double y = (col.Radius - dd) * Math.Sin(theta);
+            //        rebars.Add(new MWPoint2D(x, y));
+            //        double xx = col.Radius * Math.Cos(theta);
+            //        double yy = col.Radius * Math.Sin(theta);
+            //        concPoints.Add(new MWPoint2D(xx, yy));
+            //    }
+            //    bary = Points.GetBarycenter(concPoints);
+            //    minX = concPoints.Min(p => p.X);
+            //    maxX = concPoints.Max(p => p.X);
+            //    minY = concPoints.Min(p => p.Y);
+            //    maxY = concPoints.Max(p => p.Y);
+            //}
+            //else if (col.Shape == GeoShape.LShaped)
+            //{
+            //    rebars = col.GetLShapedRebars().Select(x => new MWPoint2D(x.X, x.Y)).ToList();
+            //    var p = col.GetLShapeCOG();
+            //    bary = new MWPoint2D(p.X, p.Y);
+            //    minX = -col.HX / 2;
+            //    maxX = col.HX / 2;
+            //    minY = -col.HY / 2;
+            //    maxY = col.HY / 2;
+            //}
+            //else if (col.Shape == GeoShape.TShaped)
+            //{
+            //    rebars = col.GetTShapedRebars().Select(x => new MWPoint2D(x.X, x.Y)).ToList();
+            //    var p = col.GetTShapeCOG();
+            //    bary = new MWPoint2D(p.X, p.Y);
+            //    minX = -col.HX / 2;
+            //    maxX = col.HX / 2;
+            //    minY = -col.HY / 2;
+            //    maxY = col.HY / 2;
+            //}
+            //else if(col.Shape == GeoShape.CustomShape)
+            //{
+            //    rebars = col.GetCustomShapeRebars().Select(x => new MWPoint2D(x.X, x.Y)).ToList();
+            //    bary = col.GetCustomShapeCOG();
+            //    minX = -col.customLX / 2;
+            //    maxX = col.customLX / 2;
+            //    minY = -col.customLY / 2;
+            //    maxY = col.customLY / 2;
+            //}
 
             double area = Math.PI * Math.Pow(col.BarDiameter / 2.0, 2);
 
@@ -893,10 +954,11 @@ namespace ColumnDesignCalc
         }
 
 
-        public bool CheckSpacing(Formula f0)
+        public bool CheckSpacing(Formula f0 = null)
         {
+            if (f0 == null) f0 = new Formula();
+            if (Column.RebarsPos.Count <= 1) return true;
             Column c = Column;
-            bool spacing = false;
             List<double> sizes = new List<double>() { c.BarDiameter, c.MaxAggSize + 5, 20 };
             double smin = sizes.Max();
             f0.Narrative = "Bar spacing";
@@ -904,84 +966,104 @@ namespace ColumnDesignCalc
             f0.Expression.Add(@"k_1 = 1.0 mm");
             f0.Expression.Add(@"k_2 = 5.0 mm");
             f0.Expression.Add(@"s_{min} = max\left(k_1\phi,\phi_{agg}+k_2,20 mm\right) = " + smin + " mm");
-            if (c.Shape == GeoShape.Rectangular)
+            List<double> distances = new List<double>();
+            List<MWPoint2D> rebars = c.RebarsPos;
+            for(int i = 0; i < c.Nrebars; i++)
+                for(int j = i+1; j < c.Nrebars; j++)
+                    distances.Add(Points.Distance(rebars[i], rebars[j]));
+            double max = distances.Min();
+            f0.Expression.Add(@"min(s) = " + Math.Round(max) + " mm");
+            if(distances.Max() > smin)
             {
-                double sx = (c.LX - 2.0 * (c.CoverToLinks + c.LinkDiameter) - c.BarDiameter) / (c.NRebarX - 1);
-                double sy = (c.LY - 2.0 * (c.CoverToLinks + c.LinkDiameter) - c.BarDiameter) / (c.NRebarY - 1);
-                f0.Expression.Add(@"s_x = " + Math.Round(sx) + " mm");
-                f0.Expression.Add(@"s_y = " + Math.Round(sy) + " mm");
-                if (sx >= smin && sy >= smin)
-                {
-                    f0.Conclusion = "PASS";
-                    f0.Status = CalcStatus.PASS;
-                    spacing = true;
-                }
-                else
-                {
-                    f0.Conclusion = "FAIL";
-                    f0.Status = CalcStatus.FAIL;
-                }
+                f0.Conclusion = "PASS";
+                f0.Status = CalcStatus.PASS;
+                return true;
+
             }
-            else if (c.Shape == GeoShape.Circular)
+            else
             {
-                double x0 = c.Diameter / 2 - c.CoverToLinks - c.LinkDiameter - c.BarDiameter / 2.0;
-                double x1 = x0 * Math.Cos(2 * Math.PI / c.NRebarCirc);
-                double y1 = x0 * Math.Sin(2 * Math.PI / c.NRebarCirc);
-                double s = Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1, 2));
-                f0.Expression.Add(@"s = " + Math.Round(s) + " mm");
-                if (s >= smin)
-                {
-                    f0.Conclusion = "PASS";
-                    f0.Status = CalcStatus.PASS;
-                    spacing = true;
-                }
-                else
-                {
-                    f0.Conclusion = "FAIL";
-                    f0.Status = CalcStatus.FAIL;
-                }
+                f0.Conclusion = "FAIL";
+                f0.Status = CalcStatus.FAIL;
+                return false;
             }
-            else if (c.Shape == GeoShape.Polygonal)
-            {
-                double x0 = c.Diameter / 2 - c.CoverToLinks - c.LinkDiameter - c.BarDiameter / 2.0;
-                double x1 = x0 * Math.Cos(2 * Math.PI / c.Edges);
-                double y1 = x0 * Math.Sin(2 * Math.PI / c.Edges);
-                double s = Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1, 2));
-                f0.Expression.Add(@"s = " + Math.Round(s) + " mm");
-                if (s >= smin)
-                {
-                    f0.Conclusion = "PASS";
-                    f0.Status = CalcStatus.PASS;
-                    spacing = true;
-                }
-                else
-                {
-                    f0.Conclusion = "FAIL";
-                    f0.Status = CalcStatus.FAIL;
-                }
-            }
-            else if (c.Shape == GeoShape.LShaped || c.Shape == GeoShape.TShaped)
-            {
-                if (c.sx1 < smin || c.sx2 < smin || c.sy1 < smin || c.sy2 < smin)
-                {
-                    f0.Conclusion = "FAIL";
-                    f0.Status = CalcStatus.FAIL;
-                }
-                else
-                {
-                    f0.Conclusion = "PASS";
-                    f0.Status = CalcStatus.PASS;
-                    spacing = true;
-                }
-            }
-            return spacing;
+            //if (c.Shape == GeoShape.Rectangular)
+            //{
+            //    double sx = (c.LX - 2.0 * (c.CoverToLinks + c.LinkDiameter) - c.BarDiameter) / (c.NRebarX - 1);
+            //    double sy = (c.LY - 2.0 * (c.CoverToLinks + c.LinkDiameter) - c.BarDiameter) / (c.NRebarY - 1);
+            //    f0.Expression.Add(@"s_x = " + Math.Round(sx) + " mm");
+            //    f0.Expression.Add(@"s_y = " + Math.Round(sy) + " mm");
+            //    if (sx >= smin && sy >= smin)
+            //    {
+            //        f0.Conclusion = "PASS";
+            //        f0.Status = CalcStatus.PASS;
+            //        spacing = true;
+            //    }
+            //    else
+            //    {
+            //        f0.Conclusion = "FAIL";
+            //        f0.Status = CalcStatus.FAIL;
+            //    }
+            //}
+            //else if (c.Shape == GeoShape.Circular)
+            //{
+            //    double x0 = c.Diameter / 2 - c.CoverToLinks - c.LinkDiameter - c.BarDiameter / 2.0;
+            //    double x1 = x0 * Math.Cos(2 * Math.PI / c.NRebarCirc);
+            //    double y1 = x0 * Math.Sin(2 * Math.PI / c.NRebarCirc);
+            //    double s = Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1, 2));
+            //    f0.Expression.Add(@"s = " + Math.Round(s) + " mm");
+            //    if (s >= smin)
+            //    {
+            //        f0.Conclusion = "PASS";
+            //        f0.Status = CalcStatus.PASS;
+            //        spacing = true;
+            //    }
+            //    else
+            //    {
+            //        f0.Conclusion = "FAIL";
+            //        f0.Status = CalcStatus.FAIL;
+            //    }
+            //}
+            //else if (c.Shape == GeoShape.Polygonal)
+            //{
+            //    double x0 = c.Diameter / 2 - c.CoverToLinks - c.LinkDiameter - c.BarDiameter / 2.0;
+            //    double x1 = x0 * Math.Cos(2 * Math.PI / c.Edges);
+            //    double y1 = x0 * Math.Sin(2 * Math.PI / c.Edges);
+            //    double s = Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1, 2));
+            //    f0.Expression.Add(@"s = " + Math.Round(s) + " mm");
+            //    if (s >= smin)
+            //    {
+            //        f0.Conclusion = "PASS";
+            //        f0.Status = CalcStatus.PASS;
+            //        spacing = true;
+            //    }
+            //    else
+            //    {
+            //        f0.Conclusion = "FAIL";
+            //        f0.Status = CalcStatus.FAIL;
+            //    }
+            //}
+            //else if (c.Shape == GeoShape.LShaped || c.Shape == GeoShape.TShaped)
+            //{
+            //    if (c.sx1 < smin || c.sx2 < smin || c.sy1 < smin || c.sy2 < smin)
+            //    {
+            //        f0.Conclusion = "FAIL";
+            //        f0.Status = CalcStatus.FAIL;
+            //    }
+            //    else
+            //    {
+            //        f0.Conclusion = "PASS";
+            //        f0.Status = CalcStatus.PASS;
+            //        spacing = true;
+            //    }
+            //}
+            //return spacing;
         }
 
         
         public bool CheckMinMaxSteel(bool calcOnly = false)
         {
             Column c = Column;
-            double Ac = GetConcreteArea(c);
+            double Ac = c.GetConcreteArea();
             double Asmin = Math.Max(0.1 * c.SelectedLoad.P / (c.SteelGrade.Fy * 1e-3 / gs), 0.002 * Ac);
             double Asmax = 0.04 * Ac;
             double As = 0;
@@ -995,8 +1077,10 @@ namespace ColumnDesignCalc
                 As = (8 + (c.NRebarX - 3) * 2 + (c.NRebarY - 3) * 2) * Math.PI * Math.Pow(c.BarDiameter / 2.0, 2);
             else if (c.Shape == GeoShape.TShaped)
                 As = c.Nrebars * Math.PI * Math.Pow(c.BarDiameter / 2.0, 2);
+            else if (c.Shape == GeoShape.CustomShape)
+                As = c.AdvancedRebarsPos.Count * Math.PI * Math.Pow(c.BarDiameter / 2.0, 2);
 
-            if(calcOnly)
+            if (calcOnly)
             {
                 if (As > Asmax)
                     return false;
@@ -1086,7 +1170,7 @@ namespace ColumnDesignCalc
                 col.GetTP();
             }
 
-            col.TP.GetContours(col.R, col.Shape.ToString());
+            col.TP.GetContours(col.R, col.Shape.ToString(),col);
 
             if (steelData.Count == 0) SetSteelData();
             if (concreteData.Count == 0) SetConcreteData();
@@ -1499,135 +1583,147 @@ namespace ColumnDesignCalc
             // Materials
             //Material concrete = new Material(ConcreteGrade.Name, MatYpe.Concrete, 0.85 * ConcreteGrade.Fc / 1.5, 0, ConcreteGrade.E);
 
-            if (c.Shape == GeoShape.Rectangular)
+            // Creation of the concrete sections
+            for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
             {
-                // Creation of the concrete sections
-                for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
-                {
-                    ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
-                    Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
-                    //composites.Add(new ConcreteSection(TP.ContourPts[i].Points.Concat(TP.ContourPts[i-1].Points.Reverse<MWPoint2D>()).ToList(),concrete));
-                    composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete));
-                }
-                int n_last = c.TP.ContourPts.Count - 1;
-                ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
-                Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
-                composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
-
-
-                // Creation of the rebars
-                double xspace = (c.LX - 2 * (c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0)) / (c.NRebarX - 1);
-                double yspace = (c.LY - 2 * (c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0)) / (c.NRebarY - 1);
-                for (int i = 0; i < c.NRebarX; i++)
-                {
-                    var x = c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0 + i * xspace - c.LX / 2;
-                    for (int j = 0; j < c.NRebarY; j++)
-                    {
-                        if (i == 0 || i == c.NRebarX - 1 || j == 0 || j == c.NRebarY - 1)
-                        {
-                            var y = c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0 + j * yspace - c.LY / 2;
-                            double temp = c.GetRebarTemp(new MWPoint2D(x, y));
-                            SteelData sd = steelData.First(s => s.Temp == temp);
-                            Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
-                            Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(x, y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
-                            composites.Add(r);
-                        }
-                    }
-                }
+                ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
+                Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
+                composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete)); // reduces the number of points by 5
             }
-            else if (c.Shape == GeoShape.LShaped)
+            int n_last = c.TP.ContourPts.Count - 1;
+            ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
+            Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
+            composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
+
+            // Creation of the rebars
+            for (int i = 0; i < c.Nrebars; i++)
             {
-                // Creation of the concrete sections
-                for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
-                {
-                    ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
-                    Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
-                    composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete)); // reduces the number of points by 5
-                }
-                int n_last = c.TP.ContourPts.Count - 1;
-                ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
-                Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
-                composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
-
-                // Creation of the rebars
-                List<MWPoint2D> rebars = c.GetLShapedRebars();
-                for (int i = 0; i < rebars.Count; i++)
-                {
-                    double temp = c.GetRebarTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
-                    SteelData sd = steelData.First(s => s.Temp == temp);
-                    Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
-                    Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
-                    composites.Add(r);
-                }
-
+                double temp = c.GetRebarTemp(new MWPoint2D(c.RebarsPos[i].X, c.RebarsPos[i].Y));
+                SteelData sd = steelData.First(s => s.Temp == temp);
+                Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
+                Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(c.RebarsPos[i].X, c.RebarsPos[i].Y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
+                composites.Add(r);
             }
-            else if (c.Shape == GeoShape.TShaped)
-            {
-                // Creation of the concrete sections
-                for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
-                {
-                    ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
-                    Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
-                    composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete)); // reduces the number of points by 5
-                }
-                int n_last = c.TP.ContourPts.Count - 1;
-                ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
-                Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
-                composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
 
-                // Creation of the rebars
-                List<MWPoint2D> rebars = c.GetTShapedRebars();
-                for (int i = 0; i < rebars.Count; i++)
-                {
-                    double temp = c.GetRebarTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
-                    SteelData sd = steelData.First(s => s.Temp == temp);
-                    Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
-                    Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
-                    composites.Add(r);
-                }
+            //if (c.Shape == GeoShape.Rectangular)
+            //{
+            //    // Creation of the concrete sections
+            //    for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
+            //    {
+            //        ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
+            //        Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
+            //        //composites.Add(new ConcreteSection(TP.ContourPts[i].Points.Concat(TP.ContourPts[i-1].Points.Reverse<MWPoint2D>()).ToList(),concrete));
+            //        composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete));
+            //    }
+            //    int n_last = c.TP.ContourPts.Count - 1;
+            //    ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
+            //    Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
+            //    composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
 
-            }
+
+            //    // Creation of the rebars
+            //    double xspace = (c.LX - 2 * (c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0)) / (c.NRebarX - 1);
+            //    double yspace = (c.LY - 2 * (c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0)) / (c.NRebarY - 1);
+            //    for (int i = 0; i < c.NRebarX; i++)
+            //    {
+            //        var x = c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0 + i * xspace - c.LX / 2;
+            //        for (int j = 0; j < c.NRebarY; j++)
+            //        {
+            //            if (i == 0 || i == c.NRebarX - 1 || j == 0 || j == c.NRebarY - 1)
+            //            {
+            //                var y = c.CoverToLinks + c.LinkDiameter + c.BarDiameter / 2.0 + j * yspace - c.LY / 2;
+            //                double temp = c.GetRebarTemp(new MWPoint2D(x, y));
+            //                SteelData sd = steelData.First(s => s.Temp == temp);
+            //                Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
+            //                Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(x, y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
+            //                composites.Add(r);
+            //            }
+            //        }
+            //    }
+            //}
+            //else if (c.Shape == GeoShape.LShaped)
+            //{
+            //    // Creation of the concrete sections
+            //    for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
+            //    {
+            //        ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
+            //        Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
+            //        composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete)); // reduces the number of points by 5
+            //    }
+            //    int n_last = c.TP.ContourPts.Count - 1;
+            //    ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
+            //    Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
+            //    composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
+
+            //    // Creation of the rebars
+            //    List<MWPoint2D> rebars = c.GetLShapedRebars();
+            //    for (int i = 0; i < rebars.Count; i++)
+            //    {
+            //        double temp = c.GetRebarTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
+            //        SteelData sd = steelData.First(s => s.Temp == temp);
+            //        Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
+            //        Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
+            //        composites.Add(r);
+            //    }
+
+            //}
+            //else if (c.Shape == GeoShape.TShaped)
+            //{
+            //    // Creation of the concrete sections
+            //    for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
+            //    {
+            //        ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
+            //        Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
+            //        composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete)); // reduces the number of points by 5
+            //    }
+            //    int n_last = c.TP.ContourPts.Count - 1;
+            //    ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
+            //    Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
+            //    composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
+
+            //    // Creation of the rebars
+            //    List<MWPoint2D> rebars = c.GetTShapedRebars();
+            //    for (int i = 0; i < rebars.Count; i++)
+            //    {
+            //        double temp = c.GetRebarTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
+            //        SteelData sd = steelData.First(s => s.Temp == temp);
+            //        Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
+            //        Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
+            //        composites.Add(r);
+            //    }
+
+            //}
+            //else if (c.Shape == GeoShape.CustomShape)
+            //{
+            //    // Creation of the concrete sections
+            //    for (int i = 1; i < c.TP.ContourPts.Count - 1; i++)
+            //    {
+            //        ConcreteData cd = concreteData.First(x => x.Temp == c.TP.ContourPts[i].Level);
+            //        Material concrete = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[i].Level, MatYpe.Concrete, cd.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd.Ec1, epsMax2: cd.Ecu1, dens: cd.density);
+            //        composites.Add(new ConcreteSection(c.TP.ContourPts[i].Points.Where((p, index) => index % 5 == 0).ToList(), concrete)); // reduces the number of points by 5
+            //    }
+            //    int n_last = c.TP.ContourPts.Count - 1;
+            //    ConcreteData cd_last = concreteData.First(x => x.Temp == c.TP.ContourPts[n_last].Level);
+            //    Material concrete_last = new Material(c.ConcreteGrade.Name + "_" + c.TP.ContourPts[n_last].Level, MatYpe.Concrete, cd_last.k * 0.85 * c.ConcreteGrade.Fc / 1.5, 0, c.ConcreteGrade.E, epsMax: cd_last.Ec1, epsMax2: cd_last.Ecu1, dens: cd_last.density);
+            //    composites.Add(new ConcreteSection(c.TP.ContourPts[n_last].Points.Distinct().ToList(), concrete_last));
+
+            //    // Creation of the rebars
+            //    List<MWPoint2D> rebars = c.GetCustomShapeRebars();
+            //    for (int i = 0; i < rebars.Count; i++)
+            //    {
+            //        double temp = c.GetRebarTemp(new MWPoint2D(rebars[i].X, rebars[i].Y));
+            //        SteelData sd = steelData.First(s => s.Temp == temp);
+            //        Material steel = new Material(c.SteelGrade.Name, MatYpe.Steel, sd.kf * c.SteelGrade.Fy / 1.15, sd.kf * c.SteelGrade.Fy / 1.15, sd.kE * c.SteelGrade.E);
+            //        Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(c.BarDiameter / 2.0, 2), steel);
+            //        composites.Add(r);
+            //    }
+
+            //}
 
             Diagram d = new Diagram(composites, c.DiagramDisc);
             c.fireDiagramFaces = d.faces;
             c.fireDiagramVertices = d.vertices;
 
-        }
-
-        public double GetConcreteArea(Column col)
-        {
-            return GetColumnArea(col) - GetSteelArea(col);
-        }
-
-        public double GetColumnArea(Column col)
-        {
-            if (col.Shape == GeoShape.Rectangular)
-                return col.LX * col.LY;
-            else if (col.Shape == GeoShape.Circular)
-                return Math.PI * Math.Pow(col.Diameter / 2.0, 2);
-            else if (col.Shape == GeoShape.Polygonal)
-                return col.Edges * Math.Pow(col.Radius, 2) * Math.Cos(Math.PI / col.Edges) * Math.Sin(Math.PI / col.Edges);
-            else if (col.Shape == GeoShape.LShaped)
-                return col.HX * col.HY - (col.HX - col.hX) * (col.HY - col.hY);
-            else if (col.Shape == GeoShape.TShaped)
-                return col.HX * col.HY - (col.HX - col.hX) * (col.HY - col.hY);
-            return 0;
-        }
-
-        public double GetSteelArea(Column col)
-        {
-            int n = 0;
-            if (col.Shape == GeoShape.Rectangular)
-                n = 2 * (col.NRebarX + col.NRebarY - 2);
-            else if (col.Shape == GeoShape.Circular)
-                n = col.NRebarCirc;
-            else if (col.Shape == GeoShape.Polygonal)
-                n = col.Edges;
-            else if (col.Shape == GeoShape.LShaped)
-                n = 8 + (col.NRebarX - 3) * 2 + (col.NRebarY - 3) * 2;
-            else if (col.Shape == GeoShape.TShaped)
-                n = col.Nrebars;
-            return n * Math.PI * Math.Pow(col.BarDiameter / 2.0, 2);
         }
 
         public double[] GetEmbodiedCarbon()
@@ -1686,73 +1782,80 @@ namespace ColumnDesignCalc
 
         public void SetFireData()
         {
-            fireTable.Add(new FireData(30, 0.2, 200, 25));
-            fireTable.Add(new FireData(30, 0.5, 200, 25));
-            fireTable.Add(new FireData(30, 0.7, 200, 32));
-            fireTable.Add(new FireData(30, 0.7, 300, 27));
-            fireTable.Add(new FireData(60, 0.2, 200, 25));
-            fireTable.Add(new FireData(60, 0.5, 200, 36));
-            fireTable.Add(new FireData(60, 0.5, 300, 31));
-            fireTable.Add(new FireData(60, 0.7, 250, 46));
-            fireTable.Add(new FireData(60, 0.7, 350, 40));
-            fireTable.Add(new FireData(90, 0.2, 200, 31));
-            fireTable.Add(new FireData(90, 0.2, 300, 25));
-            fireTable.Add(new FireData(90, 0.5, 300, 45));
-            fireTable.Add(new FireData(90, 0.5, 400, 38));
-            fireTable.Add(new FireData(90, 0.7, 350, 53));
-            fireTable.Add(new FireData(90, 0.7, 450, 40));
-            fireTable.Add(new FireData(120, 0.2, 250, 40));
-            fireTable.Add(new FireData(120, 0.2, 350, 35));
-            fireTable.Add(new FireData(120, 0.5, 350, 45));
-            fireTable.Add(new FireData(120, 0.5, 450, 40));
-            fireTable.Add(new FireData(120, 0.7, 350, 57));
-            fireTable.Add(new FireData(120, 0.7, 450, 51));
-            fireTable.Add(new FireData(180, 0.2, 350, 45));
-            fireTable.Add(new FireData(180, 0.5, 350, 63));
-            fireTable.Add(new FireData(180, 0.7, 450, 70));
-            fireTable.Add(new FireData(240, 0.2, 350, 61));
-            fireTable.Add(new FireData(240, 0.5, 350, 75));
-            fireTable.Add(new FireData(30, 0.7, 155, 25, FireExposition.OneSide));
-            fireTable.Add(new FireData(60, 0.7, 155, 25, FireExposition.OneSide));
-            fireTable.Add(new FireData(90, 0.7, 155, 25, FireExposition.OneSide));
-            fireTable.Add(new FireData(120, 0.7, 175, 35, FireExposition.OneSide));
-            fireTable.Add(new FireData(180, 0.7, 230, 55, FireExposition.OneSide));
-            fireTable.Add(new FireData(240, 0.7, 295, 70, FireExposition.OneSide));
+            string path = DataPath + "FireData.csv";
+            try
+            {
+                using (var reader = new StreamReader(path))
+                {
+                    reader.ReadLine();
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(',');
+
+                        fireTable.Add(new FireData(
+                            Convert.ToInt32(values[0]),
+                            Convert.ToDouble(values[1]),
+                            Convert.ToInt32(values[2]),
+                            Convert.ToInt32(values[3]),
+                            (FireExposition)Enum.Parse(typeof(FireExposition), values[4])
+                            ));
+                    }
+                }
+                Console.WriteLine("fire data ok");
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
 
         public void SetConcreteData()
         {
             double d = Column.ConcreteGrade.Density;
-            concreteData.Add(new ConcreteData(25, 1, 0.0025, 0.020, AggregateType.Siliceous, d));
-            concreteData.Add(new ConcreteData(100, 1, 0.0040, 0.0225, AggregateType.Siliceous, d));
-            concreteData.Add(new ConcreteData(200, 0.95, 0.0055, 0.025, AggregateType.Siliceous, d * 0.98));
-            concreteData.Add(new ConcreteData(300, 0.85, 0.0070, 0.0275, AggregateType.Siliceous, d * 0.965));
-            concreteData.Add(new ConcreteData(400, 0.75, 0.0100, 0.0300, AggregateType.Siliceous, d * 0.95));
-            concreteData.Add(new ConcreteData(500, 0.60, 0.0150, 0.0325, AggregateType.Siliceous, d * 0.94125));
-            concreteData.Add(new ConcreteData(600, 0.45, 0.0250, 0.0350, AggregateType.Siliceous, d * 0.9325));
-            concreteData.Add(new ConcreteData(700, 0.30, 0.0250, 0.0375, AggregateType.Siliceous, d * 0.92375));
-            concreteData.Add(new ConcreteData(800, 0.15, 0.0250, 0.0400, AggregateType.Siliceous, d * 0.915));
-            concreteData.Add(new ConcreteData(900, 0.08, 0.0250, 0.0425, AggregateType.Siliceous, d * 0.90625));
-            concreteData.Add(new ConcreteData(1000, 0.04, 0.0250, 0.045, AggregateType.Siliceous, d * 0.8975));
-            concreteData.Add(new ConcreteData(1100, 0.01, 0.0250, 0.0475, AggregateType.Siliceous, d * 0.88875));
-            concreteData.Add(new ConcreteData(1200, 0.00, 0.0250, 0.050, AggregateType.Siliceous, d * 0.88));
+            string path = DataPath + "ConcreteTemperatureData.csv";
+            try
+            {
+                using (var reader = new StreamReader(path))
+                {
+                    reader.ReadLine();
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(',');
+
+                        concreteData.Add(new ConcreteData(
+                            Convert.ToDouble(values[0]), 
+                            Convert.ToDouble(values[1]), 
+                            Convert.ToDouble(values[2]),
+                            Convert.ToDouble(values[3]),
+                            (AggregateType)Enum.Parse(typeof(AggregateType),values[4]),
+                            d * Convert.ToDouble(values[5])
+                            ));
+                    }
+                }
+                Console.WriteLine("concrete temperature data ok");
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+
         }
 
         public void SetSteelData()
         {
-            steelData.Add(new SteelData(25, 1.0, 1.0));
-            steelData.Add(new SteelData(100, 1.0, 1.0));
-            steelData.Add(new SteelData(200, 1.0, 0.9));
-            steelData.Add(new SteelData(300, 1.0, 0.8));
-            steelData.Add(new SteelData(400, 1.0, 0.7));
-            steelData.Add(new SteelData(500, 0.78, 0.6));
-            steelData.Add(new SteelData(600, 0.47, 0.31));
-            steelData.Add(new SteelData(700, 0.23, 0.13));
-            steelData.Add(new SteelData(800, 0.11, 0.09));
-            steelData.Add(new SteelData(900, 0.06, 0.07));
-            steelData.Add(new SteelData(1000, 0.04, 0.04));
-            steelData.Add(new SteelData(1100, 0.02, 0.02));
-            steelData.Add(new SteelData(1200, 0.0, 0.0));
+            string path = DataPath + "SteelTemperatureData.csv";
+            try
+            {
+                using (var reader = new StreamReader(path))
+                {
+                    reader.ReadLine();
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(',');
+
+                        steelData.Add(new SteelData(Convert.ToDouble(values[0]), Convert.ToDouble(values[1]), Convert.ToDouble(values[2])));
+                    }
+                }
+                Console.WriteLine("steel temperature data ok");
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
 
         private void InitializeCarbonData()
@@ -2018,5 +2121,34 @@ namespace ColumnDesignCalc
             int numberOfSteps = (int)((endNumber - startNumber) / newStepNumber);
             return new Tuple<double, double, int>(startNumber, newStepNumber, numberOfSteps);
         }
+
+        private void ImportConcreteGrades()
+        {
+            Console.WriteLine("Importing concrete grades");
+            string path = DataPath + "ConcreteGrades.csv";
+            try
+            {
+                using(var reader = new StreamReader(path))
+                {
+                    reader.ReadLine();
+                    while(!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        var values = line.Split(',');
+
+                        ConcreteGrades.Add(new Concrete(values[0], Convert.ToDouble(values[1]), Convert.ToDouble(values[2])));
+                    }
+                }
+                Console.WriteLine("concrete grades ok");
+            }
+            catch(Exception ex) 
+            {
+                Console.WriteLine("concrete grades problem");
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        
+
     }
 }

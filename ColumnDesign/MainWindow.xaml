@@ -30,7 +30,6 @@
 
             <ContentControl
                 Grid.Column="0"
-                Background="LightGray"
                 Content="{StaticResource inputsView}" Grid.RowSpan="2" />
 
             <ContentControl 

@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CalcCoreStandard" Version="0.1.1" />
+    <PackageReference Include="CalcCoreStandard" Version="0.0.5" />
     <PackageReference Include="MathNet.Numerics" Version="4.11.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
@@ -16,6 +16,7 @@
     </Reference>
     <Reference Include="InteractionDiagram3D">
       <HintPath>..\packages\InteractionDiagram3D\InteractionDiagram3D.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="MWGeometry">
       <HintPath>..\packages\MWGeometry\MWGeometry.dll</HintPath>
@@ -24,5 +25,25 @@
       <HintPath>..\packages\StructuralDrawing2D\StructuralDrawing2D.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\ConcreteGrades.csv">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\ConcreteTemperatureData.csv">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\FireData.csv">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\SteelTemperatureData.csv">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <MakeDir Directories="$(AppData)\Magma Works\Scaffold\Data" />
+    <Exec Command="xCopy &quot;$(ProjectDir)Data&quot; &quot;$(AppData)\Magma Works\Scaffold\Data&quot; /d" />
+  </Target>
 
 </Project>

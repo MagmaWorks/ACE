@@ -1,0 +1,40 @@
+﻿using ColumnDesignCalc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace ColumnDesign
+{
+    /// <summary>
+    /// Interaction logic for UCColumns.xaml
+    /// </summary>
+    public partial class UCColumns : UserControl
+    {
+        public UCColumns()
+        {
+            InitializeComponent();
+        }
+
+        private void myDataGrid_LoadingRow(object sender, System.Windows.Controls.DataGridRowEventArgs e)
+        {
+            Column myObject = e.Row.Item as Column;
+            if (myObject != null)
+            {
+                ViewModel vm = this.DataContext as ViewModel;
+                myObject = vm.MySettings.DefaultColumn.Clone();
+            }
+        }
+
+    }
+}

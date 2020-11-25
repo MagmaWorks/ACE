@@ -84,6 +84,7 @@ namespace ColumnDesign
             ViewModel vm = (sender as Button).DataContext as ViewModel;
             vm.MyIDView.IsUpdated = !vm.MyIDView.IsUpdated;
             vm.UpdateDesign();
+            vm.ColumnCalcs.UpdateInputOuput();
             vm.ExportToWord();
         }
 
@@ -118,6 +119,24 @@ namespace ColumnDesign
                 DataContext = vm
             };
             AGD.Show();
+        }
+
+        private void OpenSettings(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = this.DataContext as ViewModel;
+            Button b = sender as Button;
+            Point position = b.PointToScreen(new Point(0d, 0d));
+            Window w = new Window()
+            {
+                Title = "Edit settings",
+                Content = new UCSettings(),
+                Owner = Application.Current.MainWindow,
+                ResizeMode = ResizeMode.NoResize,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                DataContext = vm
+            };
+            w.ShowDialog();
         }
     }
 }

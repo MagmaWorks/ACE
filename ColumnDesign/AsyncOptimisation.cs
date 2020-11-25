@@ -722,10 +722,11 @@ namespace ColumnDesign
                 minmaxCheck = c.CheckSteelQtty();
                 if(minmaxCheck == true)
                 {
-                    spacingCheck = c.CheckSpacing();
+                    Calculations calc = new Calculations(c);
+                    spacingCheck = calc.CheckSpacing();
                     if(spacingCheck == true)
                     {
-                        Calculations calc = new Calculations(c);
+                        
                         if (fireM[0]) fireCheck0 = calc.CheckFireDesignTable();
                         if (fireM[1]) fireCheck1 = calc.CheckFireIsotherm500().Item1;
                         if (fireM[2]) fireCheck2 = calc.CheckFireZoneMethod().Item1;

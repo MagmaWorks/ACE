@@ -23,14 +23,32 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightGray">
-                    <TextBlock Text="Column" Margin="15 5 5 5"/>
-                    <ComboBox SelectedItem="{Binding NameSelectedColumn}" 
-                          ItemsSource="{Binding ColumnNames}"
-                          SelectedValue="{Binding ColumnNames[0], Mode=OneTime}"
-                          Width="100" 
-                          Height="21" 
-                          Margin="25 5 5 5"/>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <TextBlock Text="Column" Margin="5 5 5 5" VerticalAlignment="Center"/>
+                    <ComboBox 
+                        SelectedItem="{Binding SelectedColumn}" 
+                        ItemsSource="{Binding MyColumns}"
+                        Width="120" 
+                        Height="21" 
+                        Margin="0 5 5 5">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding Name}" Foreground="Black"/>
+                                    <TextBlock Foreground="DarkGray">
+                                        <Run Text="{Binding LX}"/> x <Run Text="{Binding LY}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button
+                        BorderThickness="0"
+                        Click="EditColumns"
+                        Background="Transparent">
+                        <Image
+                            Source="Resources/List.png"/>
+                    </Button>
                 </StackPanel>
 
                 <Grid Grid.Row="1" Margin="5 5 5 5">
@@ -150,6 +168,35 @@
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox Name="CustomShapeCB" Content="Custom-Shape" Margin="2 5 0 5" IsChecked="{Binding SelectedColumn.IsCustomShape, Mode=OneWay}" Checked="ShapeChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="CustomShapedSection">
+                                <StackPanel Orientation="Vertical" Width="115">
+                                    <TextBlock Text="LX (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="LY (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d1x (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d1y (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d2x (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d2y (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d3x (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d3y (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d4x (mm)" Margin="5 4 0 2"/>
+                                    <TextBlock Text="d4y (mm)" Margin="5 4 0 2"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox Name="customLX" Text="{Binding SelectedColumn.customLX}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="customLY" Text="{Binding SelectedColumn.customLY}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d1x" Text="{Binding SelectedColumn.d1x}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d1y" Text="{Binding SelectedColumn.d1y}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d2x" Text="{Binding SelectedColumn.d2x}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d2y" Text="{Binding SelectedColumn.d2y}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d3x" Text="{Binding SelectedColumn.d3x}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d3y" Text="{Binding SelectedColumn.d3y}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d4x" Text="{Binding SelectedColumn.d4x}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                    <TextBox Name="d4y" Text="{Binding SelectedColumn.d4y}" Margin="0 2 5 0" Width="70" Height="21" LostFocus="UpdateCustomShape" IsEnabled="True"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
 
                     <!--<StackPanel Grid.Row="1" Orientation="Horizontal" >
@@ -211,13 +258,13 @@
                             <TextBlock Text="Limit strength (MPa) " Margin="5 4 0 5" />
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
-                            <ComboBox ItemsSource="{Binding ConcreteNames}" SelectionChanged="ConcreteGradeChanged" SelectedValue="{Binding ConcreteNames[0], Mode=OneTime}" Margin="0 4 0 0" Width="70" Height="21"/>
-                            <TextBox Text="{Binding SelectedColumn.ConcreteGrade.E, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsCustom}" LostFocus="UpdateYoungMod"/>
-                            <TextBox Text="{Binding SelectedColumn.ConcreteGrade.Fc, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsCustom}" LostFocus="UpdateLimitStrength"/>
+                            <ComboBox ItemsSource="{Binding ConcreteNames}" SelectionChanged="ConcreteGradeChanged" SelectedValue="{Binding SelectedColumn.ConcreteGrade.Name, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21"/>
+                            <TextBox Text="{Binding SelectedColumn.ConcreteGrade.E, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsConcreteCustom}" LostFocus="UpdateYoungMod"/>
+                            <TextBox Text="{Binding SelectedColumn.ConcreteGrade.Fc, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsConcreteCustom}" LostFocus="UpdateLimitStrength"/>
                             <TextBox Text="{Binding SelectedColumn.MaxAggSize}" Margin="0 4 0 0" Width="70" Height="21"/>
-                            <ComboBox ItemsSource="{Binding SteelNames}" SelectionChanged="SteelGradeChanged" SelectedValue="{Binding SteelNames[1], Mode=OneTime}" Margin="0 4 0 0" Width="70" Height="21"/>
-                            <TextBox Text="{Binding SelectedColumn.SteelGrade.E, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsCustom}" LostFocus="UpdateSteelYoungMod"/>
-                            <TextBox Text="{Binding SelectedColumn.SteelGrade.Fy, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsCustom}" LostFocus="UpdateSteelLimitStrength"/>
+                            <ComboBox ItemsSource="{Binding SteelNames}" SelectionChanged="SteelGradeChanged" SelectedValue="{Binding SelectedColumn.SteelGrade.Name, Mode=OneWay}" Margin="0 4 0 0" Width="70" Height="21"/>
+                            <TextBox Text="{Binding SelectedColumn.SteelGrade.E}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsSteelCustom}" LostFocus="UpdateSteelYoungMod"/>
+                            <TextBox Text="{Binding SelectedColumn.SteelGrade.Fy}" Margin="0 4 0 0" Width="70" Height="21" IsEnabled="{Binding IsSteelCustom}" LostFocus="UpdateSteelLimitStrength"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -234,13 +281,19 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="0">
-                        <TextBlock Text="Loads" FontSize="12" FontWeight="SemiBold" />
+                        <TextBlock 
+                            Text="Loads" 
+                            VerticalAlignment="Center"
+                            FontSize="12" 
+                            FontWeight="SemiBold" />
                         <Button
-                            Margin="5 0 70 0"
+                            Margin="5 0 5 0"
                             Click="ChangeLoadsVisibility"
+                            VerticalAlignment="Center"
                             BorderBrush="Transparent"
                             Background="Transparent">
                             <Image 
@@ -260,7 +313,18 @@
                                 </Image.Style>
                             </Image>
                         </Button>
+                        <Button
+                            Background="Transparent"
+                            HorizontalAlignment="Left"
+                            BorderThickness="0"
+                            Margin="0 0 38 0"
+                            Click="ShowLoads"
+                            >
+                            <Image
+                                Source="Resources/List.png"/>
+                        </Button>
                         <ComboBox
+                            Name="Loadcb"
                             HorizontalAlignment="Right"
                             ItemsSource="{Binding SelectedColumn.LoadNames}"
                             SelectedValue="{Binding SelectedColumn.SelectedLoad.Name, Mode=OneWay}"
@@ -281,13 +345,15 @@
                             <TextBlock Text="My bottom (kN.m)" Margin="5 4 0 5" />
                         </StackPanel>
                         <StackPanel Orientation="Vertical" >
-                            <TextBox Text="{Binding SelectedColumn.SelectedLoad.P}" Margin="0 4 0 0" Width="70" Height="20" LostFocus="UpdateP"/>
-                            <TextBox Text="{Binding SelectedColumn.SelectedLoad.MxTop}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM2Top"/>
-                            <TextBox Text="{Binding SelectedColumn.SelectedLoad.MxBot}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM2Bot"/>
-                            <TextBox Text="{Binding SelectedColumn.SelectedLoad.MyTop}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM3Top"/>
-                            <TextBox Text="{Binding SelectedColumn.SelectedLoad.MyBot}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM3Bot"/>
+                            <TextBox Name="Ptb" Text="{Binding SelectedColumn.SelectedLoad.P}" Margin="0 4 0 0" Width="70" Height="20" LostFocus="UpdateP"/>
+                            <TextBox Name="Mxtoptb" Text="{Binding SelectedColumn.SelectedLoad.MxTop}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM2Top"/>
+                            <TextBox Name="Mxbottb" Text="{Binding SelectedColumn.SelectedLoad.MxBot}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM2Bot"/>
+                            <TextBox Name="Mytoptb" Text="{Binding SelectedColumn.SelectedLoad.MyTop}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM3Top"/>
+                            <TextBox Name="Mybottb" Text="{Binding SelectedColumn.SelectedLoad.MyBot}" Margin="0 4 0 0" Width="70" Height="21" LostFocus="UpdateM3Bot"/>
                         </StackPanel>
                     </StackPanel>
+
+                    <CheckBox Grid.Row="2" Content="Show all loads" Margin="5" IsChecked="False" Click="AllLoadsClicked"/>
 
                 </Grid>
 
@@ -337,21 +403,22 @@
                             <TextBlock Text="Fire design method" Margin="5 4 0 5"/>
                             <TextBlock Text="Fire curve" Margin="5 4 0 5"/>
                             <TextBlock Text="Fire combo" Margin="5 4 0 5"/>
+                            <CheckBox Content="Advanced rebars" Margin="5 4 0 5" IsChecked="{Binding SelectedColumn.IsAdvancedRebar}" Click="DesignChangedNotFire"/>
                             <!--<CheckBox IsChecked="false"  Content="Advanced fire design" Margin="0 4 5 0" Click="FireDesignChanged"/>-->
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <TextBox Text="{Binding SelectedColumn.CoverToLinks, Mode=OneTime}" Margin="0 5 5 0" Width="70" Height="20" LostFocus="UpdateCover"/>
                             <TextBox Text="{Binding SelectedColumn.EffectiveLength, Mode=OneTime}" Margin="0 5 5 0" Width="70" Height="21" LostFocus="UpdateEffLength"/>
                             <!--<ComboBox ItemsSource="{Binding SteelGrades}" Margin="0 5 5 0" LX="60" Height="21" />-->
-                            <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.BarDiameter}" LostFocus="DesignChanged" IsEditable="True"
+                            <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.BarDiameter}" LostFocus="DesignChangedNotFire" IsEditable="True"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
-                            <ComboBox ItemsSource="{Binding NoBars}" SelectedValue="{Binding SelectedColumn.NRebarX}" SelectionChanged="DesignChanged"
+                            <ComboBox ItemsSource="{Binding NoBars}" SelectedValue="{Binding SelectedColumn.NRebarX}" SelectionChanged="DesignChangedNotFire"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
-                            <ComboBox ItemsSource="{Binding NoBars}" SelectedValue="{Binding SelectedColumn.NRebarY}" SelectionChanged="DesignChanged"
+                            <ComboBox ItemsSource="{Binding NoBars}" SelectedValue="{Binding SelectedColumn.NRebarY}" SelectionChanged="DesignChangedNotFire"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
-                            <ComboBox ItemsSource="{Binding NoBars}" SelectedValue="{Binding SelectedColumn.NRebarCirc}" SelectionChanged="DesignChanged"
+                            <ComboBox ItemsSource="{Binding NoBars}" SelectedValue="{Binding SelectedColumn.NRebarCirc}" SelectionChanged="DesignChangedNotFire"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
-                            <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.LinkDiameter}" LostFocus="DesignChanged" IsEditable="True"
+                            <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.LinkDiameter}" LostFocus="DesignChangedNotFire" IsEditable="True"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
                             <ComboBox ItemsSource="{Binding FireResistances}" SelectedValue="{Binding SelectedColumn.R}" SelectionChanged="FireResistanceChanged"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
@@ -368,6 +435,21 @@
                                   Margin="0 4 5 0" Width="70" Height="21" Name="FireCurveCB"/>
                             <ComboBox ItemsSource="{Binding SelectedColumn.FireLoadNames}" SelectedValue="{Binding SelectedColumn.FireLoad.Name, Mode=OneWay}" SelectionChanged="FireLoadChanged"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
+                            <!--<Button 
+                                Margin="0 4 5 0"
+                                Width="70"
+                                Click="SelectAdvancedRebarFile"
+                                >
+                                <TextBlock Text="Browse"/>
+                            </Button>-->
+                            <Button
+                                Margin="0 4 5 0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="EditAdvancedRebars"
+                                >
+                                <Image Source="Resources/List.png"/>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
 

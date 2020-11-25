@@ -154,110 +154,168 @@ namespace ColumnDesign
 
             Shape = column.Shape;
 
-            if(shape == GeoShape.Rectangular)
-            {
-                ContourPoints = new PointCollection(new List<Point>()
-                {
-                    new Point(-column.LX/2*sf,-column.LY/2*sf),
-                    new Point(column.LX/2*sf,-column.LY/2*sf),
-                    new Point(column.LX/2*sf,column.LY/2*sf),
-                    new Point(-column.LX/2*sf,column.LY/2*sf)
-                });
-            }
-            else if (shape == GeoShape.Circular)
-            {
-                Diameter = column.Diameter * sf;
-                CircCenter = new Point(-column.Diameter / 2.0 * sf, -column.Diameter / 2.0 * sf);
-            }
-            else if(shape == GeoShape.Polygonal)
-            {
-                ContourPoints = new PointCollection();
-                int n = column.Edges;
-                double R = column.Radius;
-                for (int i = 0; i < n; i++)
-                {
-                    double theta = i * 2 * Math.PI / n;
-                    double X = R * Math.Cos(theta) * sf;
-                    double Y = R * Math.Sin(theta) * sf;
-                    ContourPoints.Add(new Point(X, Y));
-                }
-            }
-            else if (shape == GeoShape.LShaped)
-            {
-                ContourPoints = new PointCollection(column.GetLShapedContour().Select(p => new Point(p.X * sf, p.Y * sf)));
-            }
-            else if (shape == GeoShape.TShaped)
-            {
-                ContourPoints = new PointCollection(column.GetTShapedContour().Select(p => new Point(p.X * sf, p.Y * sf)));
-            }
+            ContourPoints = new PointCollection(column.ContourPoints.Select(p => new Point(p.X * sf, p.Y * sf)));
+            Diameter = column.Diameter * sf;
+            CircCenter = new Point(-column.Diameter / 2.0 * sf, -column.Diameter / 2.0 * sf);
+            //if(shape == GeoShape.Rectangular)
+            //{
+            //    ContourPoints = new PointCollection(new List<Point>()
+            //    {
+            //        new Point(-column.LX/2*sf,-column.LY/2*sf),
+            //        new Point(column.LX/2*sf,-column.LY/2*sf),
+            //        new Point(column.LX/2*sf,column.LY/2*sf),
+            //        new Point(-column.LX/2*sf,column.LY/2*sf)
+            //    });
+            //}
+            //else if (shape == GeoShape.Circular)
+            //{
+            //    Diameter = column.Diameter * sf;
+            //    CircCenter = new Point(-column.Diameter / 2.0 * sf, -column.Diameter / 2.0 * sf);
+            //}
+            //else if(shape == GeoShape.Polygonal)
+            //{
+            //    ContourPoints = new PointCollection();
+            //    int n = column.Edges;
+            //    double R = column.Radius;
+            //    for (int i = 0; i < n; i++)
+            //    {
+            //        double theta = i * 2 * Math.PI / n;
+            //        double X = R * Math.Cos(theta) * sf;
+            //        double Y = R * Math.Sin(theta) * sf;
+            //        ContourPoints.Add(new Point(X, Y));
+            //    }
+            //}
+            //else if (shape == GeoShape.LShaped)
+            //{
+            //    ContourPoints = new PointCollection(column.GetLShapedContour().Select(p => new Point(p.X * sf, p.Y * sf)));
+            //}
+            //else if (shape == GeoShape.TShaped)
+            //{
+            //    ContourPoints = new PointCollection(column.GetTShapedContour().Select(p => new Point(p.X * sf, p.Y * sf)));
+            //}
+            //else if (shape == GeoShape.CustomShape)
+            //{
+            //    ContourPoints = new PointCollection(column.GetCustomShapeContour().Select(p => new Point(p.X * sf, p.Y * sf)));
+            //}
 
             rebars = new List<RebarObj>();
-            if(shape == GeoShape.Rectangular)
-            {
-                for (int i = 0; i < column.NRebarX; i++)
-                    for (int j = 0; j < column.NRebarY; j++)
-                    {
-                        // Bar is only added if we are not "in the middle"
-                        if (!((j != 0 && j != column.NRebarY - 1) && (i != 0 && i != column.NRebarX - 1)))
-                        {
-                            double d = column.CoverToLinks + column.LinkDiameter + column.BarDiameter / 2;
-                            double lx = column.LX - 2 * d;
-                            double ly = column.LY - 2 * d;
-                            Point pt = new Point()
-                            {
-                                X = (d + i * lx / (column.NRebarX - 1) - column.LX / 2 - column.BarDiameter / 2) * sf,
-                                Y = (d + j * ly / (column.NRebarY - 1) - column.LY / 2 - column.BarDiameter / 2) * sf
-                            };
-                            rebars.Add(new RebarObj(pt, column.BarDiameter * sf));
-                        }
+            foreach (var r in column.RebarsPos)
+                rebars.Add(new RebarObj(new Point((r.X - column.BarDiameter / 2) * sf, (r.Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //if(shape == GeoShape.Rectangular)
+            //{
+            //    if(column.IsAdvancedRebar)
+            //    {
+            //        foreach (var r in column.AdvancedRebarsPos)
+            //            rebars.Add(new RebarObj(new Point((r.X - column.BarDiameter / 2) * sf, (r.Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //    }
+            //    else
+            //    {
+            //        for (int i = 0; i < column.NRebarX; i++)
+            //            for (int j = 0; j < column.NRebarY; j++)
+            //            {
+            //                // Bar is only added if we are not "in the middle"
+            //                if (!((j != 0 && j != column.NRebarY - 1) && (i != 0 && i != column.NRebarX - 1)))
+            //                {
+            //                    double d = column.CoverToLinks + column.LinkDiameter + column.BarDiameter / 2;
+            //                    double lx = column.LX - 2 * d;
+            //                    double ly = column.LY - 2 * d;
+            //                    Point pt = new Point()
+            //                    {
+            //                        X = (d + i * lx / (column.NRebarX - 1) - column.LX / 2 - column.BarDiameter / 2) * sf,
+            //                        Y = (d + j * ly / (column.NRebarY - 1) - column.LY / 2 - column.BarDiameter / 2) * sf
+            //                    };
+            //                    rebars.Add(new RebarObj(pt, column.BarDiameter * sf));
+            //                }
 
-                    }
-            }
-            else if(shape == GeoShape.Circular)
-            {
-                rebars = new List<RebarObj>();
-                int n = column.NRebarCirc;
-                double R = column.Diameter / 2;
-                for (int i = 0; i < n; i++)
-                {
-                    double theta = i * 2 * Math.PI / n;
-                    double X = ((R - column.CoverToLinks - column.LinkDiameter) * Math.Cos(theta) - column.BarDiameter / 2) * sf;
-                    double Y = ((R - column.CoverToLinks - column.LinkDiameter) * Math.Sin(theta) - column.BarDiameter / 2) * sf;
-                    rebars.Add(new RebarObj(new Point(X, Y), column.BarDiameter * sf));
-                }
-            }
-            else if(shape == GeoShape.Polygonal)
-            {
-                rebars = new List<RebarObj>();
-                int n = column.Edges;
-                double R = column.Radius;
-                double d = (column.CoverToLinks + column.LinkDiameter + column.BarDiameter / 2) / Math.Sin((column.Edges - 2.0) * Math.PI / (2.0 * column.Edges) );
-                for (int i = 0; i < n; i++)
-                {
-                    double theta = i * 2 * Math.PI / n;
-                    double X = ((R - d) * Math.Cos(theta) - column.BarDiameter / 2 ) * sf;
-                    double Y = ((R - d) * Math.Sin(theta) - column.BarDiameter / 2 ) * sf;
-                    rebars.Add(new RebarObj(new Point(X, Y), column.BarDiameter * sf));
-                }
-            }
-            else if (shape == GeoShape.LShaped)
-            {
-                rebars = new List<RebarObj>();
-                List<MWPoint2D> pts = column.GetLShapedRebars();
-                for (int i = 0; i < pts.Count; i++)
-                {
-                    rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
-                }
-            }
-            else if (shape == GeoShape.TShaped)
-            {
-                rebars = new List<RebarObj>();
-                List<MWPoint2D> pts = column.GetTShapedRebars();
-                for (int i = 0; i < pts.Count; i++)
-                {
-                    rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
-                }
-            }
+            //            }
+            //    }
+                
+            //}
+            //else if(shape == GeoShape.Circular)
+            //{
+            //    if (col.IsAdvancedRebar)
+            //    {
+            //        foreach (var r in column.AdvancedRebarsPos)
+            //            rebars.Add(new RebarObj(new Point((r.X - column.BarDiameter / 2) * sf, (r.Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //    }
+            //    else
+            //    {
+            //        rebars = new List<RebarObj>();
+            //        int n = column.NRebarCirc;
+            //        double R = column.Diameter / 2;
+            //        for (int i = 0; i < n; i++)
+            //        {
+            //            double theta = i * 2 * Math.PI / n;
+            //            double X = ((R - column.CoverToLinks - column.LinkDiameter) * Math.Cos(theta) - column.BarDiameter / 2) * sf;
+            //            double Y = ((R - column.CoverToLinks - column.LinkDiameter) * Math.Sin(theta) - column.BarDiameter / 2) * sf;
+            //            rebars.Add(new RebarObj(new Point(X, Y), column.BarDiameter * sf));
+            //        }
+            //    }
+                
+            //}
+            //else if(shape == GeoShape.Polygonal)
+            //{
+            //    if (column.IsAdvancedRebar)
+            //    {
+            //        foreach (var r in column.AdvancedRebarsPos)
+            //            rebars.Add(new RebarObj(new Point((r.X - column.BarDiameter / 2) * sf, (r.Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //    }
+            //    else
+            //    {
+            //        rebars = new List<RebarObj>();
+            //        int n = column.Edges;
+            //        double R = column.Radius;
+            //        double d = (column.CoverToLinks + column.LinkDiameter + column.BarDiameter / 2) / Math.Sin((column.Edges - 2.0) * Math.PI / (2.0 * column.Edges));
+            //        for (int i = 0; i < n; i++)
+            //        {
+            //            double theta = i * 2 * Math.PI / n;
+            //            double X = ((R - d) * Math.Cos(theta) - column.BarDiameter / 2) * sf;
+            //            double Y = ((R - d) * Math.Sin(theta) - column.BarDiameter / 2) * sf;
+            //            rebars.Add(new RebarObj(new Point(X, Y), column.BarDiameter * sf));
+            //        }
+            //    }
+                    
+            //}
+            //else if (shape == GeoShape.LShaped)
+            //{
+            //    if (column.IsAdvancedRebar)
+            //    {
+            //        foreach (var r in column.AdvancedRebarsPos)
+            //            rebars.Add(new RebarObj(new Point((r.X - column.BarDiameter / 2) * sf, (r.Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //    }
+            //    else
+            //    {
+            //        rebars = new List<RebarObj>();
+            //        List<MWPoint2D> pts = column.GetLShapedRebars();
+            //        for (int i = 0; i < pts.Count; i++)
+            //        {
+            //            rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //        }
+            //    }
+            //}
+            //else if (shape == GeoShape.TShaped)
+            //{
+            //    if (column.IsAdvancedRebar)
+            //    {
+            //        foreach (var r in column.AdvancedRebarsPos)
+            //            rebars.Add(new RebarObj(new Point((r.X - column.BarDiameter / 2) * sf, (r.Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //    }
+            //    else
+            //    {
+            //        rebars = new List<RebarObj>();
+            //        List<MWPoint2D> pts = column.GetTShapedRebars();
+            //        for (int i = 0; i < pts.Count; i++)
+            //        {
+            //            rebars.Add(new RebarObj(new Point((pts[i].X - column.BarDiameter / 2) * sf, (pts[i].Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+            //        }
+            //    }
+            //}
+            //else if (shape == GeoShape.CustomShape)
+            //{
+            //    foreach (var r in column.AdvancedRebarsPos)
+            //        rebars.Add(new RebarObj(new Point((r.X - column.BarDiameter / 2) * sf, (r.Y - column.BarDiameter / 2) * sf), column.BarDiameter * sf));
+                
+            //}
 
             Radius = column.BarDiameter / 2.0;
 
@@ -296,6 +354,7 @@ namespace ColumnDesign
             //TP = new TemperatureProfile(c.LX / 1000, c.LY / 1000, c.R * 60);
             //TP.GetContours();
             //c.TP = TP;
+            if (c.TP == null) c.GetTP();
             TempContours = new ObservableCollection<ContourVM>(c.TP.ContourPts.Select(x => new ContourVM(x)));
             TempLevels = c.TP.Levels;
             
@@ -397,6 +456,11 @@ namespace ColumnDesign
                 {
                     height = column.HY;
                     width = column.HX;
+                }
+                else if (column.Shape == GeoShape.CustomShape )
+                {
+                    height = column.customLY;
+                    width = column.customLX;
                 }
                 if (column != null)
                 {

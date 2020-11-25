@@ -58,9 +58,9 @@ namespace ColumnDesign
 
         private void PrintIDs(object sender, DependencyPropertyChangedEventArgs e)
         {
-            PrintID(MxMy);
-            PrintID(MxN);
-            PrintID(MyN);
+            //PrintID(MxMy);
+            //PrintID(MxN);
+            //PrintID(MyN);
         }
 
         private void PrintID(Control control)
