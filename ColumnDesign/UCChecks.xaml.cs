@@ -27,11 +27,11 @@ namespace ColumnDesign
             InitializeComponent();
         }
 
-        public void Save(object sender, RoutedEventArgs e)
-        {
-            ViewModel vm = (sender as Button).DataContext as ViewModel;
-            vm.Save();
-        }
+        //public void Save(object sender, RoutedEventArgs e)
+        //{
+        //    ViewModel vm = (sender as Button).DataContext as ViewModel;
+        //    vm.Save();
+        //}
 
         public void SaveAs(object sender, RoutedEventArgs e)
         {
@@ -82,9 +82,10 @@ namespace ColumnDesign
         public void ToWord(object sender, RoutedEventArgs e)
         {
             ViewModel vm = (sender as Button).DataContext as ViewModel;
-            vm.MyIDView.IsUpdated = !vm.MyIDView.IsUpdated;
-            vm.UpdateDesign();
+            //vm.MyIDView.IsUpdated = !vm.MyIDView.IsUpdated;
+            //vm.UpdateDesign();
             vm.ColumnCalcs.UpdateInputOuput();
+            vm.ColumnCalcs.AddInteractionDiagrams();
             vm.ExportToWord();
         }
 

@@ -83,8 +83,11 @@
     <Reference Include="DocumentFormat.OpenXml, Version=2.9.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
       <HintPath>..\packages\DocumentFormat.OpenXml.2.9.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
     </Reference>
-    <Reference Include="ETABSColumnDesign_Plugin">
-      <HintPath>Resources\ETABSColumnDesign_Plugin.dll</HintPath>
+    <Reference Include="ETABSv17_To_ACE">
+      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv17_To_ACE.dll</HintPath>
+    </Reference>
+    <Reference Include="ETABSv18_To_ACE">
+      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv18_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="GenericViewer">
       <HintPath>.\GenericViewer.dll</HintPath>

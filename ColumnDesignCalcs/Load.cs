@@ -23,7 +23,17 @@ namespace ColumnDesignCalc
 
         }
 
-        public Load(ETABSColumnDesign_Plugin.Load l)
+        public Load(ETABSv17_To_ACE.Load l)
+        {
+            Name = l.Name;
+            MxTop = Math.Round(l.MxTop);
+            MxBot = Math.Round(l.MxBot);
+            MyTop = Math.Round(l.MyTop);
+            MyBot = Math.Round(l.MyBot);
+            P = -Math.Round(l.P);
+        }
+
+        public Load(ETABSv18_To_ACE.Load l)
         {
             Name = l.Name;
             MxTop = Math.Round(l.MxTop);

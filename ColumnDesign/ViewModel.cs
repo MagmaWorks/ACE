@@ -338,13 +338,14 @@ namespace ColumnDesign
                 //saveDialog.Filter = @"JSON files |*.JSON";
                 saveDialog.Filter = @"ACE files |*.col";
                 //saveDialog.FileName = "Col_" + SelectedColumn.Name + @".JSON";
-                saveDialog.FileName = "Col_" + SelectedColumn.Name + @".col";
+                saveDialog.FileName = SelectedColumn.Name + @".col";
 
-                saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                //saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                Properties.Settings.Default.Reload();
                 if (saveDialog.ShowDialog() != DialogResult.OK) return;
 
                 var filePath = saveDialog.FileName;
-                var filePath_Calcs = saveDialog.FileName.Insert(saveDialog.FileName.Length - 5,"_Calcs");
+                var filePath_Calcs = saveDialog.FileName.Replace(".col",".json");
                 System.IO.File.WriteAllText(filePath, saveObj);
                 System.IO.File.WriteAllText(filePath_Calcs, saveObj_Calcs);
             }
@@ -370,9 +371,9 @@ namespace ColumnDesign
                     var saveObj = Newtonsoft.Json.JsonConvert.SerializeObject(MyColumns[i], Newtonsoft.Json.Formatting.Indented);
                     var saveObj_Calcs = Newtonsoft.Json.JsonConvert.SerializeObject(cc, Newtonsoft.Json.Formatting.Indented);
                     //string filePath = folderName + @"\\Col_" + myColumns[i].Name + ".JSON";
-                    string filePath = folderName + @"\\Col_" + myColumns[i].Name + ".col";
+                    string filePath = folderName + @"\\" + myColumns[i].Name + ".col";
                     //string filePath_Calcs = folderName + @"\\Col_" + myColumns[i].Name + "_Calcs.JSON";
-                    string filePath_Calcs = folderName + @"\\Col_" + myColumns[i].Name + "_Calcs.col";
+                    string filePath_Calcs = filePath.Replace(".col", ".json");
                     System.IO.File.WriteAllText(filePath, saveObj);
                     System.IO.File.WriteAllText(filePath_Calcs, saveObj_Calcs);
                 }
@@ -425,7 +426,7 @@ namespace ColumnDesign
 
                 string[] splits = fileNames[i].Split('\\');
                 string name = splits[splits.Length - 1];
-                if (fileNames[i].Contains("Calcs"))
+                if (name.ToLower().Contains(".json"))
                 {
                     var deserialiseType = new { InstanceName = "", TypeName = "", ClassName = "", Inputs = new List<CalcsValue>() };
                     var dObj = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(openObj, deserialiseType);
@@ -461,7 +462,7 @@ namespace ColumnDesign
                 else
                 {
                     newCol = Newtonsoft.Json.JsonConvert.DeserializeObject<Column>(openObj);
-                    newCol.Name = name.Substring(0, name.Length - 5);
+                    newCol.Name = name.Substring(0, name.Length - 4);
                 }
 
                 yield return newCol;

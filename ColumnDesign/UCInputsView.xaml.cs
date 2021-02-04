@@ -548,6 +548,7 @@ namespace ColumnDesign
             PolygonalCB.IsChecked = (cb == PolygonalCB) ? true : false;
             LShapedCB.IsChecked = (cb == LShapedCB) ? true : false;
             TShapedCB.IsChecked = (cb == TShapedCB) ? true : false;
+            CustomShapeCB.IsChecked = (cb == CustomShapeCB) ? true : false;
 
             RectDepth.IsEnabled = RectangularCB.IsChecked ?? false;
             RectWidth.IsEnabled = RectangularCB.IsChecked ?? false;
@@ -568,7 +569,7 @@ namespace ColumnDesign
             PolygonalSection.Visibility = (PolygonalCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
             LShapedSection.Visibility = (LShapedCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
             TShapedSection.Visibility = (TShapedCB.IsChecked ?? false)? Visibility.Visible : Visibility.Collapsed;
-            CustomShapedSection.Visibility = (CustomShapeCB.IsChecked ?? false) ? Visibility.Visible : Visibility.Collapsed;
+            CustomShapeSection.Visibility = (CustomShapeCB.IsChecked ?? false) ? Visibility.Visible : Visibility.Collapsed;
 
             //FireDesignMethodCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
             FireCurveCB.IsEnabled = (cb == RectangularCB || cb == LShapedCB) ? true : false;
@@ -827,13 +828,14 @@ namespace ColumnDesign
             w.ShowDialog();
             PropertyInfo[] colProperties = Type.GetType(typeof(Column).AssemblyQualifiedName).GetProperties();
 
-            foreach(var c in vm.MyColumns)
+            Column defColClone = vm.MySettings.DefaultColumn.Clone();
+            foreach (var c in vm.MyColumns)
             {
                 foreach(var i in colProperties)
                 {
                     if(i.GetValue(c) == null)
                     {
-                        var def = i.GetValue(vm.MySettings.DefaultColumn);
+                        var def = i.GetValue(defColClone);
                         i.SetValue(c, def);
                     }
                 }

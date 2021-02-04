@@ -159,32 +159,42 @@ namespace ColumnDesignCalc
             
         }
 
-        public Column(ETABSColumnDesign_Plugin.Column c0)
+        public Column(ETABSv17_To_ACE.Column c0)
         {
             Name = c0.name;
             LX = c0.width;
             LY = c0.depth;
             Length = c0.length;
             ConcreteGrade = new Concrete("Custom", c0.fc, c0.E);
-            //CustomSteelGrade = new Steel("Custom", 400);
+            SteelGrade = new Steel("500B", 500);
             Point1 = new MWPoint3D(c0.Point1.X, c0.Point1.Y, c0.Point1.Z);
             Point2 = new MWPoint3D(c0.Point2.X, c0.Point2.Y, c0.Point2.Z);
             Angle = c0.Angle;
             Loads = c0.Loads.Select(l => new Load(l)).ToList();
-            SelectedLoad = Loads[1];
+            SelectedLoad = Loads[0];
+            FireLoad = Loads[0];
 
             GetContourPoints();
             GetRebars();
+        }
 
-            //NRebarX = (int)((LX - 2 * CoverToLinks) / 90);
-            //NRebarY = (int)((LY - 2 * CoverToLinks) / 90);
+        public Column(ETABSv18_To_ACE.Column c0)
+        {
+            Name = c0.name;
+            LX = c0.width;
+            LY = c0.depth;
+            Length = c0.length;
+            ConcreteGrade = new Concrete("Custom", c0.fc, c0.E);
+            SteelGrade = new Steel("500B", 500);
+            Point1 = new MWPoint3D(c0.Point1.X, c0.Point1.Y, c0.Point1.Z);
+            Point2 = new MWPoint3D(c0.Point2.X, c0.Point2.Y, c0.Point2.Z);
+            Angle = c0.Angle;
+            Loads = c0.Loads.Select(l => new Load(l)).ToList();
+            SelectedLoad = Loads[0];
+            FireLoad = Loads[0];
 
-            //SetFireData();
-            //SetConcreteData();
-            //SetSteelData();
-            //InitializeCarbonData();
-            //InitializeConcreteCosts();
-            //InitializeSteelCosts();
+            GetContourPoints();
+            GetRebars();
         }
 
         public Column Clone()

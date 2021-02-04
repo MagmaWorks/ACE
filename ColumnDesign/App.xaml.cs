@@ -30,27 +30,13 @@ namespace ColumnDesign
             {
                 filePath += a + " ";
             }
-            //if (filePath == "")
-            //{
-            //    DirectoryInfo di = new DirectoryInfo(Path.GetTempPath());
-
-            //    filePath = di.FullName + "\\columnData.json";
-            //}
-            if(File.Exists(filePath))
+            Console.WriteLine("filePath : {0}", filePath);
+            //MessageBox.Show(String.Format("filePath = {0}", filePath));
+            //filePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)+ "/tmp43E6.tmp";
+            if (File.Exists(filePath))
             {
                 filePath.Substring(0, filePath.Length - 1);
-                try
-                {
-                    var settings = new JsonSerializerSettings()
-                    {
-                        TypeNameHandling = TypeNameHandling.Objects,
-                        PreserveReferencesHandling = PreserveReferencesHandling.Objects
-                    };
-                    reader = new StreamReader(filePath);
-                    var fileContents = reader.ReadToEnd();
-                    cols = JsonConvert.DeserializeObject<List<ETABSColumnDesign_Plugin.Column>>(fileContents, settings).Select(c => new Column(c)).ToList();
-                }
-                catch (Exception ex)
+                if(filePath.Contains(".col"))
                 {
                     try
                     {
@@ -61,20 +47,85 @@ namespace ColumnDesign
                         };
                         reader = new StreamReader(filePath);
                         var fileContents = reader.ReadToEnd();
-                        cols = new List<Column> { JsonConvert.DeserializeObject<Column>(fileContents, settings) };
+                        var newcol = JsonConvert.DeserializeObject<Column>(fileContents, settings);
+                        string[] splits = filePath.Split('\\');
+                        string name = splits[splits.Length - 1];
+                        newcol.Name = name.Replace(".col", "");
+                        cols.Add(newcol);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        try
+                        {
+                            var settings = new JsonSerializerSettings()
+                            {
+                                TypeNameHandling = TypeNameHandling.Objects,
+                                PreserveReferencesHandling = PreserveReferencesHandling.Objects
+                            };
+                            reader = new StreamReader(filePath);
+                            var fileContents = reader.ReadToEnd();
+                            var newcol = JsonConvert.DeserializeObject<Column>(fileContents, settings);
+                            string[] splits = filePath.Split('\\');
+                            string name = splits[splits.Length - 1];
+                            newcol.Name = name.Replace(".col","");
+                            cols.Add(newcol);
+                        }
+                        catch (Exception ex2) { MessageBox.Show(ex2.Message); }
+                    }
+                    finally
+                    {
+                        if (reader != null)
+                            reader.Close();
+                    }
                 }
-                finally
+                else 
                 {
-                    if (reader != null)
-                        reader.Close();
+                    try
+                    {
+                        var settings = new JsonSerializerSettings()
+                        {
+                            TypeNameHandling = TypeNameHandling.Objects,
+                            PreserveReferencesHandling = PreserveReferencesHandling.Objects
+                        };
+                        reader = new StreamReader(filePath);
+                        var fileContents = reader.ReadToEnd();
+                        var tempCols = JsonConvert.DeserializeObject<List<ETABSv18_To_ACE.Column>>(fileContents, settings);
+                        cols = tempCols.Select(c => new Column(c)).ToList();
+                        //var newcol = JsonConvert.DeserializeObject<ETABSv18_To_ACE.Column>(fileContents, settings);
+                        //cols.Add(new Column(newcol));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        try
+                        {
+                            var settings = new JsonSerializerSettings()
+                            {
+                                TypeNameHandling = TypeNameHandling.Objects,
+                                PreserveReferencesHandling = PreserveReferencesHandling.Objects
+                            };
+                            reader = new StreamReader(filePath);
+                            var fileContents = reader.ReadToEnd();
+                            var tempCols = JsonConvert.DeserializeObject<List<ETABSv17_To_ACE.Column>>(fileContents, settings);
+                            cols = tempCols.Select(c => new Column(c)).ToList();
+                            //var newcol = JsonConvert.DeserializeObject<ETABSv17_To_ACE.Column>(fileContents, settings);
+                            //cols.Add(new Column(newcol));
+                        }
+                        catch (Exception ex2) { MessageBox.Show(ex2.Message); }
+                    }
+                    finally
+                    {
+                        if (reader != null)
+                            reader.Close();
+                    }
                 }
+                
             }
             MainWindow mainWindow = new MainWindow();
+            //MessageBox.Show(String.Format("cols count : {0}", cols.Count));
 
-
-            if(cols.Count == 0)
+            if (cols.Count == 0)
             {
                 Column col = mainWindow.myViewModel.MySettings.DefaultColumn.Clone();
                 cols.Add(col);
@@ -88,6 +139,7 @@ namespace ColumnDesign
             mainWindow.myViewModel.UpdateLoad();
         }
 
+        
         //private Assembly LoadIDdll(object sender, ResolveEventArgs args)
         //{
         //    if (!args.Name.Contains("InteractionDiagram")) return null;

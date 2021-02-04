@@ -22,7 +22,7 @@
             <oxy:PlotView Name="MxN" Grid.Row="0" Grid.Column="1" Model="{Binding MyIDView.MxNID}" />
             <oxy:PlotView Name="MyN" Grid.Row="1" Grid.Column="0" Model="{Binding MyIDView.MyNID}" />
 
-            <TextBlock Grid.Row="1" Grid.Column="1" IsEnabled="{Binding MyIDView.IsUpdated}" IsEnabledChanged="PrintIDs"/>
+            <!--<TextBlock Grid.Row="1" Grid.Column="1" IsEnabled="{Binding MyIDView.IsUpdated}" IsEnabledChanged="PrintIDs"/>-->
 
         </Grid>
         

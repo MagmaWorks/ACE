@@ -170,7 +170,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <CheckBox Name="CustomShapeCB" Content="Custom-Shape" Margin="2 5 0 5" IsChecked="{Binding SelectedColumn.IsCustomShape, Mode=OneWay}" Checked="ShapeChanged"/>
-                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="CustomShapedSection">
+                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="CustomShapeSection">
                                 <StackPanel Orientation="Vertical" Width="115">
                                     <TextBlock Text="LX (mm)" Margin="5 4 0 2"/>
                                     <TextBlock Text="LY (mm)" Margin="5 4 0 2"/>
@@ -333,7 +333,8 @@
                             Width="Auto"
                             MinWidth="70"
                             MaxWidth="130"
-                            Height="22"/>
+                            Height="22">
+                        </ComboBox>
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Name="LoadsSection">
@@ -403,12 +404,12 @@
                             <TextBlock Text="Fire design method" Margin="5 4 0 5"/>
                             <TextBlock Text="Fire curve" Margin="5 4 0 5"/>
                             <TextBlock Text="Fire combo" Margin="5 4 0 5"/>
-                            <CheckBox Content="Advanced rebars" Margin="5 4 0 5" IsChecked="{Binding SelectedColumn.IsAdvancedRebar}" Click="DesignChangedNotFire"/>
+                            <CheckBox Content="Advanced rebars" Margin="5 8 0 5" IsChecked="{Binding SelectedColumn.IsAdvancedRebar}" Click="DesignChangedNotFire"/>
                             <!--<CheckBox IsChecked="false"  Content="Advanced fire design" Margin="0 4 5 0" Click="FireDesignChanged"/>-->
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
-                            <TextBox Text="{Binding SelectedColumn.CoverToLinks, Mode=OneTime}" Margin="0 5 5 0" Width="70" Height="20" LostFocus="UpdateCover"/>
-                            <TextBox Text="{Binding SelectedColumn.EffectiveLength, Mode=OneTime}" Margin="0 5 5 0" Width="70" Height="21" LostFocus="UpdateEffLength"/>
+                            <TextBox Text="{Binding SelectedColumn.CoverToLinks}" Margin="0 5 5 0" Width="70" Height="20" LostFocus="UpdateCover"/>
+                            <TextBox Text="{Binding SelectedColumn.EffectiveLength}" Margin="0 5 5 0" Width="70" Height="21" LostFocus="UpdateEffLength"/>
                             <!--<ComboBox ItemsSource="{Binding SteelGrades}" Margin="0 5 5 0" LX="60" Height="21" />-->
                             <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.BarDiameter}" LostFocus="DesignChangedNotFire" IsEditable="True"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
@@ -442,14 +443,30 @@
                                 >
                                 <TextBlock Text="Browse"/>
                             </Button>-->
-                            <Button
-                                Margin="0 4 5 0"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Click="EditAdvancedRebars"
-                                >
-                                <Image Source="Resources/List.png"/>
-                            </Button>
+                            <StackPanel Orientation="Horizontal" Margin="0 4 5 0">
+                                <Image
+                                    Height="15"
+                                    Source="Resources/Question.png">
+                                    <Image.ToolTip>
+                                        <TextBlock>
+                                        Rebars are placed according to the center of the column (point (0,0)).
+                                        <LineBreak />
+                                        Rebars falling outside of the section will not be included in design.
+                                        </TextBlock>
+                                    </Image.ToolTip>
+                                </Image>
+                                <Button
+                                    Margin="10 0 0 0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    HorizontalContentAlignment="Right"
+                                    HorizontalAlignment="Right"
+                                    Click="EditAdvancedRebars"
+                                    >
+                                    <Image HorizontalAlignment="Right" Source="Resources/List.png"/>
+                                </Button>
+                            </StackPanel>
+                            
                         </StackPanel>
                     </StackPanel>
 

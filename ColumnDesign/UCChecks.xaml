@@ -428,7 +428,7 @@
                     Background="Transparent"
                     Height="50"
                     Width="50"
-                    ToolTip="Save two files for the current design, one of them being compatible with the CALCS framework.">
+                    ToolTip="Save your current design.">
                         <Image Source="resources/SaveAs.png"/>
                     </Button>
                     <Button 
@@ -439,7 +439,7 @@
                     Background="Transparent"
                     Height="50"
                     Width="50"
-                    ToolTip="Save two files for each one of your designs, one of them being compatible with the CALCS framework.">
+                    ToolTip="Save all your designs (column name is used as filename).">
                         <Image Source="resources/SaveAll.png"/>
                     </Button>
                     <Button 

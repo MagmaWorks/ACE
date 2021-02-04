@@ -66,7 +66,7 @@ namespace ColumnDesign
             myWin.ShowDialog();
             if (save.Save)
             {
-                myViewModel.Save();
+                myViewModel.SaveAs();
             }
             else if (save.SaveAll)
             {

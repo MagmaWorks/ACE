@@ -11,8 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ETABSColumnDesign_Plugin">
-      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSColumnDesign_Plugin.dll</HintPath>
+    <Reference Include="ETABSv17_To_ACE">
+      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv17_To_ACE.dll</HintPath>
+    </Reference>
+    <Reference Include="ETABSv18_To_ACE">
+      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv18_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="InteractionDiagram3D">
       <HintPath>..\packages\InteractionDiagram3D\InteractionDiagram3D.dll</HintPath>

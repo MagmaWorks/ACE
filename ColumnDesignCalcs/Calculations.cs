@@ -331,6 +331,12 @@ namespace ColumnDesignCalc
             Formula f = new Formula();
             f.Narrative = "Link spacing";
             f.AddExpression(@"s_{link} = min(20\times \phi_{rebar}, L_x, L_y, 400) = "+Math.Round(Column.LinkSpacing,0)+" mm");
+            f.Narrative = @"Link spacing
+            Please note : The maximum spacing required should be reduced by a factor 0.6:
+            (i) in sections within a distance equal to the larger dimensions of the column cross-section
+            above or below a beam or slab;
+            (ii) near lapped joints, if the maximum diameter of the longitudinal bars is greater than 14
+            mm. A minimum of 3 bars evenly placed in the lap length is required.";
             Expressions.Add(f);
         }
 
@@ -353,11 +359,20 @@ namespace ColumnDesignCalc
 
             Expressions.Add(f);
 
-            Get2DIDPictures();
-
         }
 
-        public void Get2DIDPictures()
+        public void AddInteractionDiagrams()
+        {
+            var plots = Get2DIDPictures().ToList();
+            int i = Expressions.IndexOf(Expressions.First(f => f.Narrative == "3D interaction diagram definition"));
+            foreach (var f in plots)
+            {
+                Expressions.Insert(i, f);
+                i++;
+            }
+        }
+
+        public IEnumerable<Formula> Get2DIDPictures()
         {
             string path = Path.GetTempPath();
             string[] filenames = new string[] { "MxMy.tmp", "MxN.tmp", "MyN.tmp" };
@@ -388,7 +403,7 @@ namespace ColumnDesignCalc
 
                     //}
                     //f.AddImage(keyImage);
-                    Expressions.Add(f);
+                    yield return f;
                 }
             }
 
@@ -813,7 +828,7 @@ namespace ColumnDesignCalc
         public double[] GetEffectiveDepths(Formula f0x, Formula f0y)
         {
             Column col = Column;
-            List<MWPoint2D> rebars = new List<MWPoint2D>();
+            //List<MWPoint2D> rebars = new List<MWPoint2D>();
             double minX = col.ContourPoints.Min(c => c.X);
             double maxX = col.ContourPoints.Max(c => c.X);
             double minY = col.ContourPoints.Min(c => c.Y);
@@ -921,9 +936,9 @@ namespace ColumnDesignCalc
             // calculation of moments of inertia
             double inertiaX = 0;
             double inertiaY = 0;
-            for (int i = 0; i < rebars.Count; i++)
+            for (int i = 0; i < col.Nrebars; i++)
             {
-                MWPoint2D pt = rebars[i];
+                MWPoint2D pt = col.RebarsPos[i];
                 // according to X
                 inertiaX += area * Math.Pow(pt.Y - bary.Y, 2);
                 f0x.Expression.Add(@"I_{x" + i + @"} = A_{bar} \times y_{bar," + i + "}^2 = " + Math.Round(area * Math.Pow(pt.Y - bary.Y, 2) / 1e4) + " cm^4");
@@ -931,7 +946,7 @@ namespace ColumnDesignCalc
                 inertiaY += area * Math.Pow(pt.X - bary.X, 2);
                 f0y.Expression.Add(@"I_{y" + i + @"} = A_{bar} \times x_{bar," + i + "}^2 = " + Math.Round(area * Math.Pow(pt.X - bary.X, 2) / 1e4) + " cm^4");
             }
-            double totArea = rebars.Count * Math.PI * Math.Pow(col.BarDiameter / 2.0, 2);
+            double totArea = col.Nrebars * Math.PI * Math.Pow(col.BarDiameter / 2.0, 2);
             f0x.Expression.Add(@"I_{sx} = " + Math.Round(inertiaX / 1E4) + " cm^4");
             f0y.Expression.Add(@"I_{sy} = " + Math.Round(inertiaY / 1E4) + " cm^4");
 
