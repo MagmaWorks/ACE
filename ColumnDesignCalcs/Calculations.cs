@@ -161,11 +161,8 @@ namespace ColumnDesignCalc
             NRebars = new List<int> { 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             FireResistances = new List<int> { 60, 90, 120, 150, 180, 240 };
 
-            Console.WriteLine("Init OK");
-
             UpdateCalc();
 
-            Console.WriteLine("Calculations OK");
         }
 
         public Calculations(Column c)
@@ -314,7 +311,6 @@ namespace ColumnDesignCalc
                 CapacityCheckO.Value = Column.Util3D;
 
             }
-            Console.WriteLine("UpdateCalc OK");
         }
 
         public void GetLinkSpacing()
@@ -1287,8 +1283,18 @@ namespace ColumnDesignCalc
             return (res, null);
         }
 
-        public (bool, Formula) CheckFireIsotherm500(bool newdesign = false)
+        public (bool, Formula) CheckFireIsotherm500(bool allLoads = false, bool newdesign = false)
         {
+            if(allLoads)
+            {
+                foreach(var l in Column.Loads)
+                {
+                    Column.FireLoad = new Load() { MEdx = 0.7 * l.MEdx, MEdy = 0.7 * l.MEdy, P = 0.7 * l.P };
+                    if (!CheckFireIsotherm500().Item1)
+                        return (false, new Formula());
+                }
+                return (true, new Formula());
+            }
             if (Column.Shape == GeoShape.Rectangular)
                 return CheckFireIsotherm500_Rectangular();
             //else if (Shape == GeoShape.LShaped)
@@ -1479,11 +1485,28 @@ namespace ColumnDesignCalc
             return Column.CheckIsInsideFireID();
         }
 
-        public bool CheckFireDesignTable()
+        public bool CheckFireDesignTable(bool allLoads = false)
         {
             Formula f1 = new Formula();
-            return CheckFireDesignTable(ref f1, true);
+            if (allLoads)
+            {
+                foreach(var l in Column.Loads)
+                {
+                    Column.FireLoad = new Load() { MEdx = 0.7 * l.MEdx, MEdy = 0.7 * l.MEdy, P = 0.7 * l.P };
+                    if (!CheckFireDesignTable(ref f1, true))
+                        return false;
+                }
+                return true;
+            }
+            else
+            {
+                return CheckFireDesignTable(ref f1, true);
+            }
         }
+
+        //public bool CheckFireDesignTable(ref Formula f1, bool calcOnly = false)
+        //{
+        //}
 
         public bool CheckFireDesignTable(ref Formula f1, bool calcOnly = false)
         {
@@ -1817,7 +1840,6 @@ namespace ColumnDesignCalc
                             ));
                     }
                 }
-                Console.WriteLine("fire data ok");
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }
         }
@@ -1846,7 +1868,6 @@ namespace ColumnDesignCalc
                             ));
                     }
                 }
-                Console.WriteLine("concrete temperature data ok");
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }
 
@@ -1868,7 +1889,6 @@ namespace ColumnDesignCalc
                         steelData.Add(new SteelData(Convert.ToDouble(values[0]), Convert.ToDouble(values[1]), Convert.ToDouble(values[2])));
                     }
                 }
-                Console.WriteLine("steel temperature data ok");
             }
             catch (Exception ex) { Console.WriteLine(ex.Message); }
         }

@@ -384,7 +384,7 @@
                         ToolTip="Optimise your current column design">
                         <Image Source="Resources/Optimisation.png"/>
                     </Button>
-                    <!--<Button
+                    <Button
                         Click="OptimiseGroup"
                         BorderBrush="Transparent"
                         Margin="5 5 5 5"
@@ -393,7 +393,7 @@
                         Width="50"
                         ToolTip="Optimise all your column designs">
                         <Image Source="Resources/GroupOptimisation.png"/>
-                    </Button>-->
+                    </Button>
                     <Button
                         Margin="5 5 5 5"
                         Click="ShowFireInfo"

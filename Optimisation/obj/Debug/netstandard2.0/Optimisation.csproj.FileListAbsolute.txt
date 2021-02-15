@@ -1,0 +1,16 @@
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\Optimisation.deps.json
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\Optimisation.dll
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\Optimisation.pdb
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\ColumnDesignCalcs.dll
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\MWGeometry.dll
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\StructuralDrawing2D.dll
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\ETABSv17_To_ACE.dll
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\ETABSv18_To_ACE.dll
+C:\workspace\ACE\Optimisation\bin\Debug\netstandard2.0\ColumnDesignCalcs.pdb
+C:\workspace\ACE\Optimisation\obj\Debug\netstandard2.0\Optimisation.csprojAssemblyReference.cache
+C:\workspace\ACE\Optimisation\obj\Debug\netstandard2.0\Optimisation.AssemblyInfoInputs.cache
+C:\workspace\ACE\Optimisation\obj\Debug\netstandard2.0\Optimisation.AssemblyInfo.cs
+C:\workspace\ACE\Optimisation\obj\Debug\netstandard2.0\Optimisation.csproj.CoreCompileInputs.cache
+C:\workspace\ACE\Optimisation\obj\Debug\netstandard2.0\Optimisation.csproj.CopyComplete
+C:\workspace\ACE\Optimisation\obj\Debug\netstandard2.0\Optimisation.dll
+C:\workspace\ACE\Optimisation\obj\Debug\netstandard2.0\Optimisation.pdb

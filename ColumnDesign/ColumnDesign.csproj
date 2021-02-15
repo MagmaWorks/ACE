@@ -129,9 +129,6 @@
       <HintPath>..\packages\OxyPlot.Wpf.2.0.0\lib\net45\OxyPlot.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="ReachFramework" />
-    <Reference Include="Rhino3dmIO, Version=6.18.19266.14200, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rhino3dmIO.Desktop.6.18.19266.14201\lib\net45\Rhino3dmIO.dll</HintPath>
-    </Reference>
     <Reference Include="SkiaSharp, Version=1.68.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.1.68.1.1\lib\net45\SkiaSharp.dll</HintPath>
     </Reference>
@@ -199,15 +196,13 @@
     <Compile Include="AutoDesign.xaml.cs">
       <DependentUpon>AutoDesign.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AutoGroupDesign.xaml.cs">
-      <DependentUpon>AutoGroupDesign.xaml</DependentUpon>
+    <Compile Include="BatchDesignView.cs" />
+    <Compile Include="UCBatchDesign.xaml.cs">
+      <DependentUpon>UCBatchDesign.xaml</DependentUpon>
     </Compile>
     <Compile Include="CalcsColumn.cs" />
     <Compile Include="ClosingWindow.xaml.cs">
       <DependentUpon>ClosingWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ColumnMap.xaml.cs">
-      <DependentUpon>ColumnMap.xaml</DependentUpon>
     </Compile>
     <Compile Include="Credits.xaml.cs">
       <DependentUpon>Credits.xaml</DependentUpon>
@@ -247,6 +242,12 @@
     <Compile Include="UCChecks.xaml.cs">
       <DependentUpon>UCChecks.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UCClusteredColumns.xaml.cs">
+      <DependentUpon>UCClusteredColumns.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UCClusteredDesigns.xaml.cs">
+      <DependentUpon>UCClusteredDesigns.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCColumnLayout.xaml.cs">
       <DependentUpon>UCColumnLayout.xaml</DependentUpon>
     </Compile>
@@ -261,6 +262,9 @@
     </Compile>
     <Compile Include="UCLoads.xaml.cs">
       <DependentUpon>UCLoads.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UCLoadsCloud.xaml.cs">
+      <DependentUpon>UCLoadsCloud.xaml</DependentUpon>
     </Compile>
     <Compile Include="UCOutputsView.xaml.cs">
       <DependentUpon>UCOutputsView.xaml</DependentUpon>
@@ -278,15 +282,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AutoGroupDesign.xaml">
+    <Page Include="UCBatchDesign.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ClosingWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="ColumnMap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -338,6 +338,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCClusteredColumns.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UCClusteredDesigns.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCColumnLayout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -355,6 +363,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UCLoads.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UCLoadsCloud.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -457,9 +469,17 @@
     <Resource Include="Resources\MagmaWorksFullLogo.PNG" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BatchDesign\BatchDesign.csproj">
+      <Project>{96dfd54e-c3d4-4bfa-baae-4f4155fb27bd}</Project>
+      <Name>BatchDesign</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ColumnDesignCalcs\ColumnDesignCalcs.csproj">
       <Project>{e79e5edd-7597-4224-8545-526570dcf30e}</Project>
       <Name>ColumnDesignCalcs</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Optimisation\Optimisation.csproj">
+      <Project>{f72e1631-aa40-438e-9989-db6f1e74ed5f}</Project>
+      <Name>Optimisation</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -467,6 +487,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\List.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\PointsCloud.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

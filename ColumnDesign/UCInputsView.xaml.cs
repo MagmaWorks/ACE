@@ -524,20 +524,20 @@ namespace ColumnDesign
             AD.Show();
         }
 
-        private void OptimiseGroup(object sender, RoutedEventArgs e)
-        {
-            Button b = sender as Button;
-            ViewModel vm = this.DataContext as ViewModel;
+        //private void OptimiseGroup(object sender, RoutedEventArgs e)
+        //{
+        //    Button b = sender as Button;
+        //    ViewModel vm = this.DataContext as ViewModel;
 
-            AutoGroupDesign AGD = new AutoGroupDesign()
-            {
-                //SizeToContent = SizeToContent.WidthAndHeight,
-                Owner = Application.Current.MainWindow,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                DataContext = vm
-            };
-            AGD.Show();
-        }
+        //    AutoGroupDesign AGD = new AutoGroupDesign()
+        //    {
+        //        //SizeToContent = SizeToContent.WidthAndHeight,
+        //        Owner = Application.Current.MainWindow,
+        //        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+        //        DataContext = vm
+        //    };
+        //    AGD.Show();
+        //}
 
         private void ShapeChanged(object sender, RoutedEventArgs e)
         {

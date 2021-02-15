@@ -15,6 +15,7 @@ using System.Reflection;
 using Column = ColumnDesignCalc.Column;
 using ColumnDesignCalc;
 using CalcCore;
+using BatchDesign;
 
 namespace ColumnDesign
 {
@@ -208,7 +209,14 @@ namespace ColumnDesign
             set { advancedRebarPos = value; RaisePropertyChanged(nameof(AdvancedRebarPos)); }
         }
 
+        BatchDesignView myBatchDesignView = new BatchDesignView();
+        public BatchDesignView MyBatchDesignView
+        {
+            get { return myBatchDesignView; }
+            set { myBatchDesignView = value; RaisePropertyChanged(nameof(MyBatchDesignView)); }
+        }
 
+        
         public ViewModel()
         {
             MyLayoutView.myViewModel = this;
@@ -361,6 +369,7 @@ namespace ColumnDesign
         {
             var saveFolder = new FolderBrowserDialog();
             DialogResult result = saveFolder.ShowDialog();
+            Properties.Settings.Default.Reload();
             if (result != DialogResult.OK) return;
             try
             {
@@ -388,9 +397,10 @@ namespace ColumnDesign
         public void Open()
         {
             var openDialog = new OpenFileDialog();
-            openDialog.Filter = @"ACE files |*.JSON;*.col";
-            openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            openDialog.Filter = @"ACE files |*.col| All files (*.*)|*.*";
+            //openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openDialog.Multiselect = true;
+            Properties.Settings.Default.Reload();
             if (openDialog.ShowDialog() != DialogResult.OK) return;
             List<Column> newCols = new List<Column>();
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
@@ -405,11 +415,12 @@ namespace ColumnDesign
         public void OpenAdd()
         {
             var openDialog = new OpenFileDialog();
-            openDialog.Filter = @"ACE files |*.JSON;*.col";
-            openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            openDialog.Filter = @"ACE files |*.col| All files (*.*)|*.*";
+            //openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openDialog.Multiselect = true;
+            Properties.Settings.Default.Reload();
             if (openDialog.ShowDialog() != DialogResult.OK) return;
-            List<Column> newCols = myColumns.Select(c => c.Clone()).ToList();
+            List<Column> newCols = new List<Column>(); // myColumns.Select(c => c.Clone()).ToList();
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
             MyColumns = newCols;
             SelectedColumn = MyColumns[MyColumns.Count - 1];

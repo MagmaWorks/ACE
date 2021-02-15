@@ -52,8 +52,17 @@ namespace ColumnDesignCalc
                 MxBot = this.MxBot,
                 MyTop = this.MyTop,
                 MyBot = this.MyBot,
+                MEdx = this.MEdx,
+                MEdy = this.MEdy,
                 P = this.P
             };
+        }
+
+        public Load ChangeName(string name)
+        {
+            Load newLoad = this.Clone();
+            newLoad.Name = name;
+            return newLoad;
         }
 
     }

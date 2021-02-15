@@ -227,6 +227,7 @@ namespace ColumnDesignCalc
             col.SelectedLoad = this.SelectedLoad;
             col.Loads = this.Loads.Select(l => l.Clone()).ToList();
             col.FireLoad = this.FireLoad;
+            col.AllLoads = this.AllLoads;
 
             col.NRebarX = this.NRebarX;
             col.NRebarY = this.NRebarY;
@@ -395,16 +396,11 @@ namespace ColumnDesignCalc
         }
         public void GetInteractionDiagram()
         {
-            Console.WriteLine("GetInteractionDiagram entered");
             List<Composite> composites = new List<Composite>();
-            Console.WriteLine("new list composites OK");
             // Materials
             double fc_steel = Math.Min(0.00175 * SteelGrade.E * 1E3, SteelGrade.Fy / 1.15);
-            Console.WriteLine("fc_steel OK");
             Material concrete = new Material(ConcreteGrade.Name, MatYpe.Concrete, 0.85 * ConcreteGrade.Fc / 1.5, 0, ConcreteGrade.E, epsMax: 0.0035, epsMax2: 0.00175, dens: ConcreteGrade.Density);
-            Console.WriteLine("concrete OK");
             Material steel = new Material(SteelGrade.Name, MatYpe.Steel, SteelGrade.Fy / 1.15, SteelGrade.Fy / 1.15, SteelGrade.E);
-            Console.WriteLine("steel OK");
             //Material steel = new Material(steelGrade.Name, MatYpe.Steel, fc_steel, fc_steel);
 
             // Creation of the concrete section
@@ -417,7 +413,6 @@ namespace ColumnDesignCalc
                 Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebar.X + LX / 2, rebar.Y + LY / 2), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
                 composites.Add(r);
             }
-            Console.WriteLine("Material init OK");
 
             if (Shape == GeoShape.Rectangular)
             {
@@ -901,15 +896,15 @@ namespace ColumnDesignCalc
 
             return ContourPts;
         }
-        public bool isInsideCapacity(bool allLoads = false)
+        public bool isInsideCapacity(bool GetMde = true)
         {
-            return isInsideInteractionDiagram(this.diagramFaces, this.diagramVertices, AllLoads);
+            return isInsideInteractionDiagram(this.diagramFaces, this.diagramVertices, GetMde : GetMde);
         }
 
-        public bool isInsideInteractionDiagram(List<Tri3D> faces, List<MWPoint3D> vertices, bool allLoads = false, bool firecheck = false)
+        public bool isInsideInteractionDiagram(List<Tri3D> faces, List<MWPoint3D> vertices, bool firecheck = false, bool GetMde = true)
         {
             //bool all = (SelectedLoad.Name == "ALL LOADS" || allLoads) ? true : false;
-            GetDesignMoments();
+            if(GetMde) GetDesignMoments();
             MWPoint3D p0 = MWPoint3D.point3DByCoordinates
             (
                 2 * vertices.Min(x => x.X),
@@ -920,7 +915,15 @@ namespace ColumnDesignCalc
             List<MWPoint3D> points = new List<MWPoint3D>();
 
             if (firecheck)
-                points.Add(new MWPoint3D(FireLoad.MEdx, FireLoad.MEdy, -FireLoad.P));
+            {
+                if(AllLoads)
+                {
+                    for (int i = 1; i < Loads.Count; i++)
+                        points.Add(new MWPoint3D(0.7 * Loads[i].MEdx, 0.7 * Loads[i].MEdy, -0.7 * Loads[i].P));
+                }
+                else
+                    points.Add(new MWPoint3D(FireLoad.MEdx, FireLoad.MEdy, -FireLoad.P));
+            }
             else if (AllLoads)
             {
                 for (int i = 1; i < Loads.Count; i++)
@@ -1090,10 +1093,10 @@ namespace ColumnDesignCalc
             return 0;
         }
 
-        public bool CheckIsInsideFireID()
+        public bool CheckIsInsideFireID(bool getMde = true)
         {
             if (fireDiagramFaces.Count > 0)
-                return isInsideInteractionDiagram(fireDiagramFaces, fireDiagramVertices, firecheck: true);
+                return isInsideInteractionDiagram(fireDiagramFaces, fireDiagramVertices, firecheck: true, GetMde : getMde);
             else
                 return false;
         }
@@ -1112,18 +1115,29 @@ namespace ColumnDesignCalc
             return level;
         }
 
-        public bool CheckSteelQtty()
+        public bool CheckSteelQtty(bool allLoads = false)
         {
             double Ac = LX * LY;
-            double Asmin = Math.Max(0.1 * SelectedLoad.P / (SteelGrade.Fy * 1e-3 / gs), 0.002 * Ac);
             double Asmax = 0.04 * Ac;
             double As = Nrebars * Math.PI * Math.Pow(BarDiameter / 2.0, 2);
+            if (allLoads)
+            {
+                foreach(var l in Loads)
+                {
+                    double Asmin = Math.Max(0.1 * l.P / (SteelGrade.Fy * 1e-3 / gs), 0.002 * Ac);
 
-            if (As > Asmax)
-                return false;
-            else if (As < Asmin)
-                return false;
+                    if (As > Asmax || As < Asmin)
+                        return false;
+                }
+            }
+            else
+            {
+                double Asmin = Math.Max(0.1 * SelectedLoad.P / (SteelGrade.Fy * 1e-3 / gs), 0.002 * Ac);
 
+                if ( As > Asmax || As < Asmin)
+                    return false;
+            }
+            
             return true;
         }
 
@@ -1135,11 +1149,7 @@ namespace ColumnDesignCalc
             for (int i = 0; i < loadsToCheck.Count; i++)
             {
                 List<double> sizes = new List<double>() { this.BarDiameter, this.MaxAggSize + 5, 20 };
-                double smin = sizes.Max();
-                double sx = (this.LX - 2 * (this.CoverToLinks + this.LinkDiameter) - this.BarDiameter) / (this.NRebarX - 1);
-                double sy = (this.LY - 2 * (this.CoverToLinks + this.LinkDiameter) - this.BarDiameter) / (this.NRebarY - 1);
 
-                double abar = Math.PI * Math.Pow(this.BarDiameter / 2.0, 2);
                 double As = (this.NRebarX * this.NRebarY - (this.NRebarX - 2) * (this.NRebarY - 2)) * Math.PI * Math.Pow(this.BarDiameter / 2.0, 2);
                 double[] dxs = new double[this.NRebarY];
                 dxs[0] = this.LY - this.CoverToLinks - this.LinkDiameter - this.BarDiameter / 2.0;
@@ -1200,7 +1210,6 @@ namespace ColumnDesignCalc
                     secondordery = true;
                 }
 
-                Formula f8 = new Formula();
                 double[] axialDist = GetAxialLength();
                 double peri = GetPerimeter();
                 if (!secondorderx)
@@ -1923,6 +1932,14 @@ namespace ColumnDesignCalc
             }
         }
 
+        public void SetChecksToFalse()
+        {
+            this.CapacityCheck = false;
+            this.MinRebarCheck = false;
+            this.MinMaxSteelCheck = false;
+            this.FireCheck = false;
+            this.SpacingCheck = false;
+        }
         //private Assembly LoadIDdll()
         //{
         //    string assemblyPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/Magma Works/Scaffold/Libraries/InteractionDiagram3D.dll";

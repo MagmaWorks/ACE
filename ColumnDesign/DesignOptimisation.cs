@@ -2,6 +2,7 @@
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
+using Optimisation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

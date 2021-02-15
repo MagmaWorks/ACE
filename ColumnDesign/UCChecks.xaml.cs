@@ -111,15 +111,22 @@ namespace ColumnDesign
         {
             Button b = sender as Button;
             ViewModel vm = this.DataContext as ViewModel;
+            vm.MyBatchDesignView.BatchDesign.Columns = vm.MyColumns;
 
-            AutoGroupDesign AGD = new AutoGroupDesign()
+            UCBatchDesign batchDesign = new UCBatchDesign();
+            //batchDesign.DataContext = vm;
+
+            Window win = new Window()
             {
-                //SizeToContent = SizeToContent.WidthAndHeight,
+                Content = batchDesign,
                 Owner = System.Windows.Application.Current.MainWindow,
+                Title = "Batch Design",
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                DataContext = vm
+                DataContext = vm,
+                WindowState = WindowState.Maximized,
             };
-            AGD.Show();
+            batchDesign.StartBatchDesign();
+            win.ShowDialog();
         }
 
         private void OpenSettings(object sender, RoutedEventArgs e)

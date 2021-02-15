@@ -1,0 +1,441 @@
+﻿<UserControl x:Class="ColumnDesign.UCBatchDesign"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ColumnDesign"
+             mc:Ignorable="d" >
+    <Grid Background="White">
+        <Grid.Resources>
+            <ContentControl x:Key="LoadsCloud">
+                <local:UCLoadsCloud />
+            </ContentControl>
+            <ContentControl x:Key="ClusteredColumns">
+                <local:UCClusteredColumns />
+            </ContentControl>
+            <ContentControl x:Key="ClusteredDesigns">
+                <local:UCClusteredDesigns />
+            </ContentControl>
+        </Grid.Resources>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="5 5 5 5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Text="Optimised parameters" Grid.Row="0" FontWeight="SemiBold" Margin="5 5 5 0"/>
+
+                <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.5" Margin="15 5 15 5">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Margin="5 5 5 5"/>
+                                <!--<CheckBox Content="Rectangular" Name="RectangularCB" Margin="5 5 5 0" Click="RectangularCB_Checked" IsChecked="True"/>-->
+                                <TextBlock Text="X dimension" Name="LXCB" IsEnabled="True" Margin="20 5 5 5" />
+                                <TextBlock Text="Y dimension" Name="LYCB" IsEnabled="True" Margin="20 5 5 5" />
+                                <TextBlock Text="No rebar X" Name="NXCB" IsEnabled="True" Margin="20 5 5 5" />
+                                <TextBlock Text="No rebar Y" Name="NYCB" IsEnabled="True" Margin="20 5 5 5" />
+                                <!--<CheckBox Content="Circular" Name="CircularCB" Margin="5 8 5 0" Click="CircularCB_Checked"/>
+                                <TextBlock Text="Diameter" Name="DCB" IsEnabled="false" Margin="20 5 5 5" />
+                                <TextBlock Text="NCirc" Name="NCircCB" IsEnabled="false" Margin="20 5 5 5" />
+                                <CheckBox Content="Polygonal" Name="PolygonalCB" Margin="5 8 5 0" Click="PolygonalCB_Checked"/>
+                                <TextBlock Text="Radius" Name="RadiusCB" IsEnabled="false" Margin="20 5 5 5" />
+                                <TextBlock Text="Edges" Name="EdgesCB" IsEnabled="false" Margin="20 5 5 5" />-->
+                                <TextBlock Text="Bar diameter" Name="BarDCB" Margin="5 7 5 5" />
+                                <!--<TextBlock Text="Link diameter" Name="LinkDCB" Margin="5 5 5 5" />-->
+                                <TextBlock Text="Concrete Grade" Name="CGCB" Margin="5 5 5 5" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBlock Text="Min" Margin="5 5 5 3"/>
+                                <!--<TextBlock Text="" Margin="5 5 5 0"/>-->
+                                <TextBox Name="MinXDim" IsEnabled ="True" Text="200" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <TextBox Name="MinYDim" IsEnabled ="True" Text="200" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <ComboBox Name="MinNX" IsEnabled ="True" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding NoBars[0],Mode=OneTime}"/>
+                                <ComboBox Name="MinNY" IsEnabled ="True" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding NoBars[0],Mode=OneTime}"/>
+                                <!--<TextBlock Text="" Margin="5 5 5 0"/>
+                                <TextBox Name="MinD" IsEnabled ="False" Text="300" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <ComboBox Name="MinNCirc" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 3 0 3" SelectedValue="{Binding NoBars[0], Mode=OneTime}"/>
+                                <TextBlock Text="" Margin="5 5 5 0"/>
+                                <TextBox Name="MinRadius" IsEnabled ="False" Text="200" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <TextBox Name="MinEdges" IsEnabled ="False" Text="3" Width="60" Height="20" Margin="0 3 0 3"/>-->
+                                <ComboBox Name="MinBarDiameter" IsEnabled ="True" ItemsSource="{Binding BarDiameters}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding BarDiameters[0], Mode=OneTime}"/>
+                                <!--<ComboBox Name="MinLinkDiameter" IsEnabled ="True" ItemsSource="{Binding LinkDiameters}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding LinkDiameters[0], Mode=OneTime}"/>-->
+                                <ComboBox Name="MinCG" IsEnabled ="True" ItemsSource="{Binding ConcreteNames}" Width="60" Margin="0 2 0 2" SelectedValue="32/40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBlock Text="Max" Margin="5 5 5 3"/>
+                                <!--<TextBlock Text="" Margin="5 5 5 0"/>-->
+                                <TextBox Name="MaxXDim" IsEnabled ="True" Text="1250" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <TextBox Name="MaxYDim" IsEnabled ="True" Text="1250" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <ComboBox Name="MaxNX" IsEnabled ="True" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding NoBars[6],Mode=OneTime}"/>
+                                <ComboBox Name="MaxNY" IsEnabled ="True" ItemsSource="{Binding NoBars}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding NoBars[6],Mode=OneTime}"/>
+                                <!--<TextBlock Text="" Margin="5 5 5 0"/>
+                                <TextBox Name="MaxD" IsEnabled ="False" Text="1000" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <ComboBox Name="MaxNCirc" IsEnabled ="False" ItemsSource="{Binding NoBars}" Width="60" Margin="0 3 0 3" SelectedValue="{Binding NoBars[6], Mode=OneTime}"/>
+                                <TextBlock Text="" Margin="5 5 5 0"/>
+                                <TextBox Name="MaxRadius" IsEnabled ="False" Text="500" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <TextBox Name="MaxEdges" IsEnabled ="False" Text="8" Width="60" Height="20" Margin="0 3 0 3"/>-->
+                                <ComboBox Name="MaxBarDiameter" IsEnabled ="True" ItemsSource="{Binding BarDiameters}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding BarDiameters[5], Mode=OneTime}"/>
+                                <!--<ComboBox Name="MaxLinkDiameter" IsEnabled ="True" ItemsSource="{Binding LinkDiameters}" Width="60" Margin="0 2 0 2" SelectedValue="{Binding LinkDiameters[0], Mode=OneTime}"/>-->
+                                <ComboBox Name="MaxCG" IsEnabled ="True" ItemsSource="{Binding ConcreteNames}" Width="60" Margin="0 2 0 2" SelectedValue="32/40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBlock Text="Increment" Margin="5 5 5 3"/>
+                                <!--<TextBlock Text="" Margin="5 5 5 0"/>-->
+                                <TextBox Name="IncrXDim" IsEnabled ="True" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <TextBox Name="IncrYDim" IsEnabled ="True" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <!--<TextBlock Text="" Margin="5 5 5 0"/>
+                                <TextBlock Text="" Margin="5 5 5 5"/>
+                                <TextBlock Text="" Margin="5 5 5 5"/>
+                                <TextBox Name="IncrD" IsEnabled ="False" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>
+                                <TextBlock Text="" Margin="5 5 5 0"/>
+                                <TextBlock Text="" Margin="5 5 5 5"/>
+                                <TextBox Name="IncrRadius" IsEnabled ="False" Text="25" Width="60" Height="20" Margin="0 3 0 3"/>-->
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                <TextBlock Margin="5 5 5 5"/>
+                                <TextBlock Margin="5 5 5 5"/>
+                                <TextBlock Margin="5 5 5 0"/>
+                                <!--<CheckBox Name ="SquareCB" IsEnabled="True" Width="60" Height="20" Content="= X" Margin="0 5 5 5" Click="SquareCB_Checked"/>-->
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Margin="5 5 5 5"/>
+                                <!--<TextBlock Margin="5 5 5 5"/>-->
+                                <TextBlock Foreground="Red" Name="LXmess" Margin="5 5 5 5"/>
+                                <TextBlock Foreground="Red" Name="LYmess" Margin="5 5 5 5"/>
+                                <TextBlock Foreground="Red" Name="NXmess" Margin="5 5 5 5"/>
+                                <TextBlock Foreground="Red" Name="NYmess" Margin="5 5 5 5"/>
+                                <!--<TextBlock Margin="5 5 5 0"/>
+                                <TextBlock Foreground="Red" Name="Dmess" Margin="5 5 5 5"/>
+                                <TextBlock Foreground="Red" Name="NCircmess" Margin="5 5 5 5"/>
+                                <TextBlock Margin="5 5 5 0"/>
+                                <TextBlock Foreground="Red" Name="Radiusmess" Margin="5 5 5 5"/>
+                                <TextBlock Foreground="Red" Name="Edgesmess" Margin="5 5 5 5"/>-->
+                                <TextBlock Foreground="Red" Name="Barmess" Margin="5 7 5 5"/>
+                                <!--<TextBlock Foreground="Red" Name="Linkmess" Margin="5 5 5 5"/>-->
+                                <TextBlock Foreground="Red" Name="CGmess" Margin="5 5 5 5"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Column sizes [height]x[width]" FontWeight="SemiBold"/>
+
+                <TextBox
+                    Name="ColumnSizesTB"
+                    Margin="15 5 15 5"
+                    Grid.Row="1"
+                    TextWrapping="Wrap"
+                    AcceptsReturn="true"/>
+            </Grid>
+
+            <Grid Grid.Row="2" Margin="5 5 5 5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Optimisation parameters" FontWeight="SemiBold" Margin="5 5 5 0"/>
+
+                <Grid Grid.Row="1" Margin="5 5 5 5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="1"  BorderBrush="Black" BorderThickness="0.5"  Margin="10 0 0 0">
+                        <Grid Margin="5 5 5 5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                                <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                    <TextBlock Text="Max iterations" Margin="0 5 0 5"/>
+                                    <TextBlock Text="T0" Margin="0 5 0 5"/>
+                                    <TextBlock Text="Alpha" Margin="0 5 0 5"/>
+                                    <TextBlock Text="Variance" Margin="0 5 0 5"/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Vertical" Margin="5 5 5 5">
+                                    <TextBox Name="MaxIter" Text="400" Width="40" Margin="0 4 0 4"/>
+                                    <TextBox Name="Tinit" Text="3000" Width="40" Margin="0 4 0 4"/>
+                                    <TextBox Name="Alpha" Text="0.9" Width="40" Margin="0 4 0 4"/>
+                                    <TextBox Name="Variance" Text="1" Width="40" Margin="0 4 0 4"/>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Row="3" Margin="5 0 5 0">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Optimisation drivers" Grid.Row="0" FontWeight="SemiBold" Margin="5 5 5 5"/>
+
+                    <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.5" Margin="15 0 0 10">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical" Margin="3 3 3 3">
+                                <CheckBox Content="Cost" Name="CostCB" Margin="5 5 5 5"/>
+                                <CheckBox Content="Carbon" Name="CarbonCB" Margin="5 5 5 5" IsChecked="True"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="3 3 3 3">
+                                <TextBox Name="CostWeightTB" Text="1" Width="30" Margin="5 4 5 4"/>
+                                <TextBox Name="CarbonWeightTB" Text="1" Width="30" Margin="5 4 5 4"/>
+                            </StackPanel>
+                            <TextBlock Name="Drivermess" Margin="5 5 5 5" Foreground="Red"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!--<Grid Grid.Column="1">
+                    <StackPanel Orientation="Vertical">
+                        <CheckBox 
+                        Name="UseJSON_CB" 
+                        IsChecked="false" 
+                        Content="Use existing JSON"
+                        Margin="50 35 5 5 "/>
+                        <CheckBox 
+                        Content="All loads" 
+                        IsChecked="false" 
+                        Name="AllLoadsCB" 
+                        Margin="50 5 5 5"/>
+                        --><!--<CheckBox 
+                        Name="Parallel_CB" 
+                        IsChecked="false" 
+                        Content="Parallel computation"
+                        Margin="50 5 5 5 "/>--><!--
+                    </StackPanel>
+                </Grid>-->
+
+            </Grid>
+
+            <Grid Grid.Row="4" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button 
+                    Grid.Column="0"
+                    Content="Batch Design"
+                    Margin="10 0 10 0"
+                    Click="RunBatchDesign"
+                    Width="80"
+                    Height="25"/>
+                <Button 
+                    Grid.Column="1"
+                    Content="Export Clusters"
+                    Margin="10 0 10 0"
+                    Click="ExportClusters"
+                    Width="80"
+                    Height="25"/>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ContentControl 
+                    Grid.Column="0"
+                    Width="Auto"
+                    Height="Auto"
+                    DataContext="{Binding MyBatchDesignView}"
+                    Content="{StaticResource LoadsCloud}"/>
+                <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch"/>
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="2"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ContentControl 
+                        Grid.Row="0"
+                        Width="Auto"
+                        Height="Auto"
+                        DataContext="{Binding MyBatchDesignView}"
+                        Content="{StaticResource ClusteredDesigns}"/>
+                    <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch"/>
+                    <ContentControl 
+                        Grid.Row="2"
+                        Width="Auto"
+                        Height="Auto"
+                        DataContext="{Binding MyBatchDesignView}"
+                        Content="{StaticResource ClusteredColumns}"/>
+                </Grid>
+                
+                
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+    
+                <TextBlock Text="Clustering" Grid.Row="0" FontWeight="SemiBold" Margin="5 5 5 0"/>
+
+                    <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.5" Margin="15 5 15 5">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Method" Margin="5 5 5 5"/>
+                            <TextBlock Text="Number of clusters"  Margin="5 5 5 5"/>
+                                <TextBlock Text="Sigma"  Margin="5 5 5 5"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                                <ComboBox 
+                                    SelectedValue="{Binding MyBatchDesignView.Method}"
+                                    ItemsSource="{Binding MyBatchDesignView.ClusteringMethods}"
+                                    SelectionChanged="ClusteringMethodChanged"
+                                    Width="100" 
+                                    Height="22" 
+                                    Margin="0 5 5 2"/>
+                                <TextBox 
+                                    HorizontalAlignment="Left"
+                                    Width="40" 
+                                    Height="22" 
+                                    Text="{Binding MyBatchDesignView.BatchDesign.NClusters, Mode=OneTime}"
+                                    LostFocus="NClustersChanged" 
+                                    Margin="0 2 5 2"/>
+                                <TextBox 
+                                    HorizontalAlignment="Left"
+                                    Width="40" 
+                                    Height="22" 
+                                    Text="{Binding MyBatchDesignView.BatchDesign.Sigma, Mode=OneTime}" 
+                                    LostFocus="SigmaChanged" 
+                                    Margin="0 2 5 5"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Border>
+
+                <TextBlock Grid.Row="0" Grid.Column="1" FontWeight="SemiBold" Margin="5 5 5 0">
+                        Optimisation Progress
+                    </TextBlock>
+
+                <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="0.5" Margin="15 5 15 5">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{Binding MyBatchDesignView.OptiSize}" Margin="5"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
+                            <ProgressBar 
+                                Minimum="0" 
+                                Maximum="100" 
+                                Width="150"
+                                Height="20"
+                                Value="{Binding MyBatchDesignView.ProgressPercentageMain}" />
+                            <TextBlock Margin="5 0 0 0">
+                                <Run Text="{Binding MyBatchDesignView.ProgressPercentageMain}"/> %
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10">
+                            <ProgressBar 
+                                Minimum="0" 
+                                Maximum="100" 
+                                Width="150"
+                                Height="20"
+                                Value="{Binding MyBatchDesignView.ProgressPercentage}" />
+                            <TextBlock Margin="5 0 0 0">
+                                <Run Text="{Binding MyBatchDesignView.ProgressPercentage}"/> %
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+
+            <!--<StackPanel Orientation="Vertical">
+                <Button
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="ShowLoadsCloud"
+                    Width="40"
+                    Height="40">
+                    <Image Source="Resources/PointsCloud.png"/>
+                </Button>
+            </StackPanel>-->
+        </Grid>
+
+        <Grid Grid.Column="2">
+            <Border BorderThickness="0.2" BorderBrush="Black" DataContext="{Binding MyBatchDesignView}">
+                <ItemsControl ItemsSource="{Binding Designs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical" Margin="5 5 5 20">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <TextBlock>
+                                    LX : <Run Text="{Binding LX}"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    LY : <Run Text="{Binding LY}"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    Nrebar X : <Run Text="{Binding NRebarX}"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    Nrebar Y : <Run Text="{Binding NRebarY}"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    Bar diameter : <Run Text="{Binding BarDiameter}"/>
+                                </TextBlock>
+                                <TextBlock>
+                                    Concrete grade : <Run Text="{Binding ConcreteGrade.Name}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
