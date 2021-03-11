@@ -76,6 +76,9 @@ namespace ColumnDesignCalc
         public Load FireLoad { get; set; }
 
         public List<Load> Loads { get; set; } //= new List<Load>();
+
+        // loads considered as the most constraining for the design. They are the loads used in the report in case of multiple loads
+        public List<Load> DesigningLoads { get; set; } 
         public List<string> FireLoadNames { get => LoadNames.Append("0.7*[selected]").ToList(); }
         public List<string> LoadNames { get => Loads.Select(l => l.Name).ToList(); }
         public bool AllLoads { get; set; } = false;
@@ -151,6 +154,9 @@ namespace ColumnDesignCalc
         // Optimisation
         public double Cost { get; set; } = 0;
 
+        public bool IsCluster { get; set; } = false;
+        public List<string> ColsInCluster { get; set; }
+
         // Interaction diagram settings
         public int DiagramDisc { get; set; } = 30;
 
@@ -162,17 +168,19 @@ namespace ColumnDesignCalc
         public Column(ETABSv17_To_ACE.Column c0)
         {
             Name = c0.name;
-            LX = c0.width;
-            LY = c0.depth;
+            LX = c0.width != 0 ? c0.width : 350;
+            LY = c0.depth != 0 ? c0.depth : 350;
             Length = c0.length;
             ConcreteGrade = new Concrete("Custom", c0.fc, c0.E);
             SteelGrade = new Steel("500B", 500);
             Point1 = new MWPoint3D(c0.Point1.X, c0.Point1.Y, c0.Point1.Z);
             Point2 = new MWPoint3D(c0.Point2.X, c0.Point2.Y, c0.Point2.Z);
             Angle = c0.Angle;
+            Diameter = c0.Diameter;
             Loads = c0.Loads.Select(l => new Load(l)).ToList();
             SelectedLoad = Loads[0];
             FireLoad = Loads[0];
+            Shape = c0.isRectangular ? GeoShape.Rectangular : GeoShape.Circular;
 
             GetContourPoints();
             GetRebars();
@@ -181,17 +189,19 @@ namespace ColumnDesignCalc
         public Column(ETABSv18_To_ACE.Column c0)
         {
             Name = c0.name;
-            LX = c0.width;
-            LY = c0.depth;
+            LX = c0.width != 0 ? c0.width : 350;
+            LY = c0.depth != 0 ? c0.depth : 350;
             Length = c0.length;
             ConcreteGrade = new Concrete("Custom", c0.fc, c0.E);
             SteelGrade = new Steel("500B", 500);
             Point1 = new MWPoint3D(c0.Point1.X, c0.Point1.Y, c0.Point1.Z);
             Point2 = new MWPoint3D(c0.Point2.X, c0.Point2.Y, c0.Point2.Z);
             Angle = c0.Angle;
+            Diameter = c0.Diameter;
             Loads = c0.Loads.Select(l => new Load(l)).ToList();
             SelectedLoad = Loads[0];
             FireLoad = Loads[0];
+            Shape = c0.isRectangular ? GeoShape.Rectangular : GeoShape.Circular;
 
             GetContourPoints();
             GetRebars();
@@ -231,6 +241,7 @@ namespace ColumnDesignCalc
 
             col.NRebarX = this.NRebarX;
             col.NRebarY = this.NRebarY;
+            col.NRebarCirc = this.NRebarCirc;
             col.BarDiameter = this.BarDiameter;
 
             col.diagramVertices = this.diagramVertices;
@@ -243,6 +254,8 @@ namespace ColumnDesignCalc
             col.MinRebarCheck = this.MinRebarCheck;
 
             col.Cost = this.Cost;
+            col.IsCluster = this.IsCluster;
+            col.ColsInCluster = this.ColsInCluster;
 
             col.DiagramDisc = this.DiagramDisc;
 
@@ -918,7 +931,7 @@ namespace ColumnDesignCalc
             {
                 if(AllLoads)
                 {
-                    for (int i = 1; i < Loads.Count; i++)
+                    for (int i = 0; i < Loads.Count; i++)
                         points.Add(new MWPoint3D(0.7 * Loads[i].MEdx, 0.7 * Loads[i].MEdy, -0.7 * Loads[i].P));
                 }
                 else
@@ -926,7 +939,7 @@ namespace ColumnDesignCalc
             }
             else if (AllLoads)
             {
-                for (int i = 1; i < Loads.Count; i++)
+                for (int i = 0; i < Loads.Count; i++)
                     points.Add(new MWPoint3D(Loads[i].MEdx, Loads[i].MEdy, -Loads[i].P));
             }
             else
@@ -939,7 +952,8 @@ namespace ColumnDesignCalc
                 for (int i = 0; i < faces.Count; i++)
                 {
                     MWPoint3D pInter0 = Polygon3D.PlaneLineIntersection(new MWPoint3D[] { p0, p }, faces[i].Points);
-                    if (pInter0.X != double.NaN)
+                    //if (pInter0.X != double.NaN)
+                    if (!double.IsNaN(pInter0.X))
                     {
                         MWPoint3D pInter = pInter0;
                         MWVector3D v = Vectors3D.VectorialProduct(MWVector3D.vector3DByCoordinates(p0.X - pInter.X, p0.Y - pInter.Y, p0.Z - pInter.Z),
@@ -1117,7 +1131,7 @@ namespace ColumnDesignCalc
 
         public bool CheckSteelQtty(bool allLoads = false)
         {
-            double Ac = LX * LY;
+            double Ac = GetColumnArea();
             double Asmax = 0.04 * Ac;
             double As = Nrebars * Math.PI * Math.Pow(BarDiameter / 2.0, 2);
             if (allLoads)
@@ -1144,7 +1158,7 @@ namespace ColumnDesignCalc
         public void GetDesignMoments()
         {
             List<Load> loadsToCheck;
-            loadsToCheck = (AllLoads) ? Loads : new List<Load>() { SelectedLoad };
+            loadsToCheck = AllLoads ? Loads : new List<Load>() { SelectedLoad };
 
             for (int i = 0; i < loadsToCheck.Count; i++)
             {
@@ -1930,6 +1944,36 @@ namespace ColumnDesignCalc
                 GuidanceCheck = true;
                 GuidanceMessage = "All good!";
             }
+        }
+
+        public void GetDesigningLoads(int nl)
+        {
+            AllLoads = true;
+            GetDesignMoments();
+            List<Tuple<double, int>> distances = new List<Tuple<double, int>>();
+            for(int i = 0; i < Loads.Count; i++)
+                distances.Add(new Tuple<double,int>(GetDistanceLoadToID(Loads[i]),i));
+
+            distances = distances.OrderBy(i => i.Item1).ToList();
+            DesigningLoads = new List<Load>();
+            for(int i = 0; i < nl; i++)
+                DesigningLoads.Add(Loads[distances[i].Item2].Clone());
+        }
+
+        public double GetDistanceLoadToID(Load load)
+        {
+            MWPoint3D pt = new MWPoint3D(load.MEdx, load.MEdy, -load.P);
+            List<double> distances = new List<double>();
+            if (diagramFaces.Count == 0) GetInteractionDiagram();
+            for (int i = 0; i < this.diagramFaces.Count; i++)
+            {
+                (double dist, MWPoint3D proj) = MWGeometry.Points.PointToPlaneProjection(pt, diagramFaces[i].Points);
+                if(Polygon3D.IsInside3DPlane(proj,diagramFaces[i].Points))
+                {
+                    distances.Add(Math.Abs(dist));
+                }
+            }
+            return distances.Min();
         }
 
         public void SetChecksToFalse()

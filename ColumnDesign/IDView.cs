@@ -245,30 +245,27 @@ namespace ColumnDesign
 
             List<Load> loads = column.AllLoads ? column.Loads : new List<Load>() { column.SelectedLoad };
 
-
+            var pointMesh = new MeshBuilder(false, true);
             for (int i = 0; i < loads.Count; i++)
             {
-                var pointMesh = new MeshBuilder(false, true);
                 Point3D center = new Point3D((loads[i].MEdx - minX) / (maxX - minX) * scaleXYZ, (loads[i].MEdy - minY) / (maxY - minY) * scaleXYZ, (-loads[i].P - minZ) / (maxZ - minZ) * scaleXYZ);
-                //Console.WriteLine("Center X = {0}, Y = {1}, Z = {2}", center.X, center.Y, center.Z);
-                pointMesh.AddSphere(center, radius: 0.2);
-                var color0 = Color.FromArgb(255, 50, 50, 255);
-                GeometryModel3D mesh0;
-                mesh0 = new GeometryModel3D(pointMesh.ToMesh(), MaterialHelper.CreateMaterial(color0));
-                mesh0.BackMaterial = mesh0.Material;
-                modelGroup.Children.Add(mesh0);
-
+                pointMesh.AddSphere(center, radius: 0.2, thetaDiv: 8, phiDiv: 8);
             }
+            var color0 = Color.FromArgb(255, 50, 50, 255);
+            GeometryModel3D mesh0;
+            mesh0 = new GeometryModel3D(pointMesh.ToMesh(), MaterialHelper.CreateMaterial(color0));
+            mesh0.BackMaterial = mesh0.Material;
+            modelGroup.Children.Add(mesh0);
 
             if (column.FireDesignMethod == FDesignMethod.Advanced || column.FireDesignMethod == FDesignMethod.Isotherm_500 || column.FireDesignMethod == FDesignMethod.Zone_Method)
             {
-                var pointMesh = new MeshBuilder(false, true);
+                var pointMeshFire = new MeshBuilder(false, true);
                 var center = new Point3D((column.FireLoad.MEdx * 1.0 - minX) / (maxX - minX) * scaleXYZ, (column.FireLoad.MEdy * 1.0 - minY) / (maxY - minY) * scaleXYZ, (-column.FireLoad.P * 1.0 - minZ) / (maxZ - minZ) * scaleXYZ);
-                pointMesh.AddSphere(center, radius: 0.2);
-                var color0 = Color.FromArgb(255, 100, 100, 100);
-                var mesh0 = new GeometryModel3D(pointMesh.ToMesh(), MaterialHelper.CreateMaterial(color0));
-                mesh0.BackMaterial = mesh0.Material;
-                fireModelGroup.Children.Add(mesh0);
+                pointMeshFire.AddSphere(center, radius: 0.2, thetaDiv:8, phiDiv:8);
+                var color0Fire = Color.FromArgb(255, 100, 100, 100);
+                var mesh0Fire = new GeometryModel3D(pointMeshFire.ToMesh(), MaterialHelper.CreateMaterial(color0Fire));
+                mesh0Fire.BackMaterial = mesh0.Material;
+                fireModelGroup.Children.Add(mesh0Fire);
             }
 
             List<Point3D> normalPoints = column.diagramVertices.Select(x => new Point3D((x.X - minX) / (maxX - minX), (x.Y - minY) / (maxY - minY), (x.Z - minZ) / (maxZ - minZ))).ToList();
@@ -591,6 +588,9 @@ namespace ColumnDesign
 
         public static void Generate2DIDs(Column col)
         {
+            if (col.diagramVertices.Count == 0) col.GetInteractionDiagram();
+            if (col.MxMyPts.Count == 0) col.Get2DMaps();
+
             LineSeries sp1 = new LineSeries()
             {
                 Color = OxyColors.Black,

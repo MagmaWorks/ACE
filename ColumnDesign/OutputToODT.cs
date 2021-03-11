@@ -21,7 +21,8 @@ namespace ColumnDesign
 {
     public static class OutputToODT
     {
-        public static void WriteToODT(ICalc calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett)
+
+        public static void WriteToODT(ICalc calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett, IProgress<WordReportProgress> progress = null)
         {
             string filePath;
             try
@@ -44,7 +45,7 @@ namespace ColumnDesign
 
         }
 
-        public static void WriteToODT(List<ICalc> calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett)
+        public static void WriteToODT(List<ICalc> calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett, IProgress<WordReportProgress> progress = null)
         {
             string filePath;
             try
@@ -66,7 +67,7 @@ namespace ColumnDesign
             WriteToODT(calculation, includeInputs, includeBody, includeOutputs, filePath, sett);
         }
 
-        public static void WriteToODT2(List<ICalc> calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett)
+        public static void WriteToODT2(List<ICalc> calculation, bool includeInputs, bool includeBody, bool includeOutputs, Settings sett, IProgress<WordReportProgress> progress = null)
         {
             string filePath;
             try
@@ -86,10 +87,11 @@ namespace ColumnDesign
             {
                 string path = filePath + @"\" + c.InstanceName + ".docx";
                 WriteToODT(new List<ICalc> { c }, includeInputs, includeBody, includeOutputs, path, sett);
+
             }
         }
 
-        public static void WriteToODT(List<ICalc> calculations, bool includeInputs, bool includeBody, bool includeOutputs, string filePath, Settings sett = null)
+        public static void WriteToODT(List<ICalc> calculations, bool includeInputs, bool includeBody, bool includeOutputs, string filePath, Settings sett = null, IProgress<WordReportProgress> progress = null)
         {
             if (sett == null) sett = new Settings();
             try
@@ -260,6 +262,8 @@ namespace ColumnDesign
                                 cell2.AppendChild(new Paragraph(new Run(paraImage)));
                             }
                         }
+
+                        GC.WaitForPendingFinalizers();
                     }
                     //var myMath = new M.OfficeMath(new M.Run(new M.Text(formula + Environment.NewLine) { Space = SpaceProcessingModeValues.Preserve }));
                     //mathPara.AppendChild(myMath);

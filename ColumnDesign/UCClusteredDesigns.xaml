@@ -47,9 +47,9 @@
                 Text="Current designs" 
                 FontWeight="SemiBold" 
                 />
-            <TextBlock>
+            <!--<TextBlock>
                 Carbon : <Run Text="{Binding CurrentPerformance.Carbon, StringFormat=N0}"/> TCO2e
-            </TextBlock>
+            </TextBlock>-->
             <TextBlock>
                 Concrete : <Run Text="{Binding CurrentPerformance.ConcreteVolume, StringFormat=N0}"/> m3
             </TextBlock>
@@ -62,5 +62,9 @@
             <ModelVisual3D Content="{Binding ClusteredDesigns}"/>
         </h:HelixViewport3D>
 
+        <TextBlock VerticalAlignment="Bottom" FontSize="10">
+            <Run Text="{Binding NumberOfColumns_Designs}"/> columns
+        </TextBlock>
+        
     </Grid>
 </UserControl>

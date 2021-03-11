@@ -34,32 +34,42 @@ namespace ColumnDesign
         private void RunBatchDesign(object sender, RoutedEventArgs e)
         {
             ViewModel vm = this.DataContext as ViewModel;
+            if (vm.MyBatchDesignView.BatchDesign.Designs?.Count > 0)
+            {
+                MessageBoxResult res = MessageBox.Show("Delete existing designs and restart optimisation?", "Restart optimisation", MessageBoxButton.YesNo);
+                if (res == MessageBoxResult.No)
+                    return;
+                else
+                    vm.MyBatchDesignView.BatchDesign.Designs = new List<Column>();
+            }
+
             DesignOptimiser opti = vm.MyBatchDesignView.Optimiser;
             //BatchColumnDesign batchDesign = vm.MyBatchDesignView.BatchDesign;
+
+
 
             opti.SteelGrades = vm.ColumnCalcs.SteelGrades;
 
             bool[] Shapes = new bool[]
             {
-                RectangularCB.IsChecked ?? false,
-                CircularCB.IsChecked ?? false,
-                PolygonalCB.IsChecked ?? false,
+                true, //RectangularCB.IsChecked ?? false,
+                false, //CircularCB.IsChecked ?? false,
+                false, //PolygonalCB.IsChecked ?? false,
             };
 
-            opti.Sizes = GetSizes();
-
+            // Defines which parameters are optimised and which are not
             bool[] Activations = new bool[]
             {
-                false, //RectangularCB.IsChecked ?? false, //LXCB.IsChecked ?? false,
-                false, //RectangularCB.IsChecked ?? false, //LYCB.IsChecked ?? false,
-                RectangularCB.IsChecked ?? false, //NXCB.IsChecked ?? false,
-                RectangularCB.IsChecked ?? false, //NYCB.IsChecked ?? false,
-                CircularCB.IsChecked ?? false, //DCB.IsChecked ?? false,
-                CircularCB.IsChecked ?? false, //NCircCB.IsChecked ?? false,
-                PolygonalCB.IsChecked ?? false, //RadiusCB.IsChecked ?? false,
-                PolygonalCB.IsChecked ?? false, //EdgesCB.IsChecked ?? false,
+                DomainCB.IsChecked ?? false, //RectangularCB.IsChecked ?? false, //LXCB.IsChecked ?? false,
+                DomainCB.IsChecked ?? false, //RectangularCB.IsChecked ?? false, //LYCB.IsChecked ?? false,
+                true, //RectangularCB.IsChecked ?? false, //NXCB.IsChecked ?? false,
+                true, //RectangularCB.IsChecked ?? false, //NYCB.IsChecked ?? false,
+                false, //CircularCB.IsChecked ?? false, //DCB.IsChecked ?? false,
+                true, //CircularCB.IsChecked ?? false, //NCircCB.IsChecked ?? false,
+                false, //PolygonalCB.IsChecked ?? false, //RadiusCB.IsChecked ?? false,
+                false, //PolygonalCB.IsChecked ?? false, //EdgesCB.IsChecked ?? false,
                 true, //BarDCB.IsChecked ?? false,
-                true, //LinkDCB.IsChecked ?? false,
+                false, //LinkDCB.IsChecked ?? false,
                 true, //CGCB.IsChecked ?? false
             };
 
@@ -69,12 +79,12 @@ namespace ColumnDesign
                 MinYDim?.Text ?? "",
                 MinNX?.Text?.ToString() ?? "",
                 MinNY?.Text?.ToString() ?? "",
-                MinD?.Text ?? "",
-                MinNCirc?.Text?.ToString() ?? "",
-                MinRadius?.Text ?? "",
-                MinEdges?.Text ?? "",
+                "", //MinD?.Text ?? "",
+                "8", //MinNCirc?.Text?.ToString() ?? "",
+                "", //MinRadius?.Text ?? "",
+                "", //MinEdges?.Text ?? "",
                 MinBarDiameter?.Text?.ToString() ?? "",
-                MinLinkDiameter?.Text?.ToString() ?? "",
+                "10", //MinLinkDiameter?.Text?.ToString() ?? "",
                 MinCG?.Text?.ToString() ?? "",
             };
 
@@ -84,12 +94,12 @@ namespace ColumnDesign
                 MaxYDim?.Text ?? "",
                 MaxNX?.Text?.ToString() ?? "",
                 MaxNY?.Text?.ToString() ?? "",
-                MaxD?.Text ?? "",
-                MaxNCirc?.Text?.ToString() ?? "",
-                MaxRadius?.Text ?? "",
-                MaxEdges?.Text ?? "",
+                "", //MaxD?.Text ?? "",
+                "12", //MaxNCirc?.Text?.ToString() ?? "",
+                "", //MaxRadius?.Text ?? "",
+                "", //MaxEdges?.Text ?? "",
                 MaxBarDiameter?.Text?.ToString() ?? "",
-                MaxLinkDiameter?.Text?.ToString() ?? "",
+                "10", //MaxLinkDiameter?.Text?.ToString() ?? "",
                 MaxCG.Text?.ToString() ?? "",
             };
 
@@ -100,68 +110,18 @@ namespace ColumnDesign
                 if (Activations[i] && (Mins[i] == "" || Maxs[i] == ""))
                     error = true;
             }
-            if (Activations[0] && Convert.ToDouble(Mins[0]) > Convert.ToDouble(Maxs[0]))
-            {
-                LXmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[1] && Convert.ToDouble(Mins[1]) > Convert.ToDouble(Maxs[1]))
-            {
-                LYmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[2] && Convert.ToInt32(Mins[2]) > Convert.ToInt32(Maxs[2]))
-            {
-                NXmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[3] && Convert.ToInt32(Mins[3]) > Convert.ToInt32(Maxs[3]))
-            {
-                NYmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[4] && Convert.ToDouble(Mins[4]) > Convert.ToDouble(Maxs[4]))
-            {
-                Dmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[5] && Convert.ToInt32(Mins[5]) > Convert.ToInt32(Maxs[5]))
-            {
-                NCircmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[6] && Convert.ToDouble(Mins[6]) > Convert.ToDouble(Maxs[6]))
-            {
-                Radiusmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[7] && Convert.ToInt32(Mins[7]) > Convert.ToInt32(Maxs[7]))
-            {
-                Edgesmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-
-            if (Activations[8] && Convert.ToInt32(Mins[8]) > Convert.ToInt32(Maxs[8]))
-            {
-                Barmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[9] && Convert.ToInt32(Mins[9]) > Convert.ToInt32(Maxs[9]))
-            {
-                Linkmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-            if (Activations[10] && Convert.ToInt32(Mins[10].Substring(0, 2)) > Convert.ToInt32(Maxs[10].Substring(0, 2)))
-            {
-                CGmess.Text = "Incompatible Min and Max values";
-                error = true;
-            }
-
-            if (!(CostCB.IsChecked ?? false) && !(CarbonCB.IsChecked ?? false))
-            {
-                Drivermess.Text = "You must select at least one driver";
-                error = true;
-            }
+            if (Activations[0] && Convert.ToDouble(Mins[0]) > Convert.ToDouble(Maxs[0])) error = true;
+            if (Activations[1] && Convert.ToDouble(Mins[1]) > Convert.ToDouble(Maxs[1])) error = true;
+            if (Activations[2] && Convert.ToInt32(Mins[2]) > Convert.ToInt32(Maxs[2])) error = true;
+            if (Activations[3] && Convert.ToInt32(Mins[3]) > Convert.ToInt32(Maxs[3])) error = true;
+            if (Activations[4] && Convert.ToDouble(Mins[4]) > Convert.ToDouble(Maxs[4])) error = true;
+            if (Activations[5] && Convert.ToInt32(Mins[5]) > Convert.ToInt32(Maxs[5])) error = true;
+            if (Activations[6] && Convert.ToDouble(Mins[6]) > Convert.ToDouble(Maxs[6])) error = true;
+            if (Activations[7] && Convert.ToInt32(Mins[7]) > Convert.ToInt32(Maxs[7])) error = true;
+            if (Activations[8] && Convert.ToInt32(Mins[8]) > Convert.ToInt32(Maxs[8])) error = true;
+            if (Activations[9] && Convert.ToInt32(Mins[9]) > Convert.ToInt32(Maxs[9])) error = true;
+            if (Activations[10] && Convert.ToInt32(Mins[10].Substring(0, 2)) > Convert.ToInt32(Maxs[10].Substring(0, 2))) error = true;
+            if (!(CostCB.IsChecked ?? false) && !(CarbonCB.IsChecked ?? false)) error = true;
 
             if (!error)
             {
@@ -182,11 +142,11 @@ namespace ColumnDesign
                 for (int i = i0; i <= i1; i++)
                     opti.BarDiameters.Add(vm.BarDiameters[i]);
 
-                i0 = vm.LinkDiameters.IndexOf(Convert.ToInt32(MinLinkDiameter.Text));
-                i1 = vm.LinkDiameters.IndexOf(Convert.ToInt32(MaxLinkDiameter.Text));
-                opti.LinkDiameters = new List<int>();
-                for (int i = i0; i <= i1; i++)
-                    opti.LinkDiameters.Add(vm.LinkDiameters[i]);
+                //i0 = vm.LinkDiameters.IndexOf(Convert.ToInt32(MinLinkDiameter.Text));
+                //i1 = vm.LinkDiameters.IndexOf(Convert.ToInt32(MaxLinkDiameter.Text));
+                //opti.LinkDiameters = new List<int>();
+                //for (int i = i0; i <= i1; i++)
+                //    opti.LinkDiameters.Add(vm.LinkDiameters[i]);
 
                 opti.DriversWeight = new double[2]
                 {
@@ -207,11 +167,27 @@ namespace ColumnDesign
                 {
                     IncrXDim.Text,
                     IncrYDim.Text,
-                    IncrD.Text,
-                    IncrRadius.Text
+                    "", //IncrD.Text,
+                    "", //IncrRadius.Text
                 };
 
-                vm.MyBatchDesignView.OptimiseClusterDesigns();
+                if(LocalClusteringCB.IsChecked ?? false)
+                {
+                    vm.MyBatchDesignView.OptimiseClusterDesigns();
+                }
+                else if (GlobalClusteringCB.IsChecked ?? false)
+                {
+                    if (ListCB.IsChecked ?? false)
+                    {
+                        opti.Sizes = GetSizes();
+                        vm.MyBatchDesignView.OptimiseClusterDesignsDefinedSizes();
+                    }
+                    else if (DomainCB.IsChecked ?? false)
+                    {
+                        vm.MyBatchDesignView.OptimiseClusterDesigns();
+                    }
+                }
+                
             }
         }
 
@@ -328,74 +304,74 @@ namespace ColumnDesign
         //    MaxEdges.IsEnabled = val;
         //}
 
-        private void RectangularCB_Checked(object sender, RoutedEventArgs e)
-        {
-            bool val = RectangularCB.IsChecked ?? false;
-            LXCB.IsEnabled = val;
-            LYCB.IsEnabled = val;
-            NXCB.IsEnabled = val;
-            NYCB.IsEnabled = val;
-            if (!val)
-            {
-                MinXDim.IsEnabled = val;
-                MaxXDim.IsEnabled = val;
-                MinYDim.IsEnabled = val;
-                MaxYDim.IsEnabled = val;
-                IncrXDim.IsEnabled = val;
-                IncrYDim.IsEnabled = val;
-                MinNX.IsEnabled = val;
-                MaxNX.IsEnabled = val;
-                MinNY.IsEnabled = val;
-                MaxNY.IsEnabled = val;
-                //SquareCB.IsEnabled = val;
-            }
-            else
-            {
-                //LXCB_Checked(sender, e);
-                //LYCB_Checked(sender, e);
-                //NXCB_Checked(sender, e);
-                //NYCB_Checked(sender, e);
-            }
-        }
+        //private void RectangularCB_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    bool val = RectangularCB.IsChecked ?? false;
+        //    LXCB.IsEnabled = val;
+        //    LYCB.IsEnabled = val;
+        //    NXCB.IsEnabled = val;
+        //    NYCB.IsEnabled = val;
+        //    if (!val)
+        //    {
+        //        MinXDim.IsEnabled = val;
+        //        MaxXDim.IsEnabled = val;
+        //        MinYDim.IsEnabled = val;
+        //        MaxYDim.IsEnabled = val;
+        //        IncrXDim.IsEnabled = val;
+        //        IncrYDim.IsEnabled = val;
+        //        MinNX.IsEnabled = val;
+        //        MaxNX.IsEnabled = val;
+        //        MinNY.IsEnabled = val;
+        //        MaxNY.IsEnabled = val;
+        //        //SquareCB.IsEnabled = val;
+        //    }
+        //    else
+        //    {
+        //        //LXCB_Checked(sender, e);
+        //        //LYCB_Checked(sender, e);
+        //        //NXCB_Checked(sender, e);
+        //        //NYCB_Checked(sender, e);
+        //    }
+        //}
 
-        private void CircularCB_Checked(object sender, RoutedEventArgs e)
-        {
-            bool val = CircularCB.IsChecked ?? false;
-            DCB.IsEnabled = val;
-            NCircCB.IsEnabled = val;
-            if (!val)
-            {
-                MinD.IsEnabled = val;
-                MaxD.IsEnabled = val;
-                IncrD.IsEnabled = val;
-                MinNCirc.IsEnabled = val;
-                MaxNCirc.IsEnabled = val;
-            }
-            else
-            {
-                //DCB_Checked(sender, e);
-                //NCircCB_Checked(sender, e);
-            }
-        }
+        //private void CircularCB_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    bool val = CircularCB.IsChecked ?? false;
+        //    DCB.IsEnabled = val;
+        //    NCircCB.IsEnabled = val;
+        //    if (!val)
+        //    {
+        //        MinD.IsEnabled = val;
+        //        MaxD.IsEnabled = val;
+        //        IncrD.IsEnabled = val;
+        //        MinNCirc.IsEnabled = val;
+        //        MaxNCirc.IsEnabled = val;
+        //    }
+        //    else
+        //    {
+        //        //DCB_Checked(sender, e);
+        //        //NCircCB_Checked(sender, e);
+        //    }
+        //}
 
-        private void PolygonalCB_Checked(object sender, RoutedEventArgs e)
-        {
-            bool val = PolygonalCB.IsChecked ?? false;
-            RadiusCB.IsEnabled = val;
-            EdgesCB.IsEnabled = val;
-            if (!val)
-            {
-                MinRadius.IsEnabled = val;
-                MaxRadius.IsEnabled = val;
-                MinEdges.IsEnabled = val;
-                MaxEdges.IsEnabled = val;
-            }
-            else
-            {
-                //RadiusCB_Checked(sender, e);
-                //EdgesCB_Checked(sender, e);
-            }
-        }
+        //private void PolygonalCB_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    bool val = PolygonalCB.IsChecked ?? false;
+        //    RadiusCB.IsEnabled = val;
+        //    EdgesCB.IsEnabled = val;
+        //    if (!val)
+        //    {
+        //        MinRadius.IsEnabled = val;
+        //        MaxRadius.IsEnabled = val;
+        //        MinEdges.IsEnabled = val;
+        //        MaxEdges.IsEnabled = val;
+        //    }
+        //    else
+        //    {
+        //        //RadiusCB_Checked(sender, e);
+        //        //EdgesCB_Checked(sender, e);
+        //    }
+        //}
         #endregion
 
         private void ShowLoadsCloud(object sender, RoutedEventArgs e)
@@ -412,9 +388,12 @@ namespace ColumnDesign
 
         public void StartBatchDesign()
         {
-            (this.DataContext as ViewModel).MyBatchDesignView.DisplayDesignClusters();
-            (this.DataContext as ViewModel).MyBatchDesignView.DisplayAllClusters();
-            (this.DataContext as ViewModel).MyBatchDesignView.GetCurrentPerformance();
+            BatchDesignView view = (this.DataContext as ViewModel).MyBatchDesignView;
+            
+            view.BatchDesign.Type = (GlobalClusteringCB.IsChecked ?? false) ? ClusteringType.Global : ClusteringType.Local;
+            view.DisplayDesignClusters();
+            view.DisplayAllClusters();
+            view.GetCurrentPerformance();
         }
 
         private void NClustersChanged(object sender, RoutedEventArgs e)
@@ -424,8 +403,11 @@ namespace ColumnDesign
             try
             {
                 int nc = Convert.ToInt32(tb.Text);
-                BatchDesign.NClusters = nc;
-                StartBatchDesign();
+                if(nc != BatchDesign.NClusters)
+                {
+                    BatchDesign.NClusters = nc;
+                    StartBatchDesign();
+                }
             }
             catch { }
         }
@@ -436,31 +418,105 @@ namespace ColumnDesign
             BatchColumnDesign BatchDesign = (this.DataContext as ViewModel).MyBatchDesignView.BatchDesign;
             try
             {
-                BatchDesign.Sigma = Convert.ToInt32(tb.Text);
-                StartBatchDesign();
+                double sig = Convert.ToInt32(tb.Text);
+                if(sig != BatchDesign.Sigma)
+                {
+                    BatchDesign.Sigma = sig;
+                    StartBatchDesign();
+                }
             }
             catch { }
         }
 
-        private void ExportClusters(object sender, RoutedEventArgs e)
+        private void AddClusterDesigns(object sender, RoutedEventArgs e)
         {
             ViewModel vm = (this.DataContext as ViewModel);
             List<Column> cols = new List<Column>();
             for (int i = 0; i < vm.MyBatchDesignView.BatchDesign.Clusters.Count; i++)
             {
                 Column col = vm.MyBatchDesignView.BatchDesign.Designs[i].Clone();
-                col.Name = "Cluster_" + i;
-                for(int j = 0; j < vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Count; j++)
+                col.Name = vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Name;
+                col.Loads = new List<Load>();
+                col.IsCluster = true;
+                col.ColsInCluster = new List<string>();
+                for (int j = 0; j < vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads.Count; j++)
                 {
-                    ClusterLoad cl = vm.MyBatchDesignView.BatchDesign.LoadClusters[i][j];
-                    Load l = cl.ParentColumn.Loads.First(m => m.Name == cl.Name);
-                    l.Name = "load " + j;
+                    ClusterLoad cl = vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads[j];
+                    string name = cl.Name.Replace(cl.ParentColumn.Name, "").Replace(" - ", "");
+                    Load l = cl.ParentColumn.Loads.First(m => m.Name == name).Clone();
+                    l.Name = l.Name.Insert(0, cl.ParentColumn.Name + " - ");
                     col.Loads.Add(l);
+                    col.ColsInCluster.Add(cl.ParentColumn.Name);
                 }
+                col.ColsInCluster = col.ColsInCluster.Distinct().ToList();
+                MaxLoadOnX(col);
                 col.SelectedLoad = col.Loads[0];
+                col.AllLoads = true;
                 cols.Add(col);
             }
             vm.MyColumns.AddRange(cols);
+
+            MessageBox.Show("Cluster designs added to the current list of column designs.","",MessageBoxButton.OK);
+
+        }
+
+        private void ApplyClusterDesigns(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = (this.DataContext as ViewModel);
+            List<Column> cols = new List<Column>();
+            for (int i = 0; i < vm.MyBatchDesignView.BatchDesign.Clusters.Count; i++)
+            {
+                // look for all columns present in the cluster
+                List<string> colsInCluster = new List<string>();
+                for (int j = 0; j < vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads.Count; j++)
+                {
+                    ClusterLoad cl = vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads[j];
+                    string name = cl.Name.Replace(cl.ParentColumn.Name, "").Replace(" - ", "");
+                    Load l = cl.ParentColumn.Loads.First(m => m.Name == name).Clone();
+                    l.Name = l.Name.Insert(0, cl.ParentColumn.Name + " - ");
+                    colsInCluster.Add(cl.ParentColumn.Name);
+                }
+                colsInCluster = colsInCluster.Distinct().ToList();
+
+                Column clusterCol = vm.MyBatchDesignView.BatchDesign.Designs[i];
+                // assign the cluster design to all the columns
+                for (int j = 0; j < colsInCluster.Count; j++)
+                {
+                    if (vm.MyColumns.Any(c => c.Name == colsInCluster[j]))
+                    {
+                        Column col = vm.MyColumns.Find(c => c.Name == colsInCluster[j]);
+                        int idx = vm.MyColumns.IndexOf(col);
+                        vm.MyColumns[idx].NRebarX = clusterCol.NRebarX;
+                        vm.MyColumns[idx].NRebarY = clusterCol.NRebarY;
+                        vm.MyColumns[idx].ConcreteGrade = clusterCol.ConcreteGrade;
+                        vm.MyColumns[idx].LX = clusterCol.LX;
+                        vm.MyColumns[idx].LY = clusterCol.LY;
+                        vm.MyColumns[idx].BarDiameter = clusterCol.BarDiameter;
+                    }
+                }
+            }
+
+            MessageBox.Show("Cluster designs applied to corresponding columns in the current list of designs.", "", MessageBoxButton.OK);
+        }
+
+        private void MaxLoadOnX(Column c)
+        {
+            c.AllLoads = true;
+            c.GetDesignMoments();
+            foreach(var load in c.Loads)
+            {
+                if(load.MEdy > load.MEdx)
+                {
+                    double val = load.MxBot;
+                    load.MxBot = load.MyBot;
+                    load.MyBot = val;
+
+                    val = load.MxTop;
+                    load.MxTop = load.MyTop;
+                    load.MyTop = val;
+                }
+            }
+            c.Loads.ForEach(l => { l.MEdx = 0; l.MEdy = 0; });
         }
 
         private void ClusteringMethodChanged(object sender, RoutedEventArgs e)
@@ -469,6 +525,46 @@ namespace ColumnDesign
             ClusteringMethod m = (ClusteringMethod)Enum.Parse(typeof(ClusteringMethod), text);
             (this.DataContext as ViewModel).MyBatchDesignView.BatchDesign.Method = m;
             (this.DataContext as ViewModel).MyBatchDesignView.DisplayAllClusters();
+        }
+
+        public void Clustering_Clicked(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            BatchDesignView view = (this.DataContext as ViewModel).MyBatchDesignView;
+            if (cb.Name == "LocalClusteringCB")
+            {
+                view.BatchDesign.Type = ClusteringType.Local;
+                if ((GlobalClusteringCB.IsChecked ?? false) && (LocalClusteringCB.IsChecked ?? false))
+                {
+                    view.DisplayAllClusters();
+                }
+                LocalClusteringCB.IsChecked = true;
+                GlobalClusteringCB.IsChecked = false;
+            }
+            else if (cb.Name == "GlobalClusteringCB")
+            {
+                view.BatchDesign.Type = ClusteringType.Global;
+                if ((GlobalClusteringCB.IsChecked ?? false) && (LocalClusteringCB.IsChecked ?? false))
+                {
+                    view.DisplayAllClusters();
+                }
+                GlobalClusteringCB.IsChecked = true;
+                LocalClusteringCB.IsChecked = false;
+            }
+
+            bool b = GlobalClusteringCB.IsChecked ?? false;
+            DomainCB.IsEnabled = b;
+            MinXDim.IsEnabled = b;
+            MinYDim.IsEnabled = b;
+            MaxXDim.IsEnabled = b;
+            MaxYDim.IsEnabled = b;
+            IncrXDim.IsEnabled = b;
+            IncrYDim.IsEnabled = b;
+            ListCB.IsEnabled = b;
+            ColumnSizesTB.IsEnabled = b;
+
+            // update clustering
+            
         }
 
     }

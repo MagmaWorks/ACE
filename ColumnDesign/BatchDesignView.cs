@@ -17,7 +17,6 @@ using KnownColor = System.Drawing.KnownColor;
 
 namespace ColumnDesign
 {
-
     public class BatchDesignView : ViewModelBase
     {
         
@@ -51,6 +50,13 @@ namespace ColumnDesign
             set { designKeys = value; RaisePropertyChanged(nameof(DesignKeys)); }
         }
 
+        List<DesignKey> columnKeys;
+        public List<DesignKey> ColumnKeys
+        {
+            get { return columnKeys; }
+            set { columnKeys = value; RaisePropertyChanged(nameof(ColumnKeys)); }
+        }
+
         Model3D interactionDiagrams;
         public Model3D InteractionDiagrams
         {
@@ -65,8 +71,8 @@ namespace ColumnDesign
             set { batchDesign = value; RaisePropertyChanged(nameof(BatchDesign)); }
         }
 
-        ObservableCollection<Column> designs = new ObservableCollection<Column>();
-        public ObservableCollection<Column> Designs
+        ObservableCollection<Design> designs = new ObservableCollection<Design>();
+        public ObservableCollection<Design> Designs
         {
             get { return designs; }
             set { designs = value; RaisePropertyChanged(nameof(Designs)); }
@@ -109,14 +115,31 @@ namespace ColumnDesign
             set { method = value; RaisePropertyChanged(nameof(Method)); }
         }
 
-        string optiSize;
-        public string OptiSize
+        string optiMessage;
+        public string OptiMessage
         {
-            get { return optiSize; }
-            set { optiSize = value; RaisePropertyChanged(nameof(OptiSize)); }
+            get { return optiMessage; }
+            set { optiMessage = value; RaisePropertyChanged(nameof(OptiMessage)); }
         }
 
-        public List<Color> colors = new List<Color>
+        int numberOfColumns;
+        public int NumberOfColumns
+        {
+            get { return numberOfColumns; }
+            set { numberOfColumns = value; RaisePropertyChanged(nameof(NumberOfColumns)); }
+        }
+
+        int numberOfColumns_Designs;
+        public int NumberOfColumns_Designs
+        {
+            get { return numberOfColumns_Designs; }
+            set { numberOfColumns_Designs = value; RaisePropertyChanged(nameof(NumberOfColumns_Designs)); }
+        }
+
+
+        public int ActiveCluster = -1;
+
+        public List<Color> myColors = new List<Color>
         {
             Color.FromArgb(255, 255, 50, 50),
             Color.FromArgb(255, 50, 255, 50),
@@ -135,8 +158,8 @@ namespace ColumnDesign
 
         };
 
-    // CONSTRUCTOR
-    public BatchDesignView()
+        // CONSTRUCTOR
+        public BatchDesignView()
         {
             //InitializeColors();
         }
@@ -150,14 +173,17 @@ namespace ColumnDesign
 
         void ReportProgress(TaskAsyncProgress value)
         {
-            if(value.Updated && (value.Col.CapacityCheck ?? false))
+            List<Color> colors = GetColors();
+            if (value.Updated && (value.Col.CapacityCheck ?? false))
             {
                 DisplayInteractionDiagram(value.Col, colors[Optimiser.Index].ChangeAlpha(50));
-                designs[Optimiser.Index] = value.Col;
-                RaisePropertyChanged(nameof(Designs));
+                designs[Optimiser.Index].Col = value.Col.Clone();
+                designs[Optimiser.Index].Status = DesignStatus.DesignFound;
                 GetOptimiserPerformance();
             }
             ProgressPercentage = value.ProgressPercentage;
+            designs[Optimiser.Index].Progress = value.ProgressPercentage;
+            RaisePropertyChanged(nameof(Designs));
         }
         
         public void DisplayDesignClusters(bool updateKeys = true, bool generate = true)
@@ -178,13 +204,14 @@ namespace ColumnDesign
                     double zlength = (c.Point2.Z - c.Point1.Z) * 1e-3;
                     meshBuilder.AddBox(center, xlength, ylength, zlength);
                 }
-                var mesh = new GeometryModel3D(meshBuilder.ToMesh(), MaterialHelper.CreateMaterial(colors[i].ChangeAlpha(150)));
+                var mesh = new GeometryModel3D(meshBuilder.ToMesh(), MaterialHelper.CreateMaterial(myColors[i].ChangeAlpha(150)));
                 mesh.BackMaterial = mesh.Material;
                 modelGroup.Children.Add(mesh);
             }
             ClusteredDesigns = modelGroup;
 
             if (updateKeys) DisplayDesignClustersKeys();
+            NumberOfColumns_Designs = designClusters.Sum(c => c.Count);
         }
 
         public void DisplayOneDesignCluster(int n)
@@ -192,7 +219,6 @@ namespace ColumnDesign
             //BatchDesign.GetDesignClusters();
             var modelGroup = new Model3DGroup();
             List<List<Column>> designClusters = BatchDesign.DesignClusters;
-
             for (int i = 0; i < designClusters.Count; i++)
             {
                 MeshBuilder meshBuilder = new MeshBuilder(false, true);
@@ -205,12 +231,13 @@ namespace ColumnDesign
                     double zlength = (c.Point2.Z - c.Point1.Z) * 1e-3;
                     meshBuilder.AddBox(center, xlength, ylength, zlength);
                 }
-                Color col = i == n ? colors[i].ChangeAlpha(150) : colors[i].ChangeAlpha(20);
+                Color col = i == n ? myColors[i].ChangeAlpha(150) : myColors[i].ChangeAlpha(20);
                 var mesh = new GeometryModel3D(meshBuilder.ToMesh(), MaterialHelper.CreateMaterial(col));
                 mesh.BackMaterial = mesh.Material;
                 modelGroup.Children.Add(mesh);
             }
             ClusteredDesigns = modelGroup;
+            NumberOfColumns_Designs = designClusters[n].Count;
         }
 
         public void DisplayDesignClustersKeys()
@@ -220,25 +247,48 @@ namespace ColumnDesign
             List<List<Column>> designClusters = BatchDesign.DesignClusters;
             for (int i = 0; i < designClusters.Count; i++)
             {
+                string name = "Unnamed";
+                if (designClusters[i][0].LX != 0)
+                    name = designClusters[i][0].LX + " x " + designClusters[i][0].LY;
+                else
+                    name = "D" + designClusters[i][0].Diameter;
                 designKeys.Add(new DesignKey()
                 {
-                    Label = designClusters[i][0].LX + " x " + designClusters[i][0].LY,
-                    Color = new SolidColorBrush(colors[i]),
+                    Label = name,
+                    Color = new SolidColorBrush(myColors[i]),
                     Index = i,
                 });
             }
             RaisePropertyChanged(nameof(DesignKeys));
         }
 
-        public void DisplayAllColumnsClusters()
+        public void DisplayColumnClustersKeys()
+        {
+            List<Color> colors = GetColors();
+            // update keys
+            columnKeys = new List<DesignKey>();
+            List<Cluster> clusters = BatchDesign.LoadClusters;
+            for (int i = 0; i < clusters.Count; i++)
+            {
+                columnKeys.Add(new DesignKey()
+                {
+                    Label = clusters[i].Name,
+                    Color = new SolidColorBrush(colors[i]),
+                    Index = i,
+                });
+            }
+            RaisePropertyChanged(nameof(ColumnKeys));
+        }
+
+        public void DisplayAllColumnsClusters(bool updateKeys = true)
         {
             var modelGroup = new Model3DGroup();
-            List<List<ClusterLoad>> loadClusters = BatchDesign.LoadClusters;
-
+            List<Cluster> loadClusters = BatchDesign.LoadClusters;
+            List<Color> colors = GetColors();
             for (int i = 0; i < loadClusters.Count; i++)
             {
                 MeshBuilder meshBuilder = new MeshBuilder(false, true);
-                List<Column> columns = loadClusters[i].Select(p => p.ParentColumn).Distinct().ToList();
+                List<Column> columns = loadClusters[i].Loads.Select(p => p.ParentColumn).Distinct().ToList();
                 foreach (var c in columns)
                 {
                     Point3D center = new Point3D(c.Point1.X * 1e-3, c.Point1.Y * 1e-3, c.Point1.Z * 1e-3);
@@ -252,17 +302,20 @@ namespace ColumnDesign
                 modelGroup.Children.Add(mesh);
             }
             ClusteredColumns = modelGroup;
+
+            if (updateKeys) DisplayColumnClustersKeys();
+            NumberOfColumns = loadClusters.SelectMany(c => c.Loads.Select(l => l.ParentColumn)).Distinct().Count();
         }
 
         public void DisplayOneColumnsCluster(int n)
         {
             var modelGroup = new Model3DGroup();
-            List<List<ClusterLoad>> loadClusters = BatchDesign.LoadClusters;
-
+            List<Cluster> loadClusters = BatchDesign.LoadClusters;
+            List<Color> colors = GetColors();
             for (int i = 0; i < loadClusters.Count; i++)
             {
                 MeshBuilder meshBuilder = new MeshBuilder(false, true);
-                List<Column> columns = loadClusters[i].Select(p => p.ParentColumn).Distinct().ToList();
+                List<Column> columns = loadClusters[i].Loads.Select(p => p.ParentColumn).Distinct().ToList();
                 foreach (var c in columns)
                 {
                     Point3D center = new Point3D(c.Point1.X * 1e-3, c.Point1.Y * 1e-3, c.Point1.Z * 1e-3);
@@ -278,13 +331,16 @@ namespace ColumnDesign
             }
 
             ClusteredColumns = modelGroup;
+            NumberOfColumns = loadClusters[n].Loads.Select(l => l.ParentColumn).Distinct().Count();
         }
 
-        public void DisplayAllClusters(bool compute = true)
+        public void DisplayAllClusters(bool compute = true, bool updateKeys = true)
         {
             var modelGroup = new Model3DGroup();
             if(compute) BatchDesign.GenerateLoadsClustering();
             List<List<MWPoint3D>> clusters = BatchDesign.Clusters;
+
+            List<Color> colors = GetColors();
 
             for (int i = 0; i < clusters.Count; i++)
             {
@@ -300,7 +356,7 @@ namespace ColumnDesign
             }
 
             LoadsCloud = modelGroup;
-            DisplayAllColumnsClusters();
+            DisplayAllColumnsClusters(updateKeys);
         }
 
         public void DisplayOneCluster(int n)
@@ -308,6 +364,7 @@ namespace ColumnDesign
             var modelGroup = new Model3DGroup();
             List<List<MWPoint3D>> clusters = BatchDesign.Clusters;
             Console.WriteLine("Displaying cluster number {0}", n);
+            List<Color> colors = GetColors();
             for (int i = 0; i < clusters.Count; i++)
             {
                 var pointMesh = new MeshBuilder(false, true);
@@ -326,9 +383,30 @@ namespace ColumnDesign
             DisplayOneColumnsCluster(n);
         }
 
+        public List<Color> GetColors()
+        {
+            if (batchDesign.Type == ClusteringType.Local)
+            {
+                List<Color> colors = new List<Color>();
+                for (int i = 0; i < myColors.Count; i++)
+                {
+                    for (int j = 0; j < batchDesign.NClusters; j++)
+                    {
+                        double factor = batchDesign.NClusters > 1 ? factor = 0.6 + j * (1.0 - 0.6) / (batchDesign.NClusters - 1) : 1;
+                        colors.Add(myColors[i].ChangeIntensity(factor));
+                    }
+                }
+                return colors;
+            }
+            else if (batchDesign.Type == ClusteringType.Global)
+                return myColors;
+            return null;
+        }
+
         public void DisplayInteractionDiagrams(List<Column> columns)
         {
             var modelGroup = new Model3DGroup();
+            List<Color> colors = GetColors();
             for (int i = 0; i < columns.Count; i++)
             {
                 if (columns[i].diagramVertices.Count == 0) continue;
@@ -387,6 +465,9 @@ namespace ColumnDesign
             return mesh;
         }
 
+        /// <summary>
+        /// Optimisation when column sizes are kept as original or when completely released
+        /// </summary>
         public async void OptimiseClusterDesigns()
         {
             //for(int i = 0; i < NClusters; i++)
@@ -394,9 +475,111 @@ namespace ColumnDesign
             {
                 BatchDesign.Designs = new List<Column>();
                 int ncg = Optimiser.ConcreteGrades.Count - 1;
-                designs = new ObservableCollection<Column>();
+                designs = new ObservableCollection<Design>();
+                for (int i = 0; i < BatchDesign.NClustersTot; i++)
+                {
+                    designs.Add(new Design() 
+                    { 
+                        Col = new Column()
+                        {
+                            Name = BatchDesign.LoadClusters[i].Name,
+                            LX = 200,
+                            LY = 200,
+                            Diameter = 200,
+                            NRebarX = 2,
+                            NRebarY = 2,
+                            NRebarCirc = 3,
+                            ConcreteGrade = Optimiser.ConcreteGrades[ncg],
+                            Loads = new List<Load>()
+                        },
+                        Status = DesignStatus.NotDesigned
+                    });
+                }
+            }
+
+            for (int i = 0; i < BatchDesign.NClustersTot; i++)
+            {
+                if (BatchDesign.LoadClusters[i].Loads.Count == 0) continue;
+                DisplayOneCluster(i);
+                ActiveCluster = i;
+                InteractionDiagrams = new Model3DGroup();
+                Column ClusterCol = new Column()
+                {
+                    Name = BatchDesign.LoadClusters[i].Name,
+                    LX = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.LX,
+                    LY = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.LY,
+                    Diameter = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.Diameter,
+                    Shape = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.Shape,
+                    Loads = new List<Load>(),
+                    ConcreteGrade = Optimiser.ConcreteGrades[0],
+                    SteelGrade = Optimiser.SteelGrades[0],
+                    NRebarX = 7, //Convert.ToInt32(Mins[2]),
+                    NRebarY = 7, //Convert.ToInt32(Mins[3]),
+                    NRebarCirc = 8,
+                    //Diameter = 20, //Convert.ToDouble(Optimiser.Mins[4]),
+                    //NRebarCirc = Convert.ToInt32(Optimiser.Mins[5]),
+                    //Radius = Convert.ToDouble(Optimiser.Mins[6]),
+                    //Edges = Convert.ToInt32(Optimiser.Mins[7]),
+                    BarDiameter = Convert.ToInt32(Optimiser.Mins[8]),
+                    LinkDiameter = Convert.ToInt32(Optimiser.Mins[9]),
+                    AllLoads = true
+                };
+                ClusterCol.Loads = BatchDesign.LoadClusters[i].Loads.Select(l => new Load()
+                {
+                    MEdx = l.Load.X,
+                    MEdy = l.Load.Y,
+                    P = l.Load.Z
+                }).ToList();
+                Optimiser.Index = i;
+
+                // Initialization
+                Column col = ClusterCol.Clone();
+                Optimiser.column = col;
+                Optimiser.Initialize();
+
+                int k = 1;
+                designs[i].Status = DesignStatus.InProgress;
+                while (designs[i].Status == DesignStatus.InProgress)
+                {
+                    OptiMessage = BatchDesign.LoadClusters[i].Name + " - iteration " + k;
+                    await ColumnDesignOpti_Async();
+                    k++;
+                }
+                designs[i].Status = DesignStatus.Designed;
+                BatchDesign.Designs.Add(designs[i].Col.Clone());
+                ProgressPercentageMain = Convert.ToInt32( ( i + 1 ) * 1.0 / ( BatchDesign.NClustersTot ) * 100);
+            }
+
+            ActiveCluster = -1;
+            DisplayAllClusters(false);
+            InteractionDiagrams = new Model3DGroup(); // removes last interaction diagram
+            //DisplayInteractionDiagrams(Designs.ToList());
+        }
+
+        /// <summary>
+        /// Optimisation when column sizes to be taken from the predefined list
+        /// </summary>
+        public async void OptimiseClusterDesignsDefinedSizes()
+        {
+            //for(int i = 0; i < NClusters; i++)
+            if (BatchDesign.Designs == null ? true : BatchDesign.Designs.Count == 0)
+            {
+                BatchDesign.Designs = new List<Column>();
+                int ncg = Optimiser.ConcreteGrades.Count - 1;
+                designs = new ObservableCollection<Design>();
                 for (int i = 0; i < BatchDesign.NClusters; i++)
-                    designs.Add(new Column() { LX = 800, LY = 800, NRebarX = 5, NRebarY = 5, ConcreteGrade = Optimiser.ConcreteGrades[ncg] });
+                    designs.Add(new Design()
+                    {
+                        Col = new Column()
+                        {
+                            LX = 800,
+                            LY = 800,
+                            NRebarX = 5,
+                            NRebarY = 5,
+                            ConcreteGrade = Optimiser.ConcreteGrades[ncg]
+                        },
+                        Status = DesignStatus.NotDesigned
+                    });
             }
 
             for (int i = 0; i < BatchDesign.NClusters; i++)
@@ -413,7 +596,7 @@ namespace ColumnDesign
                     LY = 800, //Convert.ToInt32(Mins[1]),
                     NRebarX = 9, //Convert.ToInt32(Mins[2]),
                     NRebarY = 9, //Convert.ToInt32(Mins[3]),
-                    Diameter = 20, //Convert.ToDouble(Optimiser.Mins[4]),
+                    Diameter = 400, //Convert.ToDouble(Optimiser.Mins[4]),
                     NRebarCirc = Convert.ToInt32(Optimiser.Mins[5]),
                     Radius = Convert.ToDouble(Optimiser.Mins[6]),
                     Edges = Convert.ToInt32(Optimiser.Mins[7]),
@@ -421,7 +604,7 @@ namespace ColumnDesign
                     LinkDiameter = Convert.ToInt32(Optimiser.Mins[9]),
                     AllLoads = true
                 };
-                ClusterCol.Loads = BatchDesign.LoadClusters[i].Select(l => new Load()
+                ClusterCol.Loads = BatchDesign.LoadClusters[i].Loads.Select(l => new Load()
                 {
                     MEdx = l.Load.X,
                     MEdy = l.Load.Y,
@@ -437,9 +620,9 @@ namespace ColumnDesign
                 Optimiser.Initialize();
 
                 List<Column> clusterDesigns = new List<Column>();
-                for(int j = 0; j < Optimiser.Sizes.Count; j++)
+                for (int j = 0; j < Optimiser.Sizes.Count; j++)
                 {
-                    OptiSize = Optimiser.Sizes[j].Item1 + " x " + Optimiser.Sizes[j].Item2;
+                    OptiMessage = Optimiser.Sizes[j].Item1 + " x " + Optimiser.Sizes[j].Item2;
                     ProgressPercentageMain = Convert.ToInt32((i * Optimiser.Sizes.Count + j) * 1.0 / (BatchDesign.NClusters * Optimiser.Sizes.Count) * 100);
                     ClusterCol.LX = Optimiser.Sizes[j].Item1;
                     ClusterCol.LY = Optimiser.Sizes[j].Item2;
@@ -453,7 +636,7 @@ namespace ColumnDesign
             }
 
             DisplayAllClusters(false);
-            DisplayInteractionDiagrams(Designs.ToList());
+            //DisplayInteractionDiagrams(Designs.ToList());
         }
 
         public void GetCurrentPerformance()
@@ -479,19 +662,20 @@ namespace ColumnDesign
             
             double carb = 0;
             double vol = 0;
-            List<List<Column>> optiCols = batchDesign.LoadClusters.Select(l => l.Select(lc => lc.ParentColumn).ToList()).Distinct().ToList();
+            List<List<Column>> optiCols = batchDesign.LoadClusters.Select(l => l.Loads.Select(lc => lc.ParentColumn).Distinct().Select(c => c.Clone()).ToList()).ToList();
             int tot = optiCols.SelectMany(l => l.Select(c => c).ToList()).ToList().Count;
             Console.WriteLine("num tot columns : {0}", tot);
             for(int i = 0; i < optiCols.Count; i++)
             {
+                if (optiCols[i].Count == 0) continue;
                 optiCols[i].ForEach(c =>
                 {
-                    c.LX = designs[i].LX;
-                    c.LY = designs[i].LY;
-                    c.NRebarX = designs[i].NRebarX;
-                    c.NRebarY = designs[i].NRebarY;
-                    c.BarDiameter = designs[i].BarDiameter;
-                    c.ConcreteGrade = designs[i].ConcreteGrade;
+                    c.LX = designs[i].Col.LX;
+                    c.LY = designs[i].Col.LY;
+                    c.NRebarX = designs[i].Col.NRebarX;
+                    c.NRebarY = designs[i].Col.NRebarY;
+                    c.BarDiameter = designs[i].Col.BarDiameter;
+                    c.ConcreteGrade = designs[i].Col.ConcreteGrade;
                 });
                 foreach(var c in optiCols[i])
                 {
@@ -521,5 +705,30 @@ namespace ColumnDesign
     {
         public double Carbon { get; set; }
         public double ConcreteVolume { get; set; }
+    }
+
+    public enum DesignStatus { Designed, InProgress, NotDesigned, DesignFound}
+    public class Design : ViewModelBase
+    {
+        Column col;
+        public Column Col
+        {
+            get { return col; }
+            set { col = value; RaisePropertyChanged(nameof(Col)); }
+        }
+
+        DesignStatus status = DesignStatus.NotDesigned;
+        public DesignStatus Status
+        {
+            get { return status; }
+            set { status = value; RaisePropertyChanged(nameof(Status)); }
+        }
+
+        int progress = 0;
+        public int Progress
+        {
+            get { return progress; }
+            set { progress = value; RaisePropertyChanged(nameof(Progress)); }
+        }
     }
 }

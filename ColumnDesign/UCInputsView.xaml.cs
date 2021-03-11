@@ -768,11 +768,12 @@ namespace ColumnDesign
                 Owner = Application.Current.MainWindow,
                 Content = new UCLoads(),
                 DataContext = vm,
-                SizeToContent = SizeToContent.WidthAndHeight,
+                Height = 800,
+                SizeToContent = SizeToContent.Width,
                 Left = position.X,
                 Top = position.Y,
                 WindowStartupLocation = WindowStartupLocation.Manual,
-                ResizeMode = ResizeMode.NoResize
+                ResizeMode = ResizeMode.CanResize
             };
             w.ShowDialog();
 
@@ -785,7 +786,7 @@ namespace ColumnDesign
             ViewModel vm = this.DataContext as ViewModel;
             if(cb.IsChecked ?? false)
             {
-                vm.SelectedColumn.AllLoads = true;
+                //vm.SelectedColumn.AllLoads = true;
                 vm.UpdateColumn();
                 Loadcb.IsEnabled = false;
                 Ptb.IsEnabled = false;
@@ -796,7 +797,7 @@ namespace ColumnDesign
             }
             else
             {
-                vm.SelectedColumn.AllLoads = false;
+                //vm.SelectedColumn.AllLoads = false;
                 vm.UpdateColumn();
                 Loadcb.IsEnabled = true;
                 Ptb.IsEnabled = true;
@@ -819,11 +820,12 @@ namespace ColumnDesign
                 Owner = Application.Current.MainWindow,
                 Content = new UCColumns(),
                 DataContext = vm,
-                SizeToContent = SizeToContent.WidthAndHeight,
+                SizeToContent = SizeToContent.Width,
+                Height = 800,
                 Left = position.X,
                 Top = position.Y,
                 WindowStartupLocation = WindowStartupLocation.Manual,
-                ResizeMode = ResizeMode.NoResize
+                ResizeMode = ResizeMode.CanResize
             };
             w.ShowDialog();
             PropertyInfo[] colProperties = Type.GetType(typeof(Column).AssemblyQualifiedName).GetProperties();

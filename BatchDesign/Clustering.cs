@@ -85,30 +85,35 @@ namespace BatchDesign
             return clusters;
         }
 
-        public static (List<List<ClusterLoad>>,List<MWPoint3D>) KMeans(List<Column> cols, int Nc)
+        public static (List<Cluster>, List<MWPoint3D>) KMeans(List<Column> cols, int Nc)
         {
             // data
-            List<ClusterLoad> dataN = cols.SelectMany(c => c.Loads.Select(l => new ClusterLoad(new MWPoint3D(l.MEdx, l.MEdy, l.P), c, l.Name))).ToList();
+            //List<ClusterLoad> data = cols.SelectMany(c => c.Loads.Select(l => new ClusterLoad(new MWPoint3D(l.MEdx, l.MEdy, l.P), c, "C"+c.Name + " - " + l.Name))).ToList();
+
+            // columns are clustered according to their mean load
+            List<ClusterLoad> loadAvg = cols.Select(c => GetAverageLoad(c)).ToList();
 
             // means and cluster initializations
             List<MWPoint3D> means = new List<MWPoint3D>();
-            List<List<ClusterLoad>> clusters = new List<List<ClusterLoad>>();
+            List<Cluster> clusters = new List<Cluster>();
             Random r = new Random();
+            List<ClusterLoad> dataTemp = loadAvg.Select(d => d.Clone()).ToList();
             for (int i = 0; i < Nc; i++)
             {
-                int n = (int)Math.Truncate(dataN.Count * r.NextDouble());
-                means.Add(dataN[n].Load);
-                clusters.Add(new List<ClusterLoad>());
+                int n = (int)Math.Truncate(dataTemp.Count * r.NextDouble());
+                means.Add(dataTemp[n].Load);
+                dataTemp.RemoveAt(n);
+                clusters.Add(new Cluster());
             }
 
             // assignement initialization
-            foreach (var p in dataN)
+            foreach (var p in loadAvg)
             {
                 List<double> distances = new List<double>();
                 for (int i = 0; i < Nc; i++)
                     distances.Add(Points.Distance3D(p.Load, means[i]));
                 int imin = distances.IndexOf(distances.Min());
-                clusters[imin].Add(p);
+                clusters[imin].Loads.Add(p);
             }
 
             int moves = 1;
@@ -117,44 +122,100 @@ namespace BatchDesign
                 // means update
                 for (int i = 0; i < Nc; i++)
                 {
-                    double x = clusters[i].Sum(p => p.Load.X) / clusters[i].Count;
-                    double y = clusters[i].Sum(p => p.Load.Y) / clusters[i].Count;
-                    double z = clusters[i].Sum(p => p.Load.Z) / clusters[i].Count;
+                    double x = clusters[i].Loads.Sum(p => p.Load.X) / clusters[i].Loads.Count;
+                    double y = clusters[i].Loads.Sum(p => p.Load.Y) / clusters[i].Loads.Count;
+                    double z = clusters[i].Loads.Sum(p => p.Load.Z) / clusters[i].Loads.Count;
                     means[i] = new MWPoint3D(x, y, z);
+
+                    // particular case where a cluster has no element
+                    if (Double.IsNaN(means[i].X))
+                        means[i] = new MWPoint3D(0, 0, 0);
                 }
 
                 // assignment update
                 moves = 0;
-                List<List<ClusterLoad>> clustersTemp = new List<List<ClusterLoad>>();
+                List<Cluster> clustersTemp = new List<Cluster>();
                 for (int i = 0; i < Nc; i++)
-                    clustersTemp.Add(new List<ClusterLoad>());
+                    clustersTemp.Add(new Cluster());
 
                 for (int i = 0; i < Nc; i++)
                 {
-                    for (int k = 0; k < clusters[i].Count; k++)
+                    for (int k = 0; k < clusters[i].Loads.Count; k++)
                     {
                         List<double> distances = new List<double>();
                         for (int j = 0; j < Nc; j++)
-                            distances.Add(Points.Distance3D(clusters[i][k].Load, means[j]));
+                            distances.Add(Points.Distance3D(clusters[i].Loads[k].Load, means[j]));
                         int imin = distances.IndexOf(distances.Min());
                         if (imin != i)
                         {
-                            clustersTemp[imin].Add(clusters[i][k]);
+                            clustersTemp[imin].Loads.Add(clusters[i].Loads[k]);
                             moves++;
                         }
                         else
-                            clustersTemp[i].Add(clusters[i][k]);
+                            clustersTemp[i].Loads.Add(clusters[i].Loads[k]);
                     }
                 }
                 for (int i = 0; i < Nc; i++)
                     clusters[i] = clustersTemp[i];
 
+
             }
 
-            return (clusters, means);
+            // Distribute columns load into clusters
+            List<Cluster> clustersOut = clusters.Select(c => new Cluster()
+            {
+                Loads = c.Loads.SelectMany(
+                cl => cl.ParentColumn.Loads.Select(
+                    l => new ClusterLoad(new MWPoint3D(l.MEdx, l.MEdy, l.P), cl.ParentColumn, cl.ParentColumn.Name + " - " + l.Name))).ToList()
+            }).ToList();
+
+            if (!clustersOut.All(c => c.Loads.Count > 0))
+                return KMeans(cols, Nc);
+            else
+                return (clustersOut, means);
+        }
+
+        public static List<Cluster> RegroupColumns(List<Column> cols, List<Cluster> clusters)
+        {
+            for(int i = 0; i < cols.Count; i++)
+            {
+                string name = "C" + cols[i].Name + " ";
+                Cluster cl0 = clusters.First(x => x.Loads.Select(l => l.Name).Any(l => l.Contains(name)));
+                foreach(var cl in clusters)
+                {
+                    if(cl != cl0)
+                    {
+                        var loads = cl.Loads.Where(x => x.Name.Contains(name)).ToList();
+                        for(int j = 0; j < loads.Count; j++)
+                        {
+                            cl.Loads.Remove(loads[j]);
+                            cl0.Loads.Add(loads[j]);
+                        }
+                    }
+                }
+            }
+            return clusters;
         }
     
-        public static List<List<ClusterLoad>> SpectralClustering(List<Column> cols, int Nc, SpectralNorm norm, double sigma = 1e3)
+        public static ClusterLoad GetAverageLoad(Column col)
+        {
+            double MEdx = 0;
+            double MEdy = 0;
+            double P = 0;
+            int N = col.Loads.Count;
+            for (int i = 0; i < N; i++)
+            {
+                MEdx += col.Loads[i].MEdx;
+                MEdy += col.Loads[i].MEdy;
+                P += col.Loads[i].P;
+            }
+            MEdx /= N;
+            MEdy /= N;
+            P /= N;
+            return new ClusterLoad(new MWPoint3D(MEdx, MEdy, P), col, col.Name);
+        }
+
+        public static List<Cluster> SpectralClustering(List<Column> cols, int Nc, SpectralNorm norm, double sigma = 1e3)
         {
             // data
             List<ClusterLoad> dataN = cols.SelectMany(c => c.Loads.Select(l => new ClusterLoad(new MWPoint3D(l.MEdx, l.MEdy, l.P), c, l.Name))).ToList();
@@ -219,18 +280,18 @@ namespace BatchDesign
             List<List<Vector<double>>> clusters = KMeans(X);
 
             // Assignment of column loads to their cluster
-            List<List<ClusterLoad>> res = new List<List<ClusterLoad>>();
+            List<Cluster> res = new List<Cluster>();
             List<Vector<double>> rows = X.EnumerateRows().ToList();
             if(norm == SpectralNorm.SymmetricDivision) X = X.NormalizeRows(2);
                 
             for(int i = 0; i < Nc; i++)
             {
-                res.Add(new List<ClusterLoad>());
+                res.Add(new Cluster());
                 List<Vector<double>> cluster = clusters[i];
                 for(int j = 0; j < clusters[i].Count; j++)
                 {
                     int ind = rows.IndexOf(cluster[j]);
-                    res[i].Add(dataN[ind]);
+                    res[i].Loads.Add(dataN[ind]);
                 }
             }
 
@@ -317,5 +378,22 @@ namespace BatchDesign
             Name = name;
         }
 
+        public ClusterLoad Clone()
+        {
+            return new ClusterLoad(this.Load, this.ParentColumn.Clone(), this.Name);
+        }
+
+    }
+
+    public class Cluster
+    {
+        public List<ClusterLoad> Loads { get; set; }
+        public string Name { get; set; }
+
+        public Cluster()
+        {
+            Loads = new List<ClusterLoad>();
+            Name = "Untitled";
+        }
     }
 }

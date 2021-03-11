@@ -7,6 +7,42 @@
              xmlns:h="http://helix-toolkit.org/wpf"
              mc:Ignorable="d" >
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl  ItemsSource="{Binding ColumnKeys}" HorizontalAlignment="Right">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical" Background="Transparent"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel 
+                        Tag="{Binding Index}"
+                        Orientation="Horizontal" 
+                        Margin="2"
+                        MouseEnter="HighlightGroup"
+                        MouseLeave="EndHighlight"
+                        >
+                            <Rectangle 
+                            Fill="{Binding Color}"
+                            Stroke="Black"
+                            Width="30"
+                            Height="15"/>
+                            <TextBlock 
+                            Margin="10 0 0 0"
+                            Text="{Binding Label}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+
         <StackPanel Orientation="Vertical" Margin="5">
             <TextBlock 
                 FontSize="16"
@@ -26,5 +62,9 @@
             <h:CoordinateSystemVisual3D/>
             <ModelVisual3D Content="{Binding ClusteredColumns}"/>
         </h:HelixViewport3D>
+
+        <TextBlock VerticalAlignment="Bottom" FontSize="10">
+            <Run Text="{Binding NumberOfColumns}"/> columns
+        </TextBlock>
     </Grid>
 </UserControl>

@@ -197,10 +197,12 @@
       <DependentUpon>AutoDesign.xaml</DependentUpon>
     </Compile>
     <Compile Include="BatchDesignView.cs" />
+    <Compile Include="ProjectView.cs" />
+    <Compile Include="ReportCreator.cs" />
     <Compile Include="UCBatchDesign.xaml.cs">
       <DependentUpon>UCBatchDesign.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CalcsColumn.cs" />
+    <Compile Include="SaveFormats.cs" />
     <Compile Include="ClosingWindow.xaml.cs">
       <DependentUpon>ClosingWindow.xaml</DependentUpon>
     </Compile>
@@ -254,9 +256,6 @@
     <Compile Include="UCColumns.xaml.cs">
       <DependentUpon>UCColumns.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UCFireDesign.xaml.cs">
-      <DependentUpon>UCFireDesign.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UCInputsView.xaml.cs">
       <DependentUpon>UCInputsView.xaml</DependentUpon>
     </Compile>
@@ -269,8 +268,14 @@
     <Compile Include="UCOutputsView.xaml.cs">
       <DependentUpon>UCOutputsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UCProjectView.xaml.cs">
+      <DependentUpon>UCProjectView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCSettings.xaml.cs">
       <DependentUpon>UCSettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UCWordReport.xaml.cs">
+      <DependentUpon>UCWordReport.xaml</DependentUpon>
     </Compile>
     <Compile Include="UCYieldSurface.xaml.cs">
       <DependentUpon>UCYieldSurface.xaml</DependentUpon>
@@ -354,10 +359,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UCFireDesign.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UCInputsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -374,7 +375,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCProjectView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UCWordReport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -490,6 +499,23 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\PointsCloud.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ToExcel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\AddDesigns.png" />
+    <Resource Include="Resources\ApplyDesigns.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Start.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\ExpandArrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\OpenAce.png" />
+    <Resource Include="Resources\OpenCol.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

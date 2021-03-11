@@ -5,14 +5,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ColumnDesign"
              mc:Ignorable="d" >
-    <Grid>
+    <Grid Background="#464e53">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="225"/>
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <ScrollViewer 
+            ScrollViewer.VerticalScrollBarVisibility="Auto">
 
-            <Grid Grid.Column="0" Background="LightGray">
+            <ScrollViewer.Resources>
+                <Style TargetType="CheckBox">
+                    <Setter Property="Foreground" Value="White"/>
+                </Style>
+            </ScrollViewer.Resources>
+
+            <Grid Grid.Column="0">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -24,7 +31,14 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    
                     <TextBlock Text="Column" Margin="5 5 5 5" VerticalAlignment="Center"/>
+                    
                     <ComboBox 
                         SelectedItem="{Binding SelectedColumn}" 
                         ItemsSource="{Binding MyColumns}"
@@ -55,7 +69,14 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
+
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </Grid.Resources>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="0" >
                         <TextBlock Text="Geometry" FontSize="12" FontWeight="SemiBold"/>
@@ -81,10 +102,14 @@
                                 </Image.Style>
                             </Image>
                         </Button>
-
                     </StackPanel>
-
-                    <StackPanel Orientation="Vertical" Grid.Row="1" Name="GeometrySection">
+                    
+                    <Separator 
+                        Grid.Row="1"
+                        Background="White" 
+                        HorizontalAlignment="Stretch"/>
+                    
+                    <StackPanel Orientation="Vertical" Grid.Row="2" Name="GeometrySection">
 
                         <StackPanel Orientation="Horizontal" >
                             <StackPanel Orientation="Vertical" Width="125">
@@ -221,6 +246,12 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </Grid.Resources>
+                    
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock Text="Material" FontSize="12" FontWeight="SemiBold"/>
                         <Button
@@ -247,7 +278,12 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Name="MaterialSection">
+                    <Separator 
+                        Grid.Row="1"
+                        Background="White" 
+                        HorizontalAlignment="Stretch"/>
+                    
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Name="MaterialSection">
                         <StackPanel Orientation="Vertical" Width="125">
                             <TextBlock Text="Concrete grade " Margin="5 4 0 5"/>
                             <TextBlock Text="Young modulus (GPa)" Margin="5 4 0 5" />
@@ -282,8 +318,15 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </Grid.Resources>
+                    
                     <StackPanel Orientation="Horizontal" Grid.Row="0">
                         <TextBlock 
                             Text="Loads" 
@@ -337,7 +380,12 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Name="LoadsSection">
+                    <Separator 
+                        Grid.Row="1"
+                        Background="White" 
+                        HorizontalAlignment="Stretch"/>
+                    
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Name="LoadsSection">
                         <StackPanel Orientation="Vertical" Width="125">
                             <TextBlock Text="Axial load (kN)" Margin="5 4 0 5"/>
                             <TextBlock Text="Mx top (kN.m) " Margin="5 4 0 5" />
@@ -354,7 +402,12 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <CheckBox Grid.Row="2" Content="Show all loads" Margin="5" IsChecked="False" Click="AllLoadsClicked"/>
+                    <CheckBox 
+                        Grid.Row="3" 
+                        Content="Show all loads" 
+                        Margin="5" 
+                        IsChecked="{Binding SelectedColumn.AllLoads}" 
+                        Click="AllLoadsClicked"/>
 
                 </Grid>
 
@@ -362,9 +415,16 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-
+                    
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        
                         <TextBlock Text="Design" FontSize="12" FontWeight="SemiBold"/>
                         <Button
                             Margin="5 0 0 0"
@@ -390,8 +450,18 @@
                         </Button>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Name="DesignSection">
+                    <Separator 
+                        Grid.Row="1"
+                        Background="White" 
+                        HorizontalAlignment="Stretch"/>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Name="DesignSection">
                         <StackPanel Orientation="Vertical" Width="125">
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                            </StackPanel.Resources>
                             <TextBlock Text="Cover to links (mm)" Margin="5 4 0 5"/>
                             <TextBlock Text="Eff. length factor " Margin="5 4 0 5" />
                             <!--<TextBlock Text="Steel Grade " Margin="5 5 0 5" />-->

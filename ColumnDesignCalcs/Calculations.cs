@@ -982,9 +982,10 @@ namespace ColumnDesignCalc
             for(int i = 0; i < c.Nrebars; i++)
                 for(int j = i+1; j < c.Nrebars; j++)
                     distances.Add(Points.Distance(rebars[i], rebars[j]));
+            distances = distances.Select(d => d - c.BarDiameter).ToList();
             double max = distances.Min();
             f0.Expression.Add(@"min(s) = " + Math.Round(max) + " mm");
-            if(distances.Max() > smin)
+            if(max > smin)
             {
                 f0.Conclusion = "PASS";
                 f0.Status = CalcStatus.PASS;
@@ -1936,7 +1937,7 @@ namespace ColumnDesignCalc
             return Expressions;
         }
 
-        private List<SkiaSharp.SKBitmap> generateImage()
+        public List<SkiaSharp.SKBitmap> generateImage()
         {
             Console.WriteLine("generateImage entered");
             double sf = 1;

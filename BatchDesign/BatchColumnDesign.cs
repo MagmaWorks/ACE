@@ -8,13 +8,17 @@ using System.Text;
 
 namespace BatchDesign
 {
+    public enum ClusteringType { Local, Global }
     public enum ClusteringMethod { KMeans, Spectral, Spectral_Div, Spectral_SymDiv, Spectral_AddDiv }
     public class BatchColumnDesign
     {
         public ClusteringMethod Method { get; set; }
+        public ClusteringType Type { get; set; }
         public int NClusters { get; set; }
-        public List<List<MWPoint3D>> Clusters { get => LoadClusters.Select(l => l.Select(p => p.Load).ToList()).ToList(); }
-        public List<List<ClusterLoad>> LoadClusters { get; set; } = new List<List<ClusterLoad>>();
+
+        public int NClustersTot { get => LoadClusters.Count; }
+        public List<List<MWPoint3D>> Clusters { get => LoadClusters.Select(l => l.Loads.Select(p => p.Load).ToList()).ToList(); }
+        public List<Cluster> LoadClusters { get; set; } = new List<Cluster>();
         public List<List<Column>> DesignClusters { get; set; } = new List<List<Column>>();
         public List<MWPoint3D> Means = new List<MWPoint3D>();
         public List<Column> Columns { get; set; }
@@ -45,7 +49,7 @@ namespace BatchDesign
         public BatchColumnDesign()
         {
             Method = ClusteringMethod.KMeans;
-            NClusters = 3;
+            NClusters = 2;
         }
 
         public void GetDesignClusters()
@@ -56,13 +60,26 @@ namespace BatchDesign
                 bool added = false;
                 for(int j = 0; j < DesignClusters.Count; j++)
                 {
-                    bool b1 = Columns[i].LX == DesignClusters[j][0].LX && Columns[i].LY == DesignClusters[j][0].LY;
-                    bool b2 = Columns[i].LY == DesignClusters[j][0].LX && Columns[i].LX == DesignClusters[j][0].LY;
-                    if (b1 || b2)
+                    if(Columns[i].IsRectangular)
                     {
-                        DesignClusters[j].Add(Columns[i]);
-                        added = true;
-                        break;
+                        bool b1 = Columns[i].LX == DesignClusters[j][0].LX && Columns[i].LY == DesignClusters[j][0].LY;
+                        bool b2 = Columns[i].LY == DesignClusters[j][0].LX && Columns[i].LX == DesignClusters[j][0].LY;
+                        if (b1 || b2)
+                        {
+                            DesignClusters[j].Add(Columns[i]);
+                            added = true;
+                            break;
+                        }
+                    }
+                    else if(Columns[i].IsCircular)
+                    {
+                        bool b3 = Columns[i].Diameter == DesignClusters[j][0].Diameter;
+                        if(b3)
+                        {
+                            DesignClusters[j].Add(Columns[i]);
+                            added = true;
+                            break;
+                        }
                     }
                 }
                 if (added)
@@ -74,23 +91,34 @@ namespace BatchDesign
 
         public void GenerateLoadsClustering()
         {
-            foreach(var c in Columns)
+            Columns.ForEach(c =>
             {
-                double maxmx = c.Loads.Max(l => Math.Abs(l.MEdx));
-                double maxmy = c.Loads.Max(l => Math.Abs(l.MEdy));
-                double maxp = c.Loads.Max(l => Math.Abs(l.P));
-                if (Math.Max(maxmx, maxmy) / maxp > 1)
-                    Console.WriteLine("high moment col {0}", c.Name);
-            }
-            Columns.ForEach(c => { c.AllLoads = true; c.GetDesignMoments(); });
-            Columns.ForEach(c => c.Loads.ForEach(l => { double max = Math.Max(Math.Abs(l.MEdx), Math.Abs(l.MEdy));
-                                                        double min = Math.Min(Math.Abs(l.MEdx), Math.Abs(l.MEdy));
-                                                        l.MEdx = max;
-                                                        l.MEdy = min;
-            }));
+                c.AllLoads = true;
+                c.GetDesignMoments();
+                c.Loads.ForEach(l =>
+                {
+                    double max = Math.Max(Math.Abs(l.MEdx), Math.Abs(l.MEdy));
+                    double min = Math.Min(Math.Abs(l.MEdx), Math.Abs(l.MEdy));
+                    l.MEdx = max;
+                    l.MEdy = min;
+                });
+            });
             MaxMx = Columns.Max(c => c.Loads.Max(l => Math.Abs(l.MEdx)));
             MaxMy = Columns.Max(c => c.Loads.Max(l => Math.Abs(l.MEdy)));
             MaxP = Columns.Max(c => c.Loads.Max(l => Math.Abs(l.P)));
+            switch (Type)
+            {
+                case (ClusteringType.Global):
+                    GenerateGlobalLoadsClustering();
+                    break;
+                case (ClusteringType.Local):
+                    GenerateLocalLoadsClustering();
+                    break;
+            }
+        }
+
+        public void GenerateGlobalLoadsClustering()
+        {
             //Clusters = Clustering.KMeans(Columns.SelectMany(c => c.Loads.Select(l => new MWPoint3D(Math.Abs(l.MEdx) / MaxMx, 10 * Math.Abs(l.MEdy) / MaxMy, 10 * Math.Abs(l.P) / MaxP))).ToList(), NClusters);
             Console.WriteLine("Clustering method : {0}", Method.ToString());
             switch (Method)
@@ -113,6 +141,55 @@ namespace BatchDesign
                     LoadClusters = Clustering.SpectralClustering(Columns, NClusters, Clustering.SpectralNorm.Additive, Sigma);
                     break;
             }
+
+        }
+
+        public void GenerateLocalLoadsClustering()
+        {
+            LoadClusters = new List<Cluster>();
+            if (DesignClusters.Count == 0) GetDesignClusters();
+            for(int k = 0; k < DesignClusters.Count; k++)
+            {
+                List<Column> columns = DesignClusters[k];
+                List<Cluster> clusters = new List<Cluster>();
+                List<MWPoint3D> means = new List<MWPoint3D>();
+                switch (Method)
+                {
+                    case (ClusteringMethod.KMeans):
+                        (clusters, means) = Clustering.KMeans(columns, NClusters);
+                        for (int i = 0; i < means.Count; i++)
+                            Console.WriteLine("Mean {0} : X={1}, Y={2}, Z={3}", i, means[i].X, means[i].Y, means[i].Z);
+                        break;
+                    case (ClusteringMethod.Spectral):
+                        clusters = Clustering.SpectralClustering(columns, NClusters, Clustering.SpectralNorm.None, Sigma);
+                        break;
+                    case (ClusteringMethod.Spectral_Div):
+                        clusters = Clustering.SpectralClustering(columns, NClusters, Clustering.SpectralNorm.Division, Sigma);
+                        break;
+                    case (ClusteringMethod.Spectral_SymDiv):
+                        clusters = Clustering.SpectralClustering(columns, NClusters, Clustering.SpectralNorm.SymmetricDivision, Sigma);
+                        break;
+                    case (ClusteringMethod.Spectral_AddDiv):
+                        clusters = Clustering.SpectralClustering(columns, NClusters, Clustering.SpectralNorm.Additive, Sigma);
+                        break;
+                }
+                string name0 = "";
+                if (columns[0].IsRectangular)
+                    name0 = columns[0].LX + "x" + columns[0].LY;
+                else if (columns[0].IsCircular)
+                    name0 = "D" + columns[0].Diameter;
+                for(int m = 0; m < clusters.Count; m++)
+                {
+                    string name = name0 + " - G" + m;
+                    clusters[m].Name = name;
+                }
+                LoadClusters.AddRange(clusters);
+                Means.AddRange(means);
+            }
+
+            //foreach (var c in LoadClusters)
+            //    if (c.Loads.Count == 0)
+            //        LoadClusters.Remove(c);
 
         }
 

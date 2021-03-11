@@ -37,14 +37,93 @@
                         <TextBox Text="{Binding MySettings.ReportCheckedBy}" Width="90" Margin="5"/>
                     </StackPanel>
                 </StackPanel>
-                <CheckBox 
-                    Content="Export all calcs"
-                    Margin="5"
-                    IsChecked="{Binding MySettings.AllCalcs}"/>
-                <CheckBox 
-                    Content="Combine calcs in report"
-                    Margin="5"
-                    IsChecked="{Binding MySettings.CombinedReport}"/>
+
+                <StackPanel Orientation="Vertical" Margin="5">
+                    
+                    <TextBlock 
+                        FontWeight="SemiBold"
+                        Text="Columns in report"/>
+
+                    <CheckBox
+                        IsChecked="{Binding MySettings.IsCurrentCol, Mode=OneTime}"
+                        Name="CurrentCB"
+                        Content="Current"
+                        Click="CBClicked"
+                        Margin="3"/>
+
+                    <CheckBox 
+                        IsChecked="{Binding MySettings.IsAllCols, Mode=OneTime}"
+                        Name="AllCB"
+                        Content="All"
+                        Click="CBClicked"
+                        Margin="3"/>
+
+                    <CheckBox
+                        IsChecked="{Binding MySettings.IsAllClusterCols, Mode=OneTime}"
+                        Name="AllClustersCB"
+                        Content="All cluster columns"
+                        Click="CBClicked"
+                        Margin="3"/>
+                    
+                    <CheckBox
+                        IsChecked="{Binding MySettings.IsSelectionCols, Mode=OneTime}"
+                        Name="SelectionCB"
+                        Content="Selection"
+                        Click="CBClicked"
+                        Margin="3"/>
+
+                    <ListBox
+                        SelectionMode="Extended"
+                        IsEnabled="False"
+                        Height="190"
+                        Name="ColumnList"
+                        ItemsSource="{Binding MyColumns}"
+                        Margin="3"
+                        >
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <CheckBox 
+                        IsEnabled="False"
+                        Name="CombineCB"
+                        Content="Combine calcs in report"
+                        Margin="3"
+                        IsChecked="{Binding MySettings.CombinedReport}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock 
+                        FontWeight="SemiBold"
+                        Text="Loads in report"/>
+
+                    <CheckBox
+                        IsChecked="{Binding MySettings.IsCurrentLoad, Mode=OneTime}"
+                        Name="SelectedLoadCB"
+                        Click="LoadCBClicked"
+                        Margin="3"
+                        Content="Selected"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="3">
+                        <CheckBox 
+                            IsChecked="{Binding MySettings.IsDesigningLoads, Mode=OneTime}"
+                            Name="DesigningLoadsCB"
+                            Click="LoadCBClicked"
+                            Content="Designing loads"/>
+                        <TextBlock 
+                            Margin="10 0 5 0"
+                            Text="N ="/>
+                        <TextBox 
+                            Name="NumLoadsTB"
+                            Width="25"
+                            Text="{Binding MySettings.NumLoads}"/>
+                    </StackPanel>
+
+                </StackPanel>
+                
             </StackPanel>
 
         </Grid>

@@ -5,8 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ColumnDesign"
              mc:Ignorable="d" >
-    
-    <Grid Background="LightGray">
+
+    <Grid Background="#464e53">
+        <Grid.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value=" White"/>
+            </Style>
+        </Grid.Resources>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*" MinWidth="60" AllowDrop="False" />
@@ -373,7 +378,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" >
-                <StackPanel Orientation="Vertical" Background="DarkGray" Margin="4 0 0 0" VerticalAlignment="Top" >
+                <StackPanel Orientation="Vertical" Background="#586268" Margin="4 0 0 0" VerticalAlignment="Top" >
                     <Button
                         Click="OptimiseDesign"
                         BorderBrush="Transparent"
@@ -406,53 +411,189 @@
                 </StackPanel>
                 <StackPanel 
                     Orientation="Vertical" 
-                    Background="DarkGray"
+                    Background="#586268"
                     Margin="4 0 0 0" 
                     VerticalAlignment="Top" >
-                    <!--<Button 
-                    Click="Save"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    Margin="5 5 5 5"
-                    Background="Transparent"
-                    Height="50"
-                    Width="50"
-                    ToolTip="Save all your designs in the file which is automatically loaded when the app opens.">
-                        <Image Source="resources/Save.png"/>
-                    </Button>-->
                     <Button 
-                    Click="SaveAs"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    Margin="5 5 5 5"
-                    Background="Transparent"
-                    Height="50"
-                    Width="50"
-                    ToolTip="Save your current design.">
+                        Click="SaveProject"
+                        BorderBrush="Transparent"
+                        HorizontalAlignment="Right"
+                        Margin="5 5 5 5"
+                        Background="Transparent"
+                        Height="50"
+                        Width="50"
+                        ToolTip="Save all your designs in the file which is automatically loaded when the app opens.">
+                        <Image Source="resources/Save.png"/>
+                    </Button>
+                    <Button 
+                        Click="SaveAs"
+                        BorderBrush="Transparent"
+                        HorizontalAlignment="Right"
+                        Margin="5 5 5 5"
+                        Background="Transparent"
+                        Height="50"
+                        Width="50"
+                        ToolTip="Save your current design.">
                         <Image Source="resources/SaveAs.png"/>
                     </Button>
                     <Button 
-                    Click="SaveAll"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    Margin="5 5 5 5"
-                    Background="Transparent"
-                    Height="50"
-                    Width="50"
-                    ToolTip="Save all your designs (column name is used as filename).">
+                        Click="SaveAll"
+                        BorderBrush="Transparent"
+                        HorizontalAlignment="Right"
+                        Margin="5 5 5 5"
+                        Background="Transparent"
+                        Height="50"
+                        Width="50"
+                        ToolTip="Save all your designs (column name is used as filename).">
                         <Image Source="resources/SaveAll.png"/>
                     </Button>
                     <Button 
-                    Click="Open"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    Margin="5 5 5 5"
-                    Background="Transparent"
-                    Height="50"
-                    Width="50"
-                    ToolTip="Open designs from a .col file">
-                        <Image Source="resources/Open.png"/>
+                        x:Name="OpenButton"
+                        Click="Open"
+                        BorderBrush="Transparent"
+                        HorizontalAlignment="Right"
+                        Margin="5 5 5 0"
+                        Background="Transparent"
+                        Height="50"
+                        Width="50"
+                        Tag="col"
+                        ToolTip="Open design">
+                        <Image Tag="col" Name="OpenButtonImg">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Tag, ElementName=OpenButton}" Value="col">
+                                            <Setter Property="Image.Source" Value="resources/OpenCol.png"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Tag, ElementName=OpenButton}" Value="ace">
+                                            <Setter Property="Image.Source" Value="resources/OpenAce.png"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
                     </Button>
+                    <Button
+                        Background="Transparent"
+                        Click="Expand"
+                        BorderThickness="0"
+                        Margin="5 0 5 5"
+                        Padding="3"
+                        Width="50"
+                        Height="10"
+                        Name="ExpandButton"
+                        Tag="Down">
+                        <Image Source="Resources/ExpandArrow.png">
+                            <Image.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleY="1"/>
+                                    <TranslateTransform Y="0"/>
+                                </TransformGroup>
+                            </Image.RenderTransform>
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Tag, ElementName=ExpandButton}" Value="Up">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation 
+                                                            Duration="0:0:0.3" 
+                                                            To="-1" 
+                                                            AutoReverse="False"
+                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                                                        <DoubleAnimation 
+                                                            Duration="0:0:0.3" 
+                                                            To="4" 
+                                                            AutoReverse="False"
+                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation 
+                                                            Duration="0:0:0.3" 
+                                                            To="1" 
+                                                            AutoReverse="False"
+                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                                                        <DoubleAnimation 
+                                                            Duration="0:0:0.3" 
+                                                            To="0" 
+                                                            AutoReverse="False"
+                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                    </Button>
+                    <Control Height="Auto">
+                        <Control.Template>
+                            <ControlTemplate>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Tag, ElementName=ExpandButton}" Value="Up">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Duration="0:0:0.3" 
+                                                        To="110" 
+                                                        AutoReverse="False"
+                                                        Storyboard.TargetName="OpenButtons"
+                                                        Storyboard.TargetProperty="(StackPanel.Height)"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Duration="0:0:0.3" 
+                                                        To="0" 
+                                                        AutoReverse="False"
+                                                        Storyboard.TargetName="OpenButtons"
+                                                        Storyboard.TargetProperty="(StackPanel.Height)"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </ControlTemplate.Triggers>
+                                <StackPanel Orientation="Vertical" x:Name="OpenButtons" Height="0">
+                                    <Button
+                                        Click="OpenCol"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        BorderBrush="Transparent"
+                                        HorizontalAlignment="Right"
+                                        Margin="5 5 5 0"
+                                        Height="50"
+                                        Width="50"
+                                        ToolTip="Open design">
+                                        <Image Source="resources/OpenCol.png"/>
+                                    </Button>
+                                    <Button
+                                        Click="OpenAce"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        BorderBrush="Transparent"
+                                        HorizontalAlignment="Right"
+                                        Margin="5 5 5 0"
+                                        Height="50"
+                                        Width="50"
+                                        ToolTip="Open design">
+                                        <Image Source="resources/OpenACE.png"/>
+                                    </Button>
+                                </StackPanel>
+                            </ControlTemplate>
+                        </Control.Template>
+                    </Control>
+
+
                     <!--<Button 
                     Click="OpenAdd"
                     BorderBrush="Transparent"
@@ -465,38 +606,42 @@
                         <Image Source="resources/OpenAdd.png"/>
                     </Button>-->
                     <Button 
-                    Click="ToWord"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    Margin="5 5 5 5"
-                    Background="Transparent"
-                    Height="50"
-                    Width="50"
-                    ToolTip="Export a word report of your current design">
+                        Click="ToWord"
+                        BorderBrush="Transparent"
+                        HorizontalAlignment="Right"
+                        Margin="5 5 5 5"
+                        Background="Transparent"
+                        Height="50"
+                        Width="50"
+                        ToolTip="Export calculations to Word">
                         <Image Source="resources/ToWord.png"/>
                     </Button>
                     <Button 
-                    Click="OpenSettings"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    Margin="5 5 5 5"
-                    Background="Transparent"
-                    Height="50"
-                    Width="50"
-                    ToolTip="Settings">
+                        Click="ToExcel"
+                        BorderBrush="Transparent"
+                        HorizontalAlignment="Right"
+                        Margin="5 5 5 5"
+                        Background="Transparent"
+                        Height="50"
+                        Width="50"
+                        ToolTip="Export intents to Excel">
+                        <Image Source="resources/ToExcel.png"/>
+                    </Button>
+                    <Button 
+                        Click="OpenSettings"
+                        BorderBrush="Transparent"
+                        HorizontalAlignment="Right"
+                        Margin="5 5 5 5"
+                        Background="Transparent"
+                        Height="50"
+                        Width="50"
+                        ToolTip="Settings">
                         <Image Source="resources/Settings.png"/>
                     </Button>
                 </StackPanel>
             </StackPanel>
             
-            <StackPanel Grid.Row="1">
-                <Button
-                    Margin="5 5 5 5"
-                    Click="ShowCredits"
-                    Content="About"
-                    Width="80"
-                    Height="25"/>
-            </StackPanel>
+            
         </Grid>
 
     </Grid>

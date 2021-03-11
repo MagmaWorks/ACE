@@ -1,4 +1,5 @@
-﻿using ColumnDesignCalc;
+﻿using BatchDesign;
+using ColumnDesignCalc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,5 +49,15 @@ namespace ColumnDesign
             Name = name;
             ValueAsString = val;
         }
+    }
+
+    public class ProjectPlaceholder
+    {
+        public List<Column> Columns { get; set; }
+        public Column SelectedColumn { get; set; }
+        public Settings Settings { get; set; }
+        public List<RebarPosition> AdvancedRebarPos { get; set; }
+        public BatchColumnDesign BatchDesign { get; set; }
+        public List<string> ColumnsInReport { get; set; }
     }
 }

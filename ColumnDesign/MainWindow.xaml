@@ -67,19 +67,35 @@
                 <TextBlock FontFamily="Franklin Gothic" FontSize="25" Text="ACE" VerticalAlignment="Center"  Margin="15 0 0 0"/>
             </StackPanel>
 
-            <Button
-                Height="50"
-                BorderThickness="0"
-                Background="Transparent"
-                HorizontalAlignment="Right"  
-                Margin="0 0 30 0"
-                Click="MWLogo_Click">
-                <Image 
-                    Source="Resources/MagmaWorksFullLogo.png" 
-                    RenderOptions.BitmapScalingMode="Fant"
-                    HorizontalAlignment="Right" 
-                    Height="40"/>
-            </Button>
+            
+
+            <StackPanel
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"  >
+                <Button
+                    ToolTip="Credits"
+                    BorderThickness="0"
+                    Margin="5 5 25 5"
+                    Click="ShowCredits"
+                    Content="About"
+                    Width="70"
+                    Height="25"/>
+                <Button
+                    Height="50"
+                    BorderThickness="0"
+                    Background="Transparent"
+                    HorizontalAlignment="Right"  
+                    Margin="0 0 30 0"
+                    Click="MWLogo_Click">
+                    <Image 
+                        ToolTip="https://github.com/magmaworks"
+                        Source="Resources/MagmaWorksFullLogo.png" 
+                        RenderOptions.BitmapScalingMode="Fant"
+                        HorizontalAlignment="Right" 
+                        Height="40"/>
+                </Button>
+            </StackPanel>
+            
         </Grid>
         
     </Grid>

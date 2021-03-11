@@ -22,6 +22,7 @@ namespace ColumnDesign
     /// </summary>
     public partial class UCChecks : UserControl
     {
+        ReportCreator creator;
         public UCChecks()
         {
             InitializeComponent();
@@ -45,10 +46,19 @@ namespace ColumnDesign
             vm.SaveAll();
         }
 
+        public void SaveProject(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = (sender as Button).DataContext as ViewModel;
+            vm.SaveProject();
+        }
+
         public void Open(object sender, RoutedEventArgs e)
         {
             ViewModel vm = (sender as Button).DataContext as ViewModel;
-            vm.OpenAdd();
+            if(OpenButton.Tag.ToString() == "col")
+                vm.OpenAdd();
+            if (OpenButton.Tag.ToString() == "ace")
+                vm.OpenProject();
         }
 
         public void OpenAdd(object sender, RoutedEventArgs e)
@@ -82,11 +92,45 @@ namespace ColumnDesign
         public void ToWord(object sender, RoutedEventArgs e)
         {
             ViewModel vm = (sender as Button).DataContext as ViewModel;
-            //vm.MyIDView.IsUpdated = !vm.MyIDView.IsUpdated;
-            //vm.UpdateDesign();
-            vm.ColumnCalcs.UpdateInputOuput();
-            vm.ColumnCalcs.AddInteractionDiagrams();
+
+            UCWordReport content = new UCWordReport();
+            Window w = new Window()
+            {
+                Content = content,
+                Owner = Application.Current.MainWindow,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                ResizeMode = ResizeMode.NoResize,
+                WindowStyle = WindowStyle.None,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
+            w.Show();
+
+            //creator = new ReportCreator();
+            //if (vm.ColumnsInReport == null) vm.ColumnsInReport = new List<string> { vm.SelectedColumn.Name };
+            //creator.columns = vm.ColumnsInReport.Select(n => vm.MyColumns.First(c => c.Name == n)).ToList();
+            //creator.settings = vm.MySettings;
+
+            //await ReportAsync();
+
             vm.ExportToWord();
+
+            w.Close();
+        }
+
+        public void ToExcel(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = (sender as Button).DataContext as ViewModel;
+
+            ReportCreator creator = new ReportCreator();
+            creator.columns = vm.MyColumns;
+            creator.settings = vm.MySettings;
+            creator.ExcelReport();
+        }
+
+        public async Task ReportAsync()
+        {
+            Progress<WordReportProgress> progress = new Progress<WordReportProgress>();
+            await Task.Run(() => creator.ExportToWord(progress));
         }
 
         private void OptimiseDesign(object sender, RoutedEventArgs e)
@@ -126,7 +170,7 @@ namespace ColumnDesign
                 WindowState = WindowState.Maximized,
             };
             batchDesign.StartBatchDesign();
-            win.ShowDialog();
+            win.Show();
         }
 
         private void OpenSettings(object sender, RoutedEventArgs e)
@@ -138,13 +182,32 @@ namespace ColumnDesign
             {
                 Title = "Edit settings",
                 Content = new UCSettings(),
+                SizeToContent = SizeToContent.Height,
                 Owner = Application.Current.MainWindow,
-                ResizeMode = ResizeMode.NoResize,
-                SizeToContent = SizeToContent.WidthAndHeight,
+                ResizeMode = ResizeMode.CanResize,
+                Width=400,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 DataContext = vm
             };
             w.ShowDialog();
+        }
+
+        private void Expand(object sender, RoutedEventArgs e)
+        {
+            ExpandButton.Tag = ExpandButton.Tag.ToString() == "Down" ? "Up" : "Down";
+            
+        }
+
+        private void OpenCol(object sender, RoutedEventArgs e)
+        {
+            OpenButton.Tag = "col";
+            ExpandButton.Tag = "Down";
+        }
+
+        private void OpenAce(object sender, RoutedEventArgs e)
+        {
+            OpenButton.Tag = "ace";
+            ExpandButton.Tag = "Down";
         }
     }
 }

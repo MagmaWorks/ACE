@@ -126,13 +126,14 @@ namespace Optimisation
 
         public void Initialize()
         {
-            fireMethods = new bool[] { true, false, false, false };
+            fireMethods = new bool[] { true, false, false, true };
             Calculations calc = new Calculations(column);
             CarbonRef = calc.GetEmbodiedCarbon()[2]; ;
             CostRef = calc.GetCost()[3];
             double f = Objective(column); //, CarbonRef, CostRef, DriversWeight[0], Drivers[0], DriversWeight[1], Drivers[1], fireMethods);
             fBest = f;
             BestCol = column.Clone();
+
         }
 
         public  async Task Optimise_Simulated_Annealing_Async(IProgress<TaskAsyncProgress> progress)
@@ -170,7 +171,7 @@ namespace Optimisation
                 if (Activations[4])
                     ColTemp.Diameter = Math.Max(Convert.ToDouble(Mins[4]), Math.Min(col.Diameter + eps[4] * Convert.ToDouble(Incrs[4]), Convert.ToDouble(Maxs[4])));
                 if (Activations[5])
-                    ColTemp.NRebarCirc = Math.Max(Convert.ToInt32(Mins[5]), Math.Min(col.NRebarCirc + eps[5] * Convert.ToInt32(Incrs[5]), Convert.ToInt32(Maxs[5])));
+                    ColTemp.NRebarCirc = Math.Max(Convert.ToInt32(Mins[5]), Math.Min(col.NRebarCirc + eps[5], Convert.ToInt32(Maxs[5])));
                 if (Activations[6])
                     ColTemp.Radius = Math.Max(Convert.ToDouble(Mins[6]), Math.Min(col.Radius + eps[6] * Convert.ToDouble(Incrs[6]), Convert.ToDouble(Maxs[6])));
                 if (Activations[7])
@@ -206,7 +207,8 @@ namespace Optimisation
                 bool b4 = col.NRebarY == ColTemp.NRebarY;
                 bool b5 = col.BarDiameter == ColTemp.BarDiameter;
                 bool b6 = col.ConcreteGrade.Name == ColTemp.ConcreteGrade.Name;
-                if (b1 && b2 && b3 && b4 && b5 && b6) continue;
+                bool b7 = col.NRebarCirc == ColTemp.NRebarCirc;
+                if (b1 && b2 && b3 && b4 && b5 && b6 && b7) continue;
 
                 // delta f
                 var res = Objective(ColTemp); //, CarbonRef, CostRef, Wcost, Fcost, Wcarb, Fcarb, fireMethods);
@@ -232,7 +234,7 @@ namespace Optimisation
                 T = Alpha * T;
                 t++;
 
-                if (fp < fBest)
+                if (fp <= fBest)
                 {
                     Console.WriteLine("old obj : {0}", BestCol.Cost);
                     Console.WriteLine("new obj : {0}", ColTemp.Cost);

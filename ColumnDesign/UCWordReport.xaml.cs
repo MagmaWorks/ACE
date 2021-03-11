@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace ColumnDesign
 {
     /// <summary>
-    /// Interaction logic for UCFireDesign.xaml
+    /// Interaction logic for UCWordReport.xaml
     /// </summary>
-    public partial class UCFireDesign : UserControl
+    public partial class UCWordReport : UserControl
     {
-        public UCFireDesign()
+        public UCWordReport()
         {
             InitializeComponent();
         }
