@@ -190,7 +190,7 @@ namespace ColumnDesign
         {
             if(generate) BatchDesign.GetDesignClusters();
             var modelGroup = new Model3DGroup();
-            List<List<Column>> designClusters = BatchDesign.DesignClusters;
+            List<List<Column>> designClusters = BatchDesign.GetDesignClustersCol();
 
             for (int i = 0; i < designClusters.Count; i++)
             {
@@ -218,7 +218,7 @@ namespace ColumnDesign
         {
             //BatchDesign.GetDesignClusters();
             var modelGroup = new Model3DGroup();
-            List<List<Column>> designClusters = BatchDesign.DesignClusters;
+            List<List<Column>> designClusters = BatchDesign.GetDesignClustersCol();
             for (int i = 0; i < designClusters.Count; i++)
             {
                 MeshBuilder meshBuilder = new MeshBuilder(false, true);
@@ -244,7 +244,7 @@ namespace ColumnDesign
         {
             // update keys
             designKeys = new List<DesignKey>();
-            List<List<Column>> designClusters = BatchDesign.DesignClusters;
+            List<List<Column>> designClusters = BatchDesign.GetDesignClustersCol();
             for (int i = 0; i < designClusters.Count; i++)
             {
                 string name = "Unnamed";
@@ -288,7 +288,7 @@ namespace ColumnDesign
             for (int i = 0; i < loadClusters.Count; i++)
             {
                 MeshBuilder meshBuilder = new MeshBuilder(false, true);
-                List<Column> columns = loadClusters[i].Loads.Select(p => p.ParentColumn).Distinct().ToList();
+                List<Column> columns = loadClusters[i].Loads.Select(p => batchDesign.GetParentColumn(p)).Distinct().ToList();
                 foreach (var c in columns)
                 {
                     Point3D center = new Point3D(c.Point1.X * 1e-3, c.Point1.Y * 1e-3, c.Point1.Z * 1e-3);
@@ -304,8 +304,10 @@ namespace ColumnDesign
             ClusteredColumns = modelGroup;
 
             if (updateKeys) DisplayColumnClustersKeys();
-            NumberOfColumns = loadClusters.SelectMany(c => c.Loads.Select(l => l.ParentColumn)).Distinct().Count();
+            NumberOfColumns = loadClusters.SelectMany(c => c.Loads.Select(l => batchDesign.GetParentColumn(l))).Distinct().Count();
         }
+
+        
 
         public void DisplayOneColumnsCluster(int n)
         {
@@ -315,7 +317,7 @@ namespace ColumnDesign
             for (int i = 0; i < loadClusters.Count; i++)
             {
                 MeshBuilder meshBuilder = new MeshBuilder(false, true);
-                List<Column> columns = loadClusters[i].Loads.Select(p => p.ParentColumn).Distinct().ToList();
+                List<Column> columns = loadClusters[i].Loads.Select(p => batchDesign.GetParentColumn(p)).Distinct().ToList();
                 foreach (var c in columns)
                 {
                     Point3D center = new Point3D(c.Point1.X * 1e-3, c.Point1.Y * 1e-3, c.Point1.Z * 1e-3);
@@ -331,7 +333,7 @@ namespace ColumnDesign
             }
 
             ClusteredColumns = modelGroup;
-            NumberOfColumns = loadClusters[n].Loads.Select(l => l.ParentColumn).Distinct().Count();
+            NumberOfColumns = loadClusters[n].Loads.Select(l => batchDesign.GetParentColumn(l)).Distinct().Count();
         }
 
         public void DisplayAllClusters(bool compute = true, bool updateKeys = true)
@@ -503,13 +505,14 @@ namespace ColumnDesign
                 DisplayOneCluster(i);
                 ActiveCluster = i;
                 InteractionDiagrams = new Model3DGroup();
+                Column c = batchDesign.GetParentColumn(BatchDesign.LoadClusters[i].Loads[0]);
                 Column ClusterCol = new Column()
                 {
                     Name = BatchDesign.LoadClusters[i].Name,
-                    LX = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.LX,
-                    LY = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.LY,
-                    Diameter = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.Diameter,
-                    Shape = BatchDesign.LoadClusters[i].Loads[0].ParentColumn.Shape,
+                    LX = c.LX,
+                    LY = c.LY,
+                    Diameter = c.Diameter,
+                    Shape = c.Shape,
                     Loads = new List<Load>(),
                     ConcreteGrade = Optimiser.ConcreteGrades[0],
                     SteelGrade = Optimiser.SteelGrades[0],
@@ -662,7 +665,7 @@ namespace ColumnDesign
             
             double carb = 0;
             double vol = 0;
-            List<List<Column>> optiCols = batchDesign.LoadClusters.Select(l => l.Loads.Select(lc => lc.ParentColumn).Distinct().Select(c => c.Clone()).ToList()).ToList();
+            List<List<Column>> optiCols = batchDesign.LoadClusters.Select(l => l.Loads.Select(lc => batchDesign.GetParentColumn(lc)).Distinct().Select(c => c.Clone()).ToList()).ToList();
             int tot = optiCols.SelectMany(l => l.Select(c => c).ToList()).ToList().Count;
             Console.WriteLine("num tot columns : {0}", tot);
             for(int i = 0; i < optiCols.Count; i++)

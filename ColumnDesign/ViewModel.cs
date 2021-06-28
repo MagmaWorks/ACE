@@ -170,6 +170,13 @@ namespace ColumnDesign
             set { mySettings = value; RaisePropertyChanged(nameof(MySettings)); }
         }
 
+        Column globalColumn;
+        public Column GlobalColumn
+        {
+            get { return globalColumn; }
+            set { globalColumn = value; RaisePropertyChanged(nameof(GlobalColumn)); }
+        }
+
         bool isConcreteCustom = false;
         public bool IsConcreteCustom
         {
@@ -228,6 +235,12 @@ namespace ColumnDesign
         public void UpdateColumn()
         {
             RaisePropertyChanged(nameof(SelectedColumn));
+        }
+
+        public void RefreshColumns()
+        {
+            RaisePropertyChanged(nameof(SelectedColumn));
+            RaisePropertyChanged(nameof(GlobalColumn));
         }
 
         public void UpdateDesign(bool updateFire = true)
@@ -298,7 +311,7 @@ namespace ColumnDesign
                 GetEmbodiedCarbon();
                 this.SelectedColumn.GetUtilisation();
                 this.SelectedColumn.Get2DMaps();
-                RaisePropertyChanged(nameof(SelectedColumn));
+                //RaisePropertyChanged(nameof(SelectedColumn));
                 RaisePropertyChanged(nameof(CalcExpressions));
             }
         

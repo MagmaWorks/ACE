@@ -8,6 +8,7 @@ namespace ColumnDesignCalc
 {
     public class Concrete
     {
+        public static Concrete DefaultConcrete { get; set; } = new Concrete("C32/40", 32, 33);
         public string Name { get; set; }
         public double Fc { get; set; }
         public double E { get; set; }
@@ -29,10 +30,22 @@ namespace ColumnDesignCalc
         {
 
         }
+
+        public Concrete Clone()
+        {
+            return new Concrete()
+            {
+                Name = this.Name,
+                Fc = this.Fc,
+                E = this.E,
+                Density = this.Density,
+            };
+        }
     }
 
     public class Steel
     {
+        public static Steel DefaultSteel { get; set; } = new Steel("500B", 500);
         public string Name { get; set; }
         public double Fy { get; set; }
         public double E { get; set; }
@@ -52,6 +65,16 @@ namespace ColumnDesignCalc
         public Steel()
         {
 
+        }
+
+        public Steel Clone()
+        {
+            return new Steel()
+            {
+                Name = this.Name,
+                Fy = this.Fy,
+                E = this.E,
+            };
         }
     }
 }

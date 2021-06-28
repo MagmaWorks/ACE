@@ -66,9 +66,11 @@ namespace ColumnDesignCalc
         public List<MWPoint2D> AdvancedRebarsPos { get; set; } = new List<MWPoint2D>() { new MWPoint2D(0, 0) }; // centered in LX/2 LY/2
 
         // Material
-        public Concrete ConcreteGrade { get; set; }
+        public Concrete ConcreteGrade { get; set; } //= Concrete.DefaultConcrete.Clone();
+        public bool IsConcreteCustom { get => ConcreteGrade != null ? ConcreteGrade.Name == "Custom" : false; }
         public double MaxAggSize { get; set; } = 20;
-        public Steel SteelGrade { get; set; }
+        public Steel SteelGrade { get; set; } //= Steel.DefaultSteel.Clone();
+        public bool IsSteelCustom { get => SteelGrade != null ? SteelGrade.Name == "Custom" : false; }
         //public Steel CustomSteelGrade { get; set; }
 
         // Loads

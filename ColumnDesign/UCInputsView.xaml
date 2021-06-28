@@ -13,6 +13,7 @@
         <ScrollViewer 
             ScrollViewer.VerticalScrollBarVisibility="Auto">
 
+
             <ScrollViewer.Resources>
                 <Style TargetType="CheckBox">
                     <Setter Property="Foreground" Value="White"/>
@@ -81,6 +82,8 @@
                     <StackPanel Orientation="Horizontal" Grid.Row="0" >
                         <TextBlock Text="Geometry" FontSize="12" FontWeight="SemiBold"/>
                         <Button
+                            x:Name="GeometryButton"
+                            Tag="Visible"
                             Margin="5 0 0 0"
                             Click="ChangeGeometryVisibility"
                             BorderBrush="Transparent"
@@ -108,9 +111,9 @@
                         Grid.Row="1"
                         Background="White" 
                         HorizontalAlignment="Stretch"/>
-                    
-                    <StackPanel Orientation="Vertical" Grid.Row="2" Name="GeometrySection">
 
+
+                    <StackPanel Orientation="Vertical" Grid.Row="2" Name="GeometrySection">
                         <StackPanel Orientation="Horizontal" >
                             <StackPanel Orientation="Vertical" Width="125">
                                 <TextBlock Text="Length (mm) " Margin="5 5 0 5" />
@@ -119,7 +122,7 @@
                                 <TextBox Text="{Binding SelectedColumn.Length}" Margin="0 5 5 0" Width="60" Height="21" LostFocus="UpdateLength"/>
                             </StackPanel>
                         </StackPanel>
-                        
+
                         <StackPanel Orientation="Vertical">
                             <CheckBox Name="RectangularCB" Content="Rectangular" Margin="2 5 0 2" IsChecked="{Binding SelectedColumn.IsRectangular, Mode=OneWay}" Checked="ShapeChanged"/>
                             <StackPanel Orientation="Horizontal" Margin="10 0 0 0" Name="RectangularSection">
@@ -223,7 +226,6 @@
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
-
                     <!--<StackPanel Grid.Row="1" Orientation="Horizontal" >
                     <StackPanel Orientation="Vertical" LX="120">
                         <TextBlock Text="LX (mm) " Margin="5 5 0 5" />

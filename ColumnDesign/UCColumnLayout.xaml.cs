@@ -28,7 +28,10 @@ namespace ColumnDesign
         public void LayoutSizeChanged(object sender, RoutedEventArgs e)
         {
             LayoutView lv = this.DataContext as LayoutView;
-            if(lv != null) lv.LayoutSizeChanged(this.ActualHeight, this.ActualWidth);
+            if (lv != null)
+            {
+                if (lv.column != null) lv.LayoutSizeChanged(this.ActualHeight, this.ActualWidth);
+            }
         }
 
         public void FireDisplayChanged(object sender, RoutedEventArgs e)

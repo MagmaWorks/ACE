@@ -462,9 +462,9 @@ namespace Optimisation
                     {
 
                         if (fireMethods[0]) fireCheck0 = calc.CheckFireDesignTable(c.AllLoads) ;
-                        if (fireMethods[1]) fireCheck1 = calc.CheckFireIsotherm500().Item1;
-                        if (fireMethods[2]) fireCheck2 = calc.CheckFireZoneMethod().Item1;
-                        if (!fireCheck0 && fireMethods[3])
+                        if (!fireCheck0 && fireMethods[1]) fireCheck1 = calc.CheckFireIsotherm500().Item1;
+                        if (!fireCheck1 && fireMethods[2]) fireCheck2 = calc.CheckFireZoneMethod().Item1;
+                        if (!fireCheck2 && fireMethods[3])
                         {
                             calc.UpdateFireID(true);
                             fireCheck3 = c.CheckIsInsideFireID(getMde : false);
@@ -472,6 +472,11 @@ namespace Optimisation
                         c.FireCheck = (fireCheck0 || fireCheck1 || fireCheck2 || fireCheck3);
                         if (c.FireCheck == true)
                         {
+                            if (fireCheck0) c.FDMStr = FDesignMethod.Table.ToString();
+                            else if (fireCheck1) c.FDMStr = FDesignMethod.Isotherm_500.ToString();
+                            else if (fireCheck2) c.FDMStr = FDesignMethod.Zone_Method.ToString();
+                            else if (fireCheck3) c.FDMStr = FDesignMethod.Advanced.ToString();
+
                             c.GetInteractionDiagram();
                             c.CapacityCheck = c.isInsideCapacity(false);
                            Console.WriteLine(c.CapacityCheck ?? false ? "capacity check : TRUE" : "capacity check : FALSE");

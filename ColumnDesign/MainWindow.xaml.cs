@@ -83,5 +83,16 @@ namespace ColumnDesign
         {
             System.Diagnostics.Process.Start("https://github.com/magmaworks");
         }
+
+        public void ShowCredits(object sender, RoutedEventArgs e)
+        {
+            ViewModel vm = (sender as Button).DataContext as ViewModel;
+            Credits win = new Credits()
+            {
+                Owner = System.Windows.Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
+            win.ShowDialog();
+        }
     }
 }

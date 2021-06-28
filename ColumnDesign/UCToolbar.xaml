@@ -1,0 +1,197 @@
+﻿<UserControl x:Class="ColumnDesign.UCToolbar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ColumnDesign"
+             mc:Ignorable="d" >
+
+    <Grid HorizontalAlignment="Right" Background="#586268">
+        <Grid.Resources>
+            <Style TargetType="Button">
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="Width" Value="60"/>
+                <Setter Property="Height" Value="60"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="Transparent"/>
+            </Style>
+        </Grid.Resources>
+        <StackPanel 
+            Orientation="Vertical">
+            <Button 
+                Click="SaveProject"
+                ToolTip="Save all your designs in a .ace file">
+                <Image Source="resources/Save.png"/>
+            </Button>
+            <Button 
+                Click="SaveAs"
+                ToolTip="Save your current design in a .col file">
+                <Image Source="resources/SaveAs.png"/>
+            </Button>
+            <!--<Button 
+                Click="SaveAll"
+                ToolTip="Save all your designs (column name is used as filename).">
+                <Image Source="resources/SaveAll.png"/>
+            </Button>-->
+            <Button 
+                x:Name="OpenButton"
+                Click="Open"
+                Tag="col"
+                ToolTip="Open design">
+                <Image Tag="col" Name="OpenButtonImg">
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Tag, ElementName=OpenButton}" Value="col">
+                                    <Setter Property="Image.Source" Value="resources/OpenCol.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Tag, ElementName=OpenButton}" Value="ace">
+                                    <Setter Property="Image.Source" Value="resources/OpenAce.png"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+            <Button
+                Background="Transparent"
+                Click="Expand"
+                BorderThickness="0"
+                Padding="3"
+                Height="10"
+                Name="ExpandButton"
+                Tag="Down">
+                <Image Source="Resources/ExpandArrow.png">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleY="1"/>
+                            <TranslateTransform Y="0"/>
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Tag, ElementName=ExpandButton}" Value="Up">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation 
+                                                    Duration="0:0:0.3" 
+                                                    To="-1" 
+                                                    AutoReverse="False"
+                                                    Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                                                <DoubleAnimation 
+                                                    Duration="0:0:0.3" 
+                                                    To="4" 
+                                                    AutoReverse="False"
+                                                    Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation 
+                                                    Duration="0:0:0.3" 
+                                                    To="1" 
+                                                    AutoReverse="False"
+                                                    Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                                                <DoubleAnimation 
+                                                    Duration="0:0:0.3" 
+                                                    To="0" 
+                                                    AutoReverse="False"
+                                                    Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Button>
+            <Control Height="Auto">
+                <Control.Template>
+                    <ControlTemplate>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Tag, ElementName=ExpandButton}" Value="Up">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation 
+                                                Duration="0:0:0.3" 
+                                                To="110" 
+                                                AutoReverse="False"
+                                                Storyboard.TargetName="OpenButtons"
+                                                Storyboard.TargetProperty="(StackPanel.Height)"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation 
+                                                Duration="0:0:0.3" 
+                                                To="0" 
+                                                AutoReverse="False"
+                                                Storyboard.TargetName="OpenButtons"
+                                                Storyboard.TargetProperty="(StackPanel.Height)"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                        <StackPanel Orientation="Vertical" x:Name="OpenButtons" Height="0">
+                            <Button
+                                Click="OpenCol"
+                                ToolTip="Open design">
+                                <Image Source="resources/OpenCol.png"/>
+                            </Button>
+                            <Button
+                                Click="OpenAce"
+                                ToolTip="Open design">
+                                <Image Source="resources/OpenACE.png"/>
+                            </Button>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Control.Template>
+            </Control>
+
+            <Button
+                Click="OptimiseDesign"
+                ToolTip="Optimise your current column design">
+                <Image Source="Resources/Optimisation.png"/>
+            </Button>
+            <Button
+                Click="OptimiseGroup"
+                ToolTip="Optimise all your column designs">
+                <Image Source="Resources/GroupOptimisation.png"/>
+            </Button>
+            <Button 
+                Click="ToWord"
+                ToolTip="Export calculations to Word">
+                <Image Source="resources/ToWord.png"/>
+            </Button>
+            <Button 
+                Click="ToExcel"
+                ToolTip="Export intents to Excel">
+                <Image Source="resources/ToExcel.png"/>
+            </Button>
+            <Button 
+                Click="OpenSettings"
+                ToolTip="Settings">
+                <Image Source="resources/Settings.png"/>
+            </Button>
+            <Button
+                Click="ApplyGlobalParameter"
+                ToolTip="Global parameter change">
+                <Image Source="resources/Global.png"/>
+            </Button>
+            <Button
+                Click="ShowFireInfo">
+                <Image Source="resources/FireInfo.png"/>
+            </Button>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

@@ -19,7 +19,7 @@ namespace BatchDesign
         public int NClustersTot { get => LoadClusters.Count; }
         public List<List<MWPoint3D>> Clusters { get => LoadClusters.Select(l => l.Loads.Select(p => p.Load).ToList()).ToList(); }
         public List<Cluster> LoadClusters { get; set; } = new List<Cluster>();
-        public List<List<Column>> DesignClusters { get; set; } = new List<List<Column>>();
+        public List<List<string>> DesignClusters { get; set; } = new List<List<string>>();
         public List<MWPoint3D> Means = new List<MWPoint3D>();
         public List<Column> Columns { get; set; }
 
@@ -52,31 +52,47 @@ namespace BatchDesign
             NClusters = 2;
         }
 
+        public Column GetParentColumn(ClusterLoad cl)
+        {
+            return this.Columns.First(c => c.Name == cl.ParentColumnName);
+        }
+
+        public Column GetColumn(string col)
+        {
+            return Columns.First(c => c.Name == col);
+        }
+
+        public List<List<Column>> GetDesignClustersCol()
+        {
+            return DesignClusters.Select(lc => lc.Select(c => GetColumn(c)).ToList()).ToList();
+        }
+
         public void GetDesignClusters()
         {
-            DesignClusters = new List<List<Column>>();
+            DesignClusters = new List<List<string>>();
             for(int i = 0; i < Columns.Count; i++)
             {
                 bool added = false;
                 for(int j = 0; j < DesignClusters.Count; j++)
                 {
-                    if(Columns[i].IsRectangular)
+                    var c = GetColumn(DesignClusters[j][0]);
+                    if (Columns[i].IsRectangular)
                     {
-                        bool b1 = Columns[i].LX == DesignClusters[j][0].LX && Columns[i].LY == DesignClusters[j][0].LY;
-                        bool b2 = Columns[i].LY == DesignClusters[j][0].LX && Columns[i].LX == DesignClusters[j][0].LY;
+                        bool b1 = Columns[i].LX == c.LX && Columns[i].LY == c.LY;
+                        bool b2 = Columns[i].LY == c.LX && Columns[i].LX == c.LY;
                         if (b1 || b2)
                         {
-                            DesignClusters[j].Add(Columns[i]);
+                            DesignClusters[j].Add(Columns[i].Name);
                             added = true;
                             break;
                         }
                     }
                     else if(Columns[i].IsCircular)
                     {
-                        bool b3 = Columns[i].Diameter == DesignClusters[j][0].Diameter;
+                        bool b3 = Columns[i].Diameter == c.Diameter;
                         if(b3)
                         {
-                            DesignClusters[j].Add(Columns[i]);
+                            DesignClusters[j].Add(Columns[i].Name);
                             added = true;
                             break;
                         }
@@ -85,7 +101,7 @@ namespace BatchDesign
                 if (added)
                     continue;
                 else
-                    DesignClusters.Add(new List<Column>() { Columns[i] });
+                    DesignClusters.Add(new List<string>() { Columns[i].Name });
             }
         }
 
@@ -150,7 +166,7 @@ namespace BatchDesign
             if (DesignClusters.Count == 0) GetDesignClusters();
             for(int k = 0; k < DesignClusters.Count; k++)
             {
-                List<Column> columns = DesignClusters[k];
+                List<Column> columns = DesignClusters[k].Select(n => GetColumn(n)).ToList();
                 List<Cluster> clusters = new List<Cluster>();
                 List<MWPoint3D> means = new List<MWPoint3D>();
                 switch (Method)

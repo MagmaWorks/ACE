@@ -716,6 +716,11 @@ namespace Optimisation
                         fireCheck = (fireCheck0 || fireCheck1 || fireCheck2 || fireCheck3);
                         if(fireCheck == true)
                         {
+                            if (fireCheck0) c.FDMStr = FDesignMethod.Table.ToString();
+                            else if(fireCheck1) c.FDMStr = FDesignMethod.Isotherm_500.ToString();
+                            else if(fireCheck2) c.FDMStr = FDesignMethod.Zone_Method.ToString();
+                            else if(fireCheck3) c.FDMStr = FDesignMethod.Advanced.ToString();
+
                             c.GetInteractionDiagram();
                             capacityCheck = c.isInsideCapacity(false);
                             Console.WriteLine("coucou");

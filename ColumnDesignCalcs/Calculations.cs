@@ -70,7 +70,7 @@ namespace ColumnDesignCalc
         CalcDouble TotalCarbon;
         
         public List<Formula> Expressions { get; set; }
-        public List<Concrete> ConcreteGrades = new List<Concrete>()
+        public List<Concrete> ConcreteGrades { get; set; } = new List<Concrete>()
         {
             new Concrete("Custom",50,37),
             //new Concrete("32/40",32,33),
@@ -79,7 +79,7 @@ namespace ColumnDesignCalc
             ////new Concrete("45/55",45,36),
             //new Concrete("50/60",50,37),
         };
-        public List<Steel> SteelGrades = new List<Steel>()
+        public List<Steel> SteelGrades { get; set; } = new List<Steel>()
         {
             new Steel("500B",500),
             new Steel("Custom",415)

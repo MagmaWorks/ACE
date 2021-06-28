@@ -394,6 +394,8 @@ namespace ColumnDesign
             headerRow1.AppendChild(NRebarXHeader1);
             Cell NRebarYHeader1 = new Cell() { CellValue = new CellValue("Rebar Y"), DataType = CellValues.String };
             headerRow1.AppendChild(NRebarYHeader1);
+            Cell NRebarDiameter1 = new Cell() { CellValue = new CellValue("Diameter"), DataType = CellValues.String };
+            headerRow1.AppendChild(NRebarDiameter1);
             Cell SteelHeader1 = new Cell() { CellValue = new CellValue("Steel"), DataType = CellValues.String };
             headerRow1.AppendChild(SteelHeader1);
             Cell coverHeader1 = new Cell() { CellValue = new CellValue("Cover (mm)"), DataType = CellValues.String };
@@ -438,6 +440,11 @@ namespace ColumnDesign
                 NRebarYCell.DataType = CellValues.Number;
                 NRebarYCell.CellValue = new CellValue(col.NRebarY.ToString());
                 rowCol.AppendChild(NRebarYCell);
+
+                Cell NRebarDiameter = new Cell();
+                NRebarDiameter.DataType = CellValues.Number;
+                NRebarDiameter.CellValue = new CellValue(col.BarDiameter.ToString());
+                rowCol.AppendChild(NRebarDiameter);
 
                 Cell steelCell = new Cell();
                 steelCell.DataType = CellValues.String;
@@ -492,6 +499,8 @@ namespace ColumnDesign
             headerRow2.AppendChild(NRebarXHeader2);
             Cell NRebarYHeader2 = new Cell() { CellValue = new CellValue("Rebar Y"), DataType = CellValues.String };
             headerRow2.AppendChild(NRebarYHeader2);
+            Cell NRebarDiameter2 = new Cell() { CellValue = new CellValue("Diameter"), DataType = CellValues.String };
+            headerRow2.AppendChild(NRebarDiameter2);
             Cell SteelHeader2 = new Cell() { CellValue = new CellValue("Steel"), DataType = CellValues.String };
             headerRow2.AppendChild(SteelHeader2);
             Cell coverHeader2 = new Cell() { CellValue = new CellValue("Cover (mm)"), DataType = CellValues.String };
@@ -536,6 +545,11 @@ namespace ColumnDesign
                 NRebarYCell.DataType = CellValues.Number;
                 NRebarYCell.CellValue = new CellValue(col.NRebarY.ToString());
                 rowCol.AppendChild(NRebarYCell);
+
+                Cell NRebarDiameter = new Cell();
+                NRebarDiameter.DataType = CellValues.Number;
+                NRebarDiameter.CellValue = new CellValue(col.BarDiameter.ToString());
+                rowCol.AppendChild(NRebarDiameter);
 
                 Cell steelCell = new Cell();
                 steelCell.DataType = CellValues.String;

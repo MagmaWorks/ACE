@@ -32,6 +32,7 @@ namespace ColumnDesign
             ComboBox cb = (sender as ComboBox);
             ViewModel vm = cb.DataContext as ViewModel;
             if (vm.initializing) return;
+            if (cb.SelectedValue == null) return;
             //if (cb.SelectedValue as string == "Custom")
             //{
             //    vm.SelectedColumn.ConcreteGrade = vm.SelectedColumn.CustomConcreteGrade ?? new Concrete("Custom", 32, 33);
@@ -682,6 +683,7 @@ namespace ColumnDesign
             vm.UpdateFire(false);
             vm.UpdateCalculation();
             vm.MyIDView.UpdateIDHull(col);
+            vm.UpdateColumn();
         }
 
         private void FireCurveChanged(object sender, RoutedEventArgs e)
@@ -691,6 +693,7 @@ namespace ColumnDesign
             vm.UpdateFire(true);
             vm.UpdateCalculation();
             vm.MyIDView.UpdateIDHull(col);
+            vm.UpdateColumn();
         }
 
         private void FireLoadChanged(object sender, RoutedEventArgs e)
@@ -720,17 +723,9 @@ namespace ColumnDesign
         private void ChangeGeometryVisibility(object sender, RoutedEventArgs e)
         {
             if (GeometrySection.Visibility == Visibility.Visible)
-            {
                 GeometrySection.Visibility = Visibility.Collapsed;
-                //var converter = new ImageSourceConverter();
-                //GeometryEye.Source = (ImageSource)converter.ConvertFromString("/Resources/ClosedEye.png");
-            }
             else if (GeometrySection.Visibility == Visibility.Collapsed)
-            {
                 GeometrySection.Visibility = Visibility.Visible;
-                //var converter = new ImageSourceConverter();
-                //GeometryEye.Source = (ImageSource)converter.ConvertFromString("/Resources/Eye.png");
-            }
         }
 
         private void ChangeMaterialVisibility(object sender, RoutedEventArgs e)

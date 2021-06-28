@@ -6,26 +6,170 @@
              xmlns:local="clr-namespace:ColumnDesign"
              mc:Ignorable="d" >
 
-    <Grid Background="#464e53">
+    <Grid Background="Transparent">
         <Grid.Resources>
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value=" White"/>
             </Style>
         </Grid.Resources>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*" MinWidth="60" AllowDrop="False" />
-        </Grid.ColumnDefinitions>
-        
-        <Grid Grid.Column="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="#464e53">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0">
+            <TextBlock 
+                Grid.Row="0" 
+                Text="Checks :" 
+                FontWeight="SemiBold" 
+                FontSize="14" 
+                Background="Transparent"
+                Margin="5 4 0 2"/>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10 0 0 10">
+                <StackPanel Orientation="Vertical">
+                    <Image Height="18" Margin="5 5 5 0">
+                        <Image.Style>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SectionCheck}" Value="True">
+                                        <Setter Property="Source" Value="Resources/Yes.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SectionCheck}" Value="False">
+                                        <Setter Property="Source" Value="Resources/No.png"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <Image Height="18" Margin="5 5 5 0">
+                        <Image.Style>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding FireCheck}" Value="True">
+                                        <Setter Property="Source" Value="Resources/Yes.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding FireCheck}" Value="False">
+                                        <Setter Property="Source" Value="Resources/No.png"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <Image Height="18" Margin="5 5 5 0">
+                        <Image.Style>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SpacingCheck}" Value="True">
+                                        <Setter Property="Source" Value="Resources/Yes.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SpacingCheck}" Value="False">
+                                        <Setter Property="Source" Value="Resources/No.png"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <Image Height="18" Margin="5 5 5 0">
+                        <Image.Style>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding MinMaxSteelCheck}" Value="True">
+                                        <Setter Property="Source" Value="Resources/Yes.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding MinMaxSteelCheck}" Value="False">
+                                        <Setter Property="Source" Value="Resources/No.png"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <Image Height="18" Margin="5 5 5 0">
+                        <Image.Style>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding MinRebarCheck}" Value="True">
+                                        <Setter Property="Source" Value="Resources/Yes.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding MinRebarCheck}" Value="False">
+                                        <Setter Property="Source" Value="Resources/No.png"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <Image Height="18" Margin="5 5 5 0">
+                        <Image.Style>
+                            <Style TargetType="{x:Type Image}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedColumn.GuidanceCheck}" Value="True">
+                                        <Setter Property="Source" Value="Resources/Yes.png"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedColumn.GuidanceCheck}" Value="False">
+                                        <Setter Property="Source" Value="Resources/Warning.png"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <TextBlock 
+                        Text="Section capacity "
+                        Background="Transparent" 
+                        ToolTip="Load state must be inside interaction diagram!"
+                        Margin="0 4 5 2"/>
+                    <TextBlock 
+                        Text="Fire check"
+                        Background="Transparent" 
+                        ToolTip="See calculations"
+                        Margin="0 5 5 2"/>
+                    <TextBlock 
+                        Text="Bar spacing"
+                        Background="Transparent" 
+                        ToolTip="See Calculations"
+                        Margin="0 5 5 2"/>
+                    <TextBlock 
+                        Text="Min/Max steel"
+                        Background="Transparent" 
+                        ToolTip="See calculations"
+                        Margin="0 5 5 2"/>
+                    <TextBlock 
+                        Text="Min rebar number"
+                        Background="Transparent" 
+                        Margin="0 5 5 2">
+                        <TextBlock.ToolTip>
+                            <ToolTip>
+                                Min 8 bar for R > 120 min.\n
+                                Min 6 bars for circular columns.
+                            </ToolTip>
+                        </TextBlock.ToolTip>
+                    </TextBlock>
+                    <TextBlock 
+                        Text="Design rules"
+                        Background="Transparent" 
+                        ToolTip="{Binding SelectedColumn.GuidanceMessage}"
+                        Margin="0 5 5 2"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <Grid 
+            Grid.Row="1"  
+            Background="#464e53" 
+            Margin="0 20 0 0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -33,89 +177,85 @@
 
                 <TextBlock 
                     Grid.Row="0" 
-                    Text="Calculations main data :" 
+                    Text="Design forces :" 
                     FontWeight="SemiBold" 
                     FontSize="14" 
-                    Background="Transparent" 
-                    Margin="5 5 5 2"/>
+                    Background="Transparent"/>
 
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="10 0 0 0">
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Text="Design axial force : "
-                        Background="Transparent" 
-                        Margin="0 4 5 2"/>
+                            Text="Design axial force : "
+                            Background="Transparent" 
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="Design moment about X : "
-                        Background="Transparent" 
-                        Margin="0 4 5 2"/>
+                            Text="Design moment about X : "
+                            Background="Transparent" 
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="Design moment about Y : "
-                        Background="Transparent" 
-                        Margin="0 4 5 2"/>
+                            Text="Design moment about Y : "
+                            Background="Transparent" 
+                            Margin="0 4 5 2"/>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Text="{Binding SelectedColumn.SelectedLoad.P}"
-                        Margin="0 4 5 2"/>
+                            Text="{Binding SelectedColumn.SelectedLoad.P}"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="{Binding SelectedColumn.SelectedLoad.MEdx}"
-                        Margin="0 4 5 2"/>
+                            Text="{Binding SelectedColumn.SelectedLoad.MEdx}"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="{Binding SelectedColumn.SelectedLoad.MEdy}"
-                        Margin="0 4 5 2"/>
+                            Text="{Binding SelectedColumn.SelectedLoad.MEdy}"
+                            Margin="0 4 5 2"/>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Text="kN"
-                        Background="Transparent"
-                        Margin="0 4 5 2"/>
+                            Text="kN"
+                            Background="Transparent"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="kN.m"
-                        Background="Transparent"
-                        Margin="0 4 5 2"/>
+                            Text="kN.m"
+                            Background="Transparent"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="kN.m"
-                        Background="Transparent"
-                        Margin="0 4 5 2"/>
+                            Text="kN.m"
+                            Background="Transparent"
+                            Margin="0 4 5 2"/>
                     </StackPanel>
                 </StackPanel>
-
-
             </Grid>
 
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBlock 
-                Grid.Row="0" 
-                Text="Utilisation :" 
-                FontWeight="SemiBold" 
-                FontSize="14" 
-                Background="Transparent" 
-                Margin="5 5 5 2"/>
+                    Grid.Row="0" 
+                    Text="Utilisation :" 
+                    FontWeight="SemiBold" 
+                    FontSize="14" 
+                    Background="Transparent" />
 
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="10 0 0 0">
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Text="Design axial force : "
-                        Background="Transparent" 
-                        Margin="0 4 5 2"/>
+                            Text="Design axial force : "
+                            Background="Transparent" 
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="Design moment about X : "
-                        Background="Transparent" 
-                        Margin="0 4 5 2"/>
+                            Text="Design moment about X : "
+                            Background="Transparent" 
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="Design moment about Y : "
-                        Background="Transparent" 
-                        Margin="0 4 5 2"/>
+                            Text="Design moment about Y : "
+                            Background="Transparent" 
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Text="Radial utilisation : "
-                        Background="Transparent" 
-                        Margin="0 4 5 2"/>
+                            Text="Radial utilisation : "
+                            Background="Transparent" 
+                            Margin="0 4 5 2"/>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
@@ -133,516 +273,87 @@
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Text="%"
-                        Background="Transparent"
-                        Margin="0 4 5 2"/>
-                        <TextBlock
-                        Text="%"
-                        Background="Transparent"
-                        Margin="0 4 5 2"/>
-                        <TextBlock
-                        Text="%"
-                        Background="Transparent"
-                        Margin="0 4 5 2"/>
-                    </StackPanel>
-                </StackPanel>
-
-
-            </Grid>
-
-            <Grid Grid.Row="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock 
-                Grid.Row="0" 
-                Text="Checks :" 
-                FontWeight="SemiBold" 
-                FontSize="14" 
-                Background="Transparent"
-                Margin="5 4 0 2"/>
-
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10 0 0 0">
-                    <StackPanel Orientation="Vertical">
-                        <Image Height="18" Margin="5 5 5 0">
-                            <Image.Style>
-                                <Style TargetType="{x:Type Image}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SectionCheck}" Value="True">
-                                            <Setter Property="Source" Value="Resources/Yes.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding SectionCheck}" Value="False">
-                                            <Setter Property="Source" Value="Resources/No.png"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                        <!--<Image Height="18" Margin="5 5 5 0">
-                        <Image.Style>
-                            <Style TargetType="{x:Type Image}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding BiaxialCheck}" Value="True">
-                                        <Setter Property="Source" Value="Resources/Yes.png"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding BiaxialCheck}" Value="False">
-                                        <Setter Property="Source" Value="Resources/No.png"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>-->
-                        <Image Height="18" Margin="5 5 5 0">
-                            <Image.Style>
-                                <Style TargetType="{x:Type Image}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding FireCheck}" Value="True">
-                                            <Setter Property="Source" Value="Resources/Yes.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding FireCheck}" Value="False">
-                                            <Setter Property="Source" Value="Resources/No.png"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                        <Image Height="18" Margin="5 5 5 0">
-                            <Image.Style>
-                                <Style TargetType="{x:Type Image}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SpacingCheck}" Value="True">
-                                            <Setter Property="Source" Value="Resources/Yes.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding SpacingCheck}" Value="False">
-                                            <Setter Property="Source" Value="Resources/No.png"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                        <Image Height="18" Margin="5 5 5 0">
-                            <Image.Style>
-                                <Style TargetType="{x:Type Image}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding MinMaxSteelCheck}" Value="True">
-                                            <Setter Property="Source" Value="Resources/Yes.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding MinMaxSteelCheck}" Value="False">
-                                            <Setter Property="Source" Value="Resources/No.png"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                        <Image Height="18" Margin="5 5 5 0">
-                            <Image.Style>
-                                <Style TargetType="{x:Type Image}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding MinRebarCheck}" Value="True">
-                                            <Setter Property="Source" Value="Resources/Yes.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding MinRebarCheck}" Value="False">
-                                            <Setter Property="Source" Value="Resources/No.png"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                        <Image Height="18" Margin="5 5 5 0">
-                            <Image.Style>
-                                <Style TargetType="{x:Type Image}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SelectedColumn.GuidanceCheck}" Value="True">
-                                            <Setter Property="Source" Value="Resources/Yes.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding SelectedColumn.GuidanceCheck}" Value="False">
-                                            <Setter Property="Source" Value="Resources/Warning.png"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock 
-                            Text="Section capacity "
-                            Background="Transparent" 
-                            ToolTip="Load state must be inside interaction diagram!"
+                            Text="%"
+                            Background="Transparent"
                             Margin="0 4 5 2"/>
-                        <TextBlock 
-                            Text="Fire check"
-                            Background="Transparent" 
-                            ToolTip="See calculations"
-                            Margin="0 5 5 2"/>
-                        <TextBlock 
-                            Text="Bar spacing"
-                            Background="Transparent" 
-                            ToolTip="See Calculations"
-                            Margin="0 5 5 2"/>
-                        <TextBlock 
-                            Text="Min/Max steel"
-                            Background="Transparent" 
-                            ToolTip="See calculations"
-                            Margin="0 5 5 2"/>
-                        <TextBlock 
-                            Text="Min rebar number"
-                            Background="Transparent" 
-                            Margin="0 5 5 2">
-                            <TextBlock.ToolTip>
-                                <ToolTip>
-                                    Min 8 bar for R > 120 min.\n
-                                    Min 6 bars for circular columns.
-                                </ToolTip>
-                            </TextBlock.ToolTip>
-                        </TextBlock>
-                        <TextBlock 
-                            Text="Design rules"
-                            Background="Transparent" 
-                            ToolTip="{Binding SelectedColumn.GuidanceMessage}"
-                            Margin="0 5 5 2"/>
+                        <TextBlock
+                            Text="%"
+                            Background="Transparent"
+                            Margin="0 4 5 2"/>
+                        <TextBlock
+                            Text="%"
+                            Background="Transparent"
+                            Margin="0 4 5 2"/>
                     </StackPanel>
                 </StackPanel>
 
             </Grid>
 
-            <Grid Grid.Row="3" Margin="0 5 0 0">
+            <Grid Grid.Row="2" Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBlock 
-                Grid.Row="0" 
-                Text="Embodied carbon per column:" 
-                FontWeight="SemiBold" 
-                FontSize="14" 
-                Background="Transparent" 
-                Margin="5 4 5 2"/>
+                    Grid.Row="0" 
+                    Text="Embodied carbon per column:" 
+                    FontWeight="SemiBold" 
+                    FontSize="14" 
+                    Background="Transparent" />
 
                 <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="10 0 0 0">
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Background="Transparent"
-                        Text="Concrete :"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="Concrete :"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Background="Transparent"
-                        Text="Rebars :"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="Rebars :"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Background="Transparent"
-                        Text="Total :"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="Total :"
+                            Margin="0 4 5 2"/>
 
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Background="Transparent"
-                        Text="{Binding ConcreteCarbon}"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="{Binding ConcreteCarbon}"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Background="Transparent"
-                        Text="{Binding RebarCarbon}"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="{Binding RebarCarbon}"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Background="Transparent"
-                        Text="{Binding TotalCarbon}"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="{Binding TotalCarbon}"
+                            Margin="0 4 5 2"/>
 
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
                         <TextBlock
-                        Background="Transparent"
-                        Text="kg CO2"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="kg CO2"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Background="Transparent"
-                        Text="kg CO2"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="kg CO2"
+                            Margin="0 4 5 2"/>
                         <TextBlock
-                        Background="Transparent"
-                        Text="kg CO2"
-                        Margin="0 4 5 2"/>
+                            Background="Transparent"
+                            Text="kg CO2"
+                            Margin="0 4 5 2"/>
 
                     </StackPanel>
                 </StackPanel>
 
             </Grid>
         </Grid>
-
-        <Grid Grid.Column="1" HorizontalAlignment="Right" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0" >
-                <StackPanel Orientation="Vertical" Background="#586268" Margin="4 0 0 0" VerticalAlignment="Top" >
-                    <Button
-                        Click="OptimiseDesign"
-                        BorderBrush="Transparent"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Optimise your current column design">
-                        <Image Source="Resources/Optimisation.png"/>
-                    </Button>
-                    <Button
-                        Click="OptimiseGroup"
-                        BorderBrush="Transparent"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Optimise all your column designs">
-                        <Image Source="Resources/GroupOptimisation.png"/>
-                    </Button>
-                    <Button
-                        Margin="5 5 5 5"
-                        Click="ShowFireInfo"
-                        Width="50"
-                        Height="50"
-                        Background="Transparent"
-                        BorderBrush="Transparent">
-                        <Image Source="resources/FireInfo.png"/>
-                    </Button>
-                </StackPanel>
-                <StackPanel 
-                    Orientation="Vertical" 
-                    Background="#586268"
-                    Margin="4 0 0 0" 
-                    VerticalAlignment="Top" >
-                    <Button 
-                        Click="SaveProject"
-                        BorderBrush="Transparent"
-                        HorizontalAlignment="Right"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Save all your designs in the file which is automatically loaded when the app opens.">
-                        <Image Source="resources/Save.png"/>
-                    </Button>
-                    <Button 
-                        Click="SaveAs"
-                        BorderBrush="Transparent"
-                        HorizontalAlignment="Right"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Save your current design.">
-                        <Image Source="resources/SaveAs.png"/>
-                    </Button>
-                    <Button 
-                        Click="SaveAll"
-                        BorderBrush="Transparent"
-                        HorizontalAlignment="Right"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Save all your designs (column name is used as filename).">
-                        <Image Source="resources/SaveAll.png"/>
-                    </Button>
-                    <Button 
-                        x:Name="OpenButton"
-                        Click="Open"
-                        BorderBrush="Transparent"
-                        HorizontalAlignment="Right"
-                        Margin="5 5 5 0"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        Tag="col"
-                        ToolTip="Open design">
-                        <Image Tag="col" Name="OpenButtonImg">
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Tag, ElementName=OpenButton}" Value="col">
-                                            <Setter Property="Image.Source" Value="resources/OpenCol.png"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Tag, ElementName=OpenButton}" Value="ace">
-                                            <Setter Property="Image.Source" Value="resources/OpenAce.png"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                    </Button>
-                    <Button
-                        Background="Transparent"
-                        Click="Expand"
-                        BorderThickness="0"
-                        Margin="5 0 5 5"
-                        Padding="3"
-                        Width="50"
-                        Height="10"
-                        Name="ExpandButton"
-                        Tag="Down">
-                        <Image Source="Resources/ExpandArrow.png">
-                            <Image.RenderTransform>
-                                <TransformGroup>
-                                    <ScaleTransform ScaleY="1"/>
-                                    <TranslateTransform Y="0"/>
-                                </TransformGroup>
-                            </Image.RenderTransform>
-                            <Image.Style>
-                                <Style TargetType="Image">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Tag, ElementName=ExpandButton}" Value="Up">
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation 
-                                                            Duration="0:0:0.3" 
-                                                            To="-1" 
-                                                            AutoReverse="False"
-                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
-                                                        <DoubleAnimation 
-                                                            Duration="0:0:0.3" 
-                                                            To="4" 
-                                                            AutoReverse="False"
-                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                            <DataTrigger.ExitActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation 
-                                                            Duration="0:0:0.3" 
-                                                            To="1" 
-                                                            AutoReverse="False"
-                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
-                                                        <DoubleAnimation 
-                                                            Duration="0:0:0.3" 
-                                                            To="0" 
-                                                            AutoReverse="False"
-                                                            Storyboard.TargetProperty="(FrameworkElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.ExitActions>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Image.Style>
-                        </Image>
-                    </Button>
-                    <Control Height="Auto">
-                        <Control.Template>
-                            <ControlTemplate>
-                                <ControlTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding Tag, ElementName=ExpandButton}" Value="Up">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation 
-                                                        Duration="0:0:0.3" 
-                                                        To="110" 
-                                                        AutoReverse="False"
-                                                        Storyboard.TargetName="OpenButtons"
-                                                        Storyboard.TargetProperty="(StackPanel.Height)"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation 
-                                                        Duration="0:0:0.3" 
-                                                        To="0" 
-                                                        AutoReverse="False"
-                                                        Storyboard.TargetName="OpenButtons"
-                                                        Storyboard.TargetProperty="(StackPanel.Height)"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </ControlTemplate.Triggers>
-                                <StackPanel Orientation="Vertical" x:Name="OpenButtons" Height="0">
-                                    <Button
-                                        Click="OpenCol"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        BorderBrush="Transparent"
-                                        HorizontalAlignment="Right"
-                                        Margin="5 5 5 0"
-                                        Height="50"
-                                        Width="50"
-                                        ToolTip="Open design">
-                                        <Image Source="resources/OpenCol.png"/>
-                                    </Button>
-                                    <Button
-                                        Click="OpenAce"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        BorderBrush="Transparent"
-                                        HorizontalAlignment="Right"
-                                        Margin="5 5 5 0"
-                                        Height="50"
-                                        Width="50"
-                                        ToolTip="Open design">
-                                        <Image Source="resources/OpenACE.png"/>
-                                    </Button>
-                                </StackPanel>
-                            </ControlTemplate>
-                        </Control.Template>
-                    </Control>
-
-
-                    <!--<Button 
-                    Click="OpenAdd"
-                    BorderBrush="Transparent"
-                    HorizontalAlignment="Right"
-                    Margin="5 5 5 5"
-                    Background="Transparent"
-                    Height="50"
-                    Width="50"
-                    ToolTip="Open and add designs from a .col file">
-                        <Image Source="resources/OpenAdd.png"/>
-                    </Button>-->
-                    <Button 
-                        Click="ToWord"
-                        BorderBrush="Transparent"
-                        HorizontalAlignment="Right"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Export calculations to Word">
-                        <Image Source="resources/ToWord.png"/>
-                    </Button>
-                    <Button 
-                        Click="ToExcel"
-                        BorderBrush="Transparent"
-                        HorizontalAlignment="Right"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Export intents to Excel">
-                        <Image Source="resources/ToExcel.png"/>
-                    </Button>
-                    <Button 
-                        Click="OpenSettings"
-                        BorderBrush="Transparent"
-                        HorizontalAlignment="Right"
-                        Margin="5 5 5 5"
-                        Background="Transparent"
-                        Height="50"
-                        Width="50"
-                        ToolTip="Settings">
-                        <Image Source="resources/Settings.png"/>
-                    </Button>
-                </StackPanel>
-            </StackPanel>
             
-            
-        </Grid>
-
+        
     </Grid>
+
 </UserControl>

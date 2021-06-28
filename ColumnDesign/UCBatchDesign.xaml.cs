@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -432,21 +433,26 @@ namespace ColumnDesign
         {
             ViewModel vm = (this.DataContext as ViewModel);
             List<Column> cols = new List<Column>();
-            for (int i = 0; i < vm.MyBatchDesignView.BatchDesign.Clusters.Count; i++)
+            var bd = vm.MyBatchDesignView.BatchDesign;
+            for (int i = 0; i < bd.Clusters.Count; i++)
             {
-                Column col = vm.MyBatchDesignView.BatchDesign.Designs[i].Clone();
-                col.Name = vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Name;
+                Column col = bd.Designs[i].Clone();
+                col.Name = bd.LoadClusters[i].Name;
                 col.Loads = new List<Load>();
                 col.IsCluster = true;
                 col.ColsInCluster = new List<string>();
-                for (int j = 0; j < vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads.Count; j++)
+                for (int j = 0; j < bd.LoadClusters[i].Loads.Count; j++)
                 {
-                    ClusterLoad cl = vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads[j];
-                    string name = cl.Name.Replace(cl.ParentColumn.Name, "").Replace(" - ", "");
-                    Load l = cl.ParentColumn.Loads.First(m => m.Name == name).Clone();
-                    l.Name = l.Name.Insert(0, cl.ParentColumn.Name + " - ");
+                    ClusterLoad cl = bd.LoadClusters[i].Loads[j];
+                    Column pc = bd.GetParentColumn(cl);
+                    var regex = new Regex(Regex.Escape(cl.ParentColumnName));
+                    string name = regex.Replace(cl.Name, "", 1);
+                    regex = new Regex(Regex.Escape(" - "));
+                    name = regex.Replace(name, "", 1);
+                    Load l = pc.Loads.First(m => m.Name == name).Clone();
+                    l.Name = l.Name.Insert(0, cl.ParentColumnName + " - ");
                     col.Loads.Add(l);
-                    col.ColsInCluster.Add(cl.ParentColumn.Name);
+                    col.ColsInCluster.Add(cl.ParentColumnName);
                 }
                 col.ColsInCluster = col.ColsInCluster.Distinct().ToList();
                 MaxLoadOnX(col);
@@ -464,17 +470,23 @@ namespace ColumnDesign
         {
             ViewModel vm = (this.DataContext as ViewModel);
             List<Column> cols = new List<Column>();
-            for (int i = 0; i < vm.MyBatchDesignView.BatchDesign.Clusters.Count; i++)
+            var bd = vm.MyBatchDesignView.BatchDesign;
+            for (int i = 0; i < bd.Clusters.Count; i++)
             {
                 // look for all columns present in the cluster
                 List<string> colsInCluster = new List<string>();
-                for (int j = 0; j < vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads.Count; j++)
+                for (int j = 0; j < bd.LoadClusters[i].Loads.Count; j++)
                 {
-                    ClusterLoad cl = vm.MyBatchDesignView.BatchDesign.LoadClusters[i].Loads[j];
-                    string name = cl.Name.Replace(cl.ParentColumn.Name, "").Replace(" - ", "");
-                    Load l = cl.ParentColumn.Loads.First(m => m.Name == name).Clone();
-                    l.Name = l.Name.Insert(0, cl.ParentColumn.Name + " - ");
-                    colsInCluster.Add(cl.ParentColumn.Name);
+                    ClusterLoad cl = bd.LoadClusters[i].Loads[j];
+                    Column pc = bd.GetParentColumn(cl);
+                    var regex = new Regex(Regex.Escape(cl.ParentColumnName));
+                    string name = regex.Replace(cl.Name, "", 1);
+                    regex = new Regex(Regex.Escape(" - "));
+                    name = regex.Replace(name, "", 1);
+                    //string name = cl.Name.Replace(cl.ParentColumn.Name, "").Replace(" - ", "");
+                    Load l = pc.Loads.First(m => m.Name == name).Clone();
+                    l.Name = l.Name.Insert(0, cl.ParentColumnName + " - ");
+                    colsInCluster.Add(cl.ParentColumnName);
                 }
                 colsInCluster = colsInCluster.Distinct().ToList();
 
@@ -492,6 +504,7 @@ namespace ColumnDesign
                         vm.MyColumns[idx].LX = clusterCol.LX;
                         vm.MyColumns[idx].LY = clusterCol.LY;
                         vm.MyColumns[idx].BarDiameter = clusterCol.BarDiameter;
+                        vm.MyColumns[idx].FDMStr = clusterCol.FDMStr;
                     }
                 }
             }

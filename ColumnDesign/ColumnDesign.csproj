@@ -256,6 +256,9 @@
     <Compile Include="UCColumns.xaml.cs">
       <DependentUpon>UCColumns.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UCGlobalParameters.xaml.cs">
+      <DependentUpon>UCGlobalParameters.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCInputsView.xaml.cs">
       <DependentUpon>UCInputsView.xaml</DependentUpon>
     </Compile>
@@ -274,6 +277,9 @@
     <Compile Include="UCSettings.xaml.cs">
       <DependentUpon>UCSettings.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UCToolbar.xaml.cs">
+      <DependentUpon>UCToolbar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UCWordReport.xaml.cs">
       <DependentUpon>UCWordReport.xaml</DependentUpon>
     </Compile>
@@ -284,6 +290,10 @@
     <Compile Include="ViewModel.cs" />
     <Compile Include="ViewModelBase.cs" />
     <Page Include="AutoDesign.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -359,6 +369,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UCGlobalParameters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UCInputsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -380,6 +394,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UCSettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UCToolbar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -516,6 +534,9 @@
   <ItemGroup>
     <Resource Include="Resources\OpenAce.png" />
     <Resource Include="Resources\OpenCol.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Global.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

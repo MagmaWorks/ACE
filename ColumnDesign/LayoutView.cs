@@ -354,7 +354,7 @@ namespace ColumnDesign
             //TP = new TemperatureProfile(c.LX / 1000, c.LY / 1000, c.R * 60);
             //TP.GetContours();
             //c.TP = TP;
-            if (c.TP == null) c.GetTP();
+            if (c.TP == null || c.TP.ContourPts.Count == 0) { c.UpdateTP(); }
             TempContours = new ObservableCollection<ContourVM>(c.TP.ContourPts.Select(x => new ContourVM(x)));
             TempLevels = c.TP.Levels;
             

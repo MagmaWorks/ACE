@@ -3,6 +3,7 @@ using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Factorization;
 using MWGeometry;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,11 +86,11 @@ namespace BatchDesign
             return clusters;
         }
 
-        public static (List<Cluster>, List<MWPoint3D>) KMeans(List<Column> cols, int Nc)
+        public static (List<Cluster>, List<MWPoint3D>) KMeans(List<Column> cols, int Nc0)
         {
             // data
             //List<ClusterLoad> data = cols.SelectMany(c => c.Loads.Select(l => new ClusterLoad(new MWPoint3D(l.MEdx, l.MEdy, l.P), c, "C"+c.Name + " - " + l.Name))).ToList();
-
+            int Nc = Math.Min(cols.Count, Nc0);
             // columns are clustered according to their mean load
             List<ClusterLoad> loadAvg = cols.Select(c => GetAverageLoad(c)).ToList();
 
@@ -165,8 +166,8 @@ namespace BatchDesign
             List<Cluster> clustersOut = clusters.Select(c => new Cluster()
             {
                 Loads = c.Loads.SelectMany(
-                cl => cl.ParentColumn.Loads.Select(
-                    l => new ClusterLoad(new MWPoint3D(l.MEdx, l.MEdy, l.P), cl.ParentColumn, cl.ParentColumn.Name + " - " + l.Name))).ToList()
+                cl => cols.First(col => col.Name == cl.ParentColumnName).Loads.Select(
+                    l => new ClusterLoad(new MWPoint3D(l.MEdx, l.MEdy, l.P), cl.ParentColumnName, cl.ParentColumnName + " - " + l.Name))).ToList()
             }).ToList();
 
             if (!clustersOut.All(c => c.Loads.Count > 0))
@@ -369,18 +370,36 @@ namespace BatchDesign
     {
         public string Name { get; set; }
         public MWPoint3D Load { get; set; }
-        public Column ParentColumn { get; set; }
+        //public Column ParentColumn { get; set; }
+        public string ParentColumnName { get; set; }
 
+        //public ClusterLoad(MWPoint3D load, Column col, string name)
+        //{
+        //    Load = load;
+        //    ParentColumn = col;
+        //    Name = name;
+        //}
+        [JsonConstructor]
+        public ClusterLoad() { }
         public ClusterLoad(MWPoint3D load, Column col, string name)
         {
             Load = load;
-            ParentColumn = col;
+            ParentColumnName = col.Name;
             Name = name;
         }
 
+        public ClusterLoad(MWPoint3D load, string colName, string name)
+        {
+            Load = load;
+            ParentColumnName = colName;
+            Name = name;
+        }
+
+
         public ClusterLoad Clone()
         {
-            return new ClusterLoad(this.Load, this.ParentColumn.Clone(), this.Name);
+            //return new ClusterLoad(this.Load, this.ParentColumn.Clone(), this.Name);
+            return new ClusterLoad(this.Load, this.ParentColumnName, this.Name);
         }
 
     }

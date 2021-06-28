@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ColumnDesign"
         mc:Ignorable="d"
-        WindowState = "Maximized"
+        WindowState="Maximized"
         Title="ACE" >
     <Window.Resources>
         <ContentControl x:Key="inputsView">
@@ -13,6 +13,9 @@
         </ContentControl>
         <ContentControl x:Key="outputsView">
             <local:UCOutputsView />
+        </ContentControl>
+        <ContentControl x:Key="toolbar">
+            <local:UCToolbar/>
         </ContentControl>
     </Window.Resources>
     <Grid>
@@ -26,6 +29,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <ContentControl
@@ -35,6 +39,10 @@
             <ContentControl 
                 Grid.Column="1" 
                 Content="{StaticResource outputsView}"/>
+
+            <ContentControl
+                Grid.Column="2"
+                Content="{StaticResource toolbar}"/>
 
         </Grid>
 
