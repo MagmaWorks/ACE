@@ -18,6 +18,9 @@ namespace ColumnDesignCalc
     public enum FireExposition { OneSide, MoreThanOneSide };
     public enum AggregateType { Siliceous, Calcareous };
 
+    /// <summary>
+    /// Defines a column instance
+    /// </summary>
     public class Column
     {
         public string Name { get; set; } = "Col 350x350";
@@ -58,7 +61,6 @@ namespace ColumnDesignCalc
         public int Nrebars { get => RebarsPos.Count; }
         public MWPoint3D Point1 { get; set; }
         public MWPoint3D Point2 { get; set; }
-
         public List<MWPoint2D> ContourPoints { get => GetContourPoints(); } // centered in LX/2 LY/2
         public bool IsAdvancedRebar { get; set; } = false;
         public string AdvancedRebarFile { get; set; }
@@ -66,20 +68,21 @@ namespace ColumnDesignCalc
         public List<MWPoint2D> AdvancedRebarsPos { get; set; } = new List<MWPoint2D>() { new MWPoint2D(0, 0) }; // centered in LX/2 LY/2
 
         // Material
-        public Concrete ConcreteGrade { get; set; } //= Concrete.DefaultConcrete.Clone();
+        public Concrete ConcreteGrade { get; set; }
         public bool IsConcreteCustom { get => ConcreteGrade != null ? ConcreteGrade.Name == "Custom" : false; }
         public double MaxAggSize { get; set; } = 20;
-        public Steel SteelGrade { get; set; } //= Steel.DefaultSteel.Clone();
+        public Steel SteelGrade { get; set; }
         public bool IsSteelCustom { get => SteelGrade != null ? SteelGrade.Name == "Custom" : false; }
-        //public Steel CustomSteelGrade { get; set; }
 
         // Loads
         public Load SelectedLoad { get; set; }
         public Load FireLoad { get; set; }
 
-        public List<Load> Loads { get; set; } //= new List<Load>();
+        public List<Load> Loads { get; set; }
 
-        // loads considered as the most constraining for the design. They are the loads used in the report in case of multiple loads
+        /// <summary>
+        /// loads considered as the most constraining for the design. They are the loads used in the report in case of multiple loads
+        /// </summary>
         public List<Load> DesigningLoads { get; set; } 
         public List<string> FireLoadNames { get => LoadNames.Append("0.7*[selected]").ToList(); }
         public List<string> LoadNames { get => Loads.Select(l => l.Name).ToList(); }
@@ -167,6 +170,10 @@ namespace ColumnDesignCalc
             
         }
 
+        /// <summary>
+        /// Creates a new Column instance from an ETABSv17 column object
+        /// </summary>
+        /// <param name="c0"></param>
         public Column(ETABSv17_To_ACE.Column c0)
         {
             Name = c0.name;
@@ -188,6 +195,10 @@ namespace ColumnDesignCalc
             GetRebars();
         }
 
+        /// <summary>
+        /// Creates a new Column instance from an ETABSv17 column object
+        /// </summary>
+        /// <param name="c0"></param>
         public Column(ETABSv18_To_ACE.Column c0)
         {
             Name = c0.name;
@@ -226,7 +237,6 @@ namespace ColumnDesignCalc
 
             col.CoverToLinks = this.CoverToLinks;
             col.EffectiveLength = this.EffectiveLength;
-            //col.fireTable = this.fireTable;
             col.LinkDiameter = this.LinkDiameter;
             col.MaxAggSize = this.MaxAggSize;
             col.R = this.R;
@@ -235,7 +245,6 @@ namespace ColumnDesignCalc
 
             col.ConcreteGrade = this.ConcreteGrade;
             col.SteelGrade = this.SteelGrade;
-            //col.CustomSteelGrade = this.CustomSteelGrade;
             col.SelectedLoad = this.SelectedLoad;
             col.Loads = this.Loads.Select(l => l.Clone()).ToList();
             col.FireLoad = this.FireLoad;
@@ -264,6 +273,10 @@ namespace ColumnDesignCalc
             return col;
         }
 
+        /// <summary>
+        /// Gets column outter shape contour points
+        /// </summary>
+        /// <param name="c0"></param>
         public List<MWPoint2D> GetContourPoints()
         {
             switch (Shape)
@@ -335,6 +348,10 @@ namespace ColumnDesignCalc
             return null;
         }
 
+        /// <summary>
+        /// Calculates the rebar positions of the Column instance
+        /// </summary>
+        /// <returns></returns>
         public List<MWPoint2D> GetRebars()
         {
             if(IsAdvancedRebar)
@@ -409,6 +426,10 @@ namespace ColumnDesignCalc
                 return null;
             }
         }
+        
+        /// <summary>
+        /// Calculates the 3D interaction diagram of the Column object
+        /// </summary>
         public void GetInteractionDiagram()
         {
             List<Composite> composites = new List<Composite>();
@@ -416,8 +437,7 @@ namespace ColumnDesignCalc
             double fc_steel = Math.Min(0.00175 * SteelGrade.E * 1E3, SteelGrade.Fy / 1.15);
             Material concrete = new Material(ConcreteGrade.Name, MatYpe.Concrete, 0.85 * ConcreteGrade.Fc / 1.5, 0, ConcreteGrade.E, epsMax: 0.0035, epsMax2: 0.00175, dens: ConcreteGrade.Density);
             Material steel = new Material(SteelGrade.Name, MatYpe.Steel, SteelGrade.Fy / 1.15, SteelGrade.Fy / 1.15, SteelGrade.E);
-            //Material steel = new Material(steelGrade.Name, MatYpe.Steel, fc_steel, fc_steel);
-
+            
             // Creation of the concrete section
             ConcreteSection cs = new ConcreteSection(ContourPoints.Select(p => new MWPoint2D(p.X + LX / 2, p.Y + LY / 2)).ToList(), concrete);
             composites.Add(cs);
@@ -427,158 +447,6 @@ namespace ColumnDesignCalc
             {
                 Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebar.X + LX / 2, rebar.Y + LY / 2), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
                 composites.Add(r);
-            }
-
-            if (Shape == GeoShape.Rectangular)
-            {
-                //// Creation of the concrete section
-                //ConcreteSection cs = new ConcreteSection(ContourPoints.Select(p => new MWPoint2D(p.X + LX/2, p.Y + LY/2)).ToList(), concrete);
-                //composites.Add(cs);
-
-                //// Creation of the rebars
-                //if (IsAdvancedRebar)
-                //{
-                //    foreach (var rebar in AdvancedRebarsPos)
-                //    {
-                //        Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(rebar.X + LX / 2, rebar.Y + LY / 2), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
-                //        composites.Add(r);
-                //    }
-                //}
-                //else
-                //{
-                //    double xspace = (LX - 2 * (CoverToLinks + LinkDiameter + BarDiameter / 2.0)) / (NRebarX - 1);
-                //    double yspace = (LY - 2 * (CoverToLinks + LinkDiameter + BarDiameter / 2.0)) / (NRebarY - 1);
-                //    for (int i = 0; i < NRebarX; i++)
-                //    {
-                //        var x = CoverToLinks + LinkDiameter + BarDiameter / 2.0 + i * xspace;
-                //        for (int j = 0; j < NRebarY; j++)
-                //        {
-                //            if (i == 0 || i == NRebarX - 1 || j == 0 || j == NRebarY - 1)
-                //            {
-                //                var y = CoverToLinks + LinkDiameter + BarDiameter / 2.0 + j * yspace;
-                //                Rebar r = new Rebar(MWPoint2D.Point2DByCoordinates(x, y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
-                //                composites.Add(r);
-                //            }
-                //        }
-                //    }
-                //}
-
-            }
-            else if (Shape == GeoShape.Circular)
-            {
-                // Creation of the concrete section
-                //List<MWPoint2D> circlePts = new List<MWPoint2D>();
-                //double theta = 0;
-                //double N = 180;
-                //double inc = 2 * Math.PI / N;
-                //for (int i = 0; i < N; i++)
-                //{
-                //    theta = i * inc;
-                //    double X = Diameter / 2 * Math.Cos(theta);
-                //    double Y = Diameter / 2 * Math.Sin(theta);
-                //    circlePts.Add(new MWPoint2D(X, Y));
-                //}
-                //composites.Add(new ConcreteSection(circlePts, concrete));
-                //MWPoint2D bary = Points.GetBarycenter(circlePts);
-                //Console.WriteLine("conc : X = {0}, Y = {1}", bary.X, bary.Y);
-
-                //// Creation of the rebars
-                //List<MWPoint2D> steelPos = new List<MWPoint2D>();
-                //theta = 0;
-                //inc = 2 * Math.PI / NRebarCirc;
-                //for (int i = 0; i < NRebarCirc; i++)
-                //{
-                //    theta = i * inc;
-                //    double x = (Diameter / 2 - CoverToLinks - LinkDiameter - BarDiameter / 2.0) * Math.Cos(theta);
-                //    double y = (Diameter / 2 - CoverToLinks - LinkDiameter - BarDiameter / 2.0) * Math.Sin(theta);
-                //    Rebar r = new Rebar(new MWPoint2D(x, y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
-                //    steelPos.Add(new MWPoint2D(x, y));
-                //    composites.Add(r);
-                //}
-                //bary = Points.GetBarycenter(steelPos);
-                //Console.WriteLine("steel : X = {0}, Y = {1}", bary.X, bary.Y);
-            }
-            else if (Shape == GeoShape.Polygonal)
-            {
-                //// Creation of the concrete section
-                //List<MWPoint2D> PolyPts = new List<MWPoint2D>();
-                //double theta = 0;
-                //double inc = 2 * Math.PI / Edges;
-                //for (int i = 0; i < Edges; i++)
-                //{
-                //    theta = i * inc;
-                //    double X = Radius * Math.Cos(theta);
-                //    double Y = Radius * Math.Sin(theta);
-                //    PolyPts.Add(new MWPoint2D(X, Y));
-                //}
-                //composites.Add(new ConcreteSection(PolyPts, concrete));
-
-                //MWPoint2D bary = Points.GetBarycenter(PolyPts);
-                //Console.WriteLine("conc : X = {0}, Y = {1}", bary.X, bary.Y);
-
-                //// Creation of the rebars
-                //theta = 0;
-                //List<MWPoint2D> steelPos = new List<MWPoint2D>();
-                //double dd = (CoverToLinks + LinkDiameter + BarDiameter / 2.0) / Math.Sin((Edges - 2.0) * Math.PI / (2.0 * Edges));
-                //for (int i = 0; i < Edges; i++)
-                //{
-                //    theta = i * inc;
-                //    double x = (Radius - dd) * Math.Cos(theta);
-                //    double y = (Radius - dd) * Math.Sin(theta);
-                //    Rebar r = new Rebar(new MWPoint2D(x, y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
-                //    steelPos.Add(new MWPoint2D(x, y));
-                //    composites.Add(r);
-                //}
-
-                //bary = Points.GetBarycenter(steelPos);
-                //Console.WriteLine("steel : X = {0}, Y = {1}", bary.X, bary.Y);
-            }
-            else if (Shape == GeoShape.LShaped)
-            {
-                //// creation of the concrete section
-                //List<MWPoint2D> pts = GetLShapedContour();
-                //List<MWPoint2D> LShapedPts = pts.Select(p => new MWPoint2D(p.X, p.Y)).ToList();
-                //composites.Add(new ConcreteSection(LShapedPts, concrete));
-
-                //// creation of the rebars
-                //List<MWPoint2D> rebars = GetLShapedRebars();
-                //for (int i = 0; i < rebars.Count; i++)
-                //{
-                //    Rebar r = new Rebar(new MWPoint2D(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
-                //    //steelPos.Add(new MWPoint2D(x, y));
-                //    composites.Add(r);
-                //}
-            }
-            else if (Shape == GeoShape.TShaped)
-            {
-                //// creation of the concrete section
-                //List<MWPoint2D> pts = GetTShapedContour();
-                //List<MWPoint2D> TShapedPts = pts.Select(p => new MWPoint2D(p.X, p.Y)).ToList();
-                //composites.Add(new ConcreteSection(TShapedPts, concrete));
-
-                //// creation of the rebars
-                //List<MWPoint2D> rebars = GetTShapedRebars();
-                //for (int i = 0; i < rebars.Count; i++)
-                //{
-                //    Rebar r = new Rebar(new MWPoint2D(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
-                //    //steelPos.Add(new MWPoint2D(x, y));
-                //    composites.Add(r);
-                //}
-            }
-            else if(Shape == GeoShape.CustomShape)
-            {
-                //// creation of the concrete section
-                //List<MWPoint2D> pts = GetCustomShapeContour();
-                //List<MWPoint2D> CustomShapePts = pts.Select(p => new MWPoint2D(p.X, p.Y)).ToList();
-                //composites.Add(new ConcreteSection(CustomShapePts, concrete));
-
-                //// creation of the rebars
-                //List<MWPoint2D> rebars = GetCustomShapeRebars();
-                //for (int i = 0; i < rebars.Count; i++)
-                //{
-                //    Rebar r = new Rebar(new MWPoint2D(rebars[i].X, rebars[i].Y), Math.PI * Math.Pow(BarDiameter / 2.0, 2), steel);
-                //    composites.Add(r);
-                //}
             }
 
             Diagram d = new Diagram(composites, DiagramDisc);
@@ -610,29 +478,10 @@ namespace ColumnDesignCalc
 
         }
 
-        //public List<MWPoint2D> GetLShapedContour()
-        //{
-        //    double angle = Theta * Math.PI / 180;
-        //    double H1 = HX * Math.Abs(Math.Cos(angle)) + HY * Math.Abs(Math.Sin(angle));
-        //    double h1 = hX * Math.Abs(Math.Cos(angle)) + hY * Math.Abs(Math.Sin(angle));
-        //    double H2 = HX * Math.Abs(Math.Sin(angle)) + HY * Math.Abs(Math.Cos(angle));
-        //    double h2 = hX * Math.Abs(Math.Sin(angle)) + hY * Math.Abs(Math.Cos(angle));
-
-        //    List<MWPoint2D> ContourPts = new List<MWPoint2D>()
-        //    {
-        //        new MWPoint2D(-H1 / 2, -H2 / 2),
-        //        new MWPoint2D(H1 / 2, -H2 / 2),
-        //        new MWPoint2D(H1 / 2, -H2 / 2 + h2),
-        //        new MWPoint2D(-H1 / 2 + h1, -H2 / 2 + h2),
-        //        new MWPoint2D(-H1 / 2 + h1, H2 / 2),
-        //        new MWPoint2D(-H1 / 2, H2 / 2)
-        //    };
-
-
-        //    return ContourPts.Select(p => new MWPoint2D(Math.Cos(angle) * p.X - Math.Sin(angle) * p.Y,
-        //                                            Math.Sin(angle) * p.X + Math.Cos(angle) * p.Y)).ToList();
-        //}
-
+        /// <summary>
+        /// Gets the rebar positions for an L-shaped column
+        /// </summary>
+        /// <returns></returns>
         public List<MWPoint2D> GetLShapedRebars()
         {
             if (IsAdvancedRebar) return AdvancedRebarsPos;
@@ -746,23 +595,10 @@ namespace ColumnDesignCalc
             return rebars;
         }
 
-        //public List<MWPoint2D> GetTShapedContour()
-        //{
-        //    List<MWPoint2D> ContourPts = new List<MWPoint2D>()
-        //    {
-        //        new MWPoint2D(-hX/2, -HY/2),
-        //        new MWPoint2D(hX/2, -HY/2),
-        //        new MWPoint2D(hX/2, HY/2-hY),
-        //        new MWPoint2D(HX/2, HY/2-hY),
-        //        new MWPoint2D(HX/2, HY/2),
-        //        new MWPoint2D(-HX/2,HY/2),
-        //        new MWPoint2D(-HX/2,HY/2-hY),
-        //        new MWPoint2D(-hX/2,HY/2-hY)
-        //    };
-
-        //    return ContourPts;
-        //}
-
+        /// <summary>
+        /// Gets the rebar positions for an T-shaped column
+        /// </summary>
+        /// <returns></returns>
         public List<MWPoint2D> GetTShapedRebars()
         {
             if (IsAdvancedRebar) return AdvancedRebarsPos;
@@ -869,6 +705,10 @@ namespace ColumnDesignCalc
             return rebars;
         }
 
+        /// <summary>
+        /// Gets column outter shape contour points for a custom shape
+        /// </summary>
+        /// <param name="c0"></param>
         public List<MWPoint2D> GetCustomShapeContour()
         {
             List<MWPoint2D> ContourPts = new List<MWPoint2D>();
@@ -911,11 +751,25 @@ namespace ColumnDesignCalc
 
             return ContourPts;
         }
+        
+        /// <summary>
+        /// Returns true if column selected load is inside interaction diagram, false otherwise
+        /// </summary>
+        /// <param name="GetMde">true is design moment needs to be calculated, false otherwise</param>
+        /// <returns></returns>
         public bool isInsideCapacity(bool GetMde = true)
         {
             return isInsideInteractionDiagram(this.diagramFaces, this.diagramVertices, GetMde : GetMde);
         }
 
+        /// <summary>
+        /// Returns true if column selected load is inside interaction diagram, false otherwise
+        /// </summary>
+        /// <param name="faces">Triangular faces of the consideed interaction diagram</param>
+        /// <param name="vertices">Vertices of the considered interaction diagram</param>
+        /// <param name="firecheck">true if this is the interaction diagram for fire design</param>
+        /// <param name="GetMde">true is design moment needs to be calculated, false otherwise</param>
+        /// <returns></returns>
         public bool isInsideInteractionDiagram(List<Tri3D> faces, List<MWPoint3D> vertices, bool firecheck = false, bool GetMde = true)
         {
             //bool all = (SelectedLoad.Name == "ALL LOADS" || allLoads) ? true : false;
@@ -984,6 +838,9 @@ namespace ColumnDesignCalc
 
         }
 
+        /// <summary>
+        /// Gets the temperature profiles
+        /// </summary>
         public void GetTP()
         {
             if (Shape == GeoShape.Rectangular)
@@ -996,51 +853,10 @@ namespace ColumnDesignCalc
                 TP = new TemperatureProfile(customLX / 1e3, customLY / 1e3, d1x / 1e3, d1y / 1e3, d2x / 1e3, d2y / 1e3, d3x / 1e3, d3y / 1e3, d4x / 1e3, d4y / 1e3, R * 60, FireCurve);
         }
 
-        //public bool CheckSpacing()
-        //{
-        //    List<double> sizes = new List<double>() { BarDiameter, MaxAggSize + 5, 20 };
-        //    double smin = sizes.Max();
-        //    if (Shape == GeoShape.Rectangular)
-        //    {
-        //        double sx = (LX - 2 * (CoverToLinks + LinkDiameter) - BarDiameter) / (NRebarX - 1);
-        //        double sy = (LY - 2 * (CoverToLinks + LinkDiameter) - BarDiameter) / (NRebarY - 1);
-        //        if (sx >= smin && sy >= smin)
-        //            return true;
-        //        else
-        //            return false;
-        //    }
-        //    else if (Shape == GeoShape.Circular)
-        //    {
-        //        double x0 = Diameter / 2.0 - CoverToLinks - LinkDiameter - BarDiameter / 2.0;
-        //        double x1 = x0 * Math.Cos(2 * Math.PI / NRebarCirc);
-        //        double y1 = x0 * Math.Sin(2 * Math.PI / NRebarCirc);
-        //        double s = Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1, 2));
-        //        if (s >= smin)
-        //            return true;
-        //        else
-        //            return false;
-        //    }
-        //    else if (Shape == GeoShape.Polygonal)
-        //    {
-        //        double x0 = Diameter / 2 - CoverToLinks - LinkDiameter - BarDiameter / 2.0;
-        //        double x1 = x0 * Math.Cos(2 * Math.PI / Edges);
-        //        double y1 = x0 * Math.Sin(2 * Math.PI / Edges);
-        //        double s = Math.Sqrt(Math.Pow(x1 - x0, 2) + Math.Pow(y1, 2));
-        //        if (s >= smin)
-        //            return true;
-        //        else
-        //            return false;
-        //    }
-        //    else if (Shape == GeoShape.LShaped)
-        //    {
-        //        if (sx1 < smin || sx2 < smin || sy1 < smin || sy2 < smin)
-        //            return false;
-        //        else
-        //            return true;
-        //    }
-        //    return false;
-        //}
-
+        /// <summary>
+        /// Calculates the center of gravity of an L-shaped column
+        /// </summary>
+        /// <returns></returns>
         public MWPoint2D GetLShapeCOG() // center on (LX/2, LY/2)
         {
             double x = -(HX - hX) * (HY - hY) * hX / 2;
@@ -1050,12 +866,20 @@ namespace ColumnDesignCalc
             return new MWPoint2D(x, y);
         }
 
+        /// <summary>
+        /// Calculates the center of gravity of an T-shaped column
+        /// </summary>
+        /// <returns></returns>
         public MWPoint2D GetTShapeCOG()
         {
             double y = 0.5 * hY * (HX - hX) * (HY - hY) / (HX * hY + hX * (HY - hY));
             return new MWPoint2D(0, y);
         }
 
+        /// <summary>
+        /// Calculates the center of gravity of a custom shaped column
+        /// </summary>
+        /// <returns></returns>
         public MWPoint2D GetCustomShapeCOG()
         {
             double y = customLX * customLY * customLY / 2 - d1x * d1y * d1y / 2 - d2x * d2y * d2y / 2 - d3x * d3y * (customLY - d3y / 2) - d4x * d4y * (customLY - d4y / 2);
@@ -1065,6 +889,10 @@ namespace ColumnDesignCalc
             return new MWPoint2D(x - customLX/2, y - customLY/2);
         }
 
+        /// <summary>
+        /// Calculates the center of gravity of the column
+        /// </summary>
+        /// <returns></returns>
         public MWPoint2D GetCOG()
         {
             switch(Shape)
@@ -1085,6 +913,10 @@ namespace ColumnDesignCalc
             return new MWPoint2D(0,0);
         }
 
+        /// <summary>
+        /// Gets temperature profiles
+        /// </summary>
+        /// <param name="newdesign">If true temperature profiles are recalculated</param>
         public void UpdateTP(bool newdesign = true)
         {
             if (newdesign || (!TP?.TempMap.Keys.Contains(R) ?? true) )
@@ -1093,6 +925,11 @@ namespace ColumnDesignCalc
             TP.GetContours(R, Shape.ToString(), this);
         }
 
+        /// <summary>
+        /// Get the temperature at a given point in the temperature profiles of the column section
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
         public double getTemp(MWPoint2D pt)
         {
             for (int j = TP.ContourPts.Count - 1; j > 0; j--)
@@ -1109,6 +946,11 @@ namespace ColumnDesignCalc
             return 0;
         }
 
+        /// <summary>
+        /// True if the selected fire load case is inside the fire interaction diagram
+        /// </summary>
+        /// <param name="getMde">true if design moment needs to be calculated</param>
+        /// <returns></returns>
         public bool CheckIsInsideFireID(bool getMde = true)
         {
             if (fireDiagramFaces.Count > 0)
@@ -1117,6 +959,11 @@ namespace ColumnDesignCalc
                 return false;
         }
 
+        /// <summary>
+        /// Gets the temperature of the rebar based on the temperature profile of the column section
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
         public double GetRebarTemp(MWPoint2D pt)
         {
             if (Polygons.isInside(TP.ContourPts[0].Points, pt)) return 100;
@@ -1131,6 +978,11 @@ namespace ColumnDesignCalc
             return level;
         }
 
+        /// <summary>
+        /// True if the steel quantity is higher than required minimum and lower than recommended max quantity
+        /// </summary>
+        /// <param name="allLoads">True if all columns loads must be considered, false if only selected load is to be considered</param>
+        /// <returns></returns>
         public bool CheckSteelQtty(bool allLoads = false)
         {
             double Ac = GetColumnArea();
@@ -1157,6 +1009,9 @@ namespace ColumnDesignCalc
             return true;
         }
 
+        /// <summary>
+        /// Calculates design moments
+        /// </summary>
         public void GetDesignMoments()
         {
             List<Load> loadsToCheck;
@@ -1297,6 +1152,10 @@ namespace ColumnDesignCalc
 
         }
 
+        /// <summary>
+        /// Calculates column effective depths
+        /// </summary>
+        /// <returns></returns>
         public double[] GetEffectiveDepths()
         {
             List<MWPoint2D> rebars = new List<MWPoint2D>();
@@ -1396,6 +1255,10 @@ namespace ColumnDesignCalc
             return new double[] { dx, dy };
         }
 
+        /// <summary>
+        /// Calculates the second moment of inertia of the cross section according to the two section axis
+        /// </summary>
+        /// <returns></returns>
         public double[] GetSecondMomentInertia()
         {
             if (Shape == GeoShape.Rectangular)
@@ -1437,6 +1300,10 @@ namespace ColumnDesignCalc
             return null;
         }
 
+        /// <summary>
+        /// Gets the area of the column's cross section
+        /// </summary>
+        /// <returns></returns>
         public double GetColumnArea()
         {
             if (Shape == GeoShape.Rectangular)
@@ -1454,6 +1321,10 @@ namespace ColumnDesignCalc
 ;            return 0;
         }
 
+        /// <summary>
+        /// Gets the steel area of the rebar placed in the column section
+        /// </summary>
+        /// <returns></returns>
         public double GetSteelArea()
         {
             int n = 0;
@@ -1472,11 +1343,19 @@ namespace ColumnDesignCalc
             return n * Math.PI * Math.Pow(BarDiameter / 2.0, 2);
         }
 
+        /// <summary>
+        /// Gets the concrete area of the column's cross section
+        /// </summary>
+        /// <returns></returns>
         public double GetConcreteArea()
         {
             return GetColumnArea() - GetSteelArea();
         }
 
+        /// <summary>
+        /// Gets the column dimensions according to the main orthogonal axis
+        /// </summary>
+        /// <returns></returns>
         public double[] GetAxialLength()
         {
             if (Shape == GeoShape.Rectangular)
@@ -1506,6 +1385,10 @@ namespace ColumnDesignCalc
             return null;
         }
 
+        /// <summary>
+        /// Calculates the perimeter of the column's cross section
+        /// </summary>
+        /// <returns></returns>
         public double GetPerimeter()
         {
             if (Shape == GeoShape.Rectangular)
@@ -1526,16 +1409,27 @@ namespace ColumnDesignCalc
             return 0;
         }
 
+        /// <summary>
+        /// Calculates the steel volumn of the column's rebar
+        /// </summary>
+        /// <returns></returns>
         public double SteelVol()
         {
             return GetSteelArea() * Length;
         }
 
+        /// <summary>
+        /// Calculates the total concrete volumn of the column
+        /// </summary>
+        /// <returns></returns>
         public double ConcreteVol()
         {
             return GetConcreteArea() * Length;
         }
 
+        /// <summary>
+        /// Calculates the utilisations of the column according to selected load case. 4 ratios are calculated, one per force - N, Mx, My - and a 3D radial ratio.
+        /// </summary>
         public void GetUtilisation()
         {
             double bigN = 1E6;
@@ -1605,6 +1499,9 @@ namespace ColumnDesignCalc
             Util3D = (Util[6] != bigN || Util[7] != bigN) ? Math.Round(Math.Min(Util[6], Util[7]), 1) : -1;
         }
 
+        /// <summary>
+        /// Gets the 3 2D interaction diagrams intersecting at the position of the selected load case
+        /// </summary>
         public void Get2DMaps()
         {
             GetMxMyMap();
@@ -1618,6 +1515,10 @@ namespace ColumnDesignCalc
                 GetFireMyNMap();
             }
         }
+
+        /// <summary>
+        /// Gets the 2D interaction diagram according to Mx-My axis. N value of selected load is used.
+        /// </summary>
         public void GetMxMyMap()
         {
             double N = -SelectedLoad.P;
@@ -1655,6 +1556,9 @@ namespace ColumnDesignCalc
             MxMyPts = mapPoints;
         }
 
+        /// <summary>
+        /// Gets the 2D interaction diagram according to Mx-N axis. My value of selected load is used.
+        /// </summary>
         public void GetMxNMap()
         {
             double My = SelectedLoad.MEdy;
@@ -1692,6 +1596,9 @@ namespace ColumnDesignCalc
             MxNPts = mapPoints;
         }
 
+        /// <summary>
+        /// Gets the 2D interaction diagram according to My-N axis. Mx value of selected load is used.
+        /// </summary>
         public void GetMyNMap()
         {
             double Mx = SelectedLoad.MEdx;
@@ -1729,6 +1636,9 @@ namespace ColumnDesignCalc
             MyNPts = mapPoints;
         }
 
+        /// <summary>
+        /// Gets the 2D interaction diagram of fire damaged column according to Mx-My axis. N value of selected load is used.
+        /// </summary>
         public void GetFireMxMyMap()
         {
             double N = -FireLoad.P;
@@ -1766,6 +1676,9 @@ namespace ColumnDesignCalc
             fireMxMyPts = mapPoints;
         }
 
+        /// <summary>
+        /// Gets the 2D interaction diagram of fire damaged column according to Mx-N axis. My value of selected load is used.
+        /// </summary>
         public void GetFireMxNMap()
         {
             double My = FireLoad.MEdy;
@@ -1803,6 +1716,9 @@ namespace ColumnDesignCalc
             fireMxNPts = mapPoints;
         }
 
+        /// <summary>
+        /// Gets the 2D interaction diagram of fire damaged column according to My-N axis. Mx value of selected load is used.
+        /// </summary>
         public void GetFireMyNMap()
         {
             double Mx = FireLoad.MEdx;
@@ -1840,6 +1756,12 @@ namespace ColumnDesignCalc
             fireMyNPts = mapPoints;
         }
 
+        /// <summary>
+        /// Clears duplicate points from list of points pts
+        /// </summary>
+        /// <param name="pts">List of points to clear duplicates from</param>
+        /// <param name="tol">Max distance under which points are considered similar</param>
+        /// <returns></returns>
         public List<MWPoint2D> ClearDuplicatePoints(List<MWPoint2D> pts, double tol = 1e-5)
         {
             List<MWPoint2D> res = new List<MWPoint2D> { pts[0] };
@@ -1859,6 +1781,10 @@ namespace ColumnDesignCalc
             return res;
         }
 
+        /// <summary>
+        /// True if the number of rebars is higher than required minimum rebars.
+        /// </summary>
+        /// <returns></returns>
         public bool CheckMinRebarNo()
         {
             if (R < 120)
@@ -1886,6 +1812,9 @@ namespace ColumnDesignCalc
             return false;
         }
 
+        /// <summary>
+        /// Chekcs bar spacing against guidances
+        /// </summary>
         public void CheckGuidances()
         {
             // bar spacing
@@ -1948,6 +1877,10 @@ namespace ColumnDesignCalc
             }
         }
 
+        /// <summary>
+        /// Finds nl first loads driven the design. Those loads are the closest to the interaction diagram surface.
+        /// </summary>
+        /// <param name="nl">Number of loads to find.</param>
         public void GetDesigningLoads(int nl)
         {
             AllLoads = true;
@@ -1962,6 +1895,11 @@ namespace ColumnDesignCalc
                 DesigningLoads.Add(Loads[distances[i].Item2].Clone());
         }
 
+        /// <summary>
+        /// Gets distance between a load and the interaction diagram surface.
+        /// </summary>
+        /// <param name="load">Load considered.</param>
+        /// <returns></returns>
         public double GetDistanceLoadToID(Load load)
         {
             MWPoint3D pt = new MWPoint3D(load.MEdx, load.MEdy, -load.P);
@@ -1986,12 +1924,5 @@ namespace ColumnDesignCalc
             this.FireCheck = false;
             this.SpacingCheck = false;
         }
-        //private Assembly LoadIDdll()
-        //{
-        //    string assemblyPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/Magma Works/Scaffold/Libraries/InteractionDiagram3D.dll";
-        //    if (!File.Exists(assemblyPath)) return null;
-        //    Assembly assembly = Assembly.LoadFrom(assemblyPath);
-        //    return assembly;
-        //}
     }
 }

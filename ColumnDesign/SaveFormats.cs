@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace ColumnDesign
 {
+    /// <summary>
+    /// Class to save column in a format compatible with the SCaFFOLD column calc
+    /// </summary>
     public class CalcsColumn
     {
         public List<CalcsValue> Inputs = new List<CalcsValue>();

@@ -491,7 +491,7 @@
                                   Margin="0 4 5 0" Width="70" Height="21"/>
                             <ComboBox ItemsSource="{Binding NoBars}" SelectedValue="{Binding SelectedColumn.NRebarCirc}" SelectionChanged="DesignChangedNotFire"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
-                            <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.LinkDiameter}" LostFocus="DesignChangedNotFire" IsEditable="True"
+                            <ComboBox ItemsSource="{Binding BarDiameters}" Text="{Binding SelectedColumn.LinkDiameter}" SelectionChanged="DesignChangedNotFire" IsEditable="True"
                                   Margin="0 4 5 0" Width="70" Height="21"/>
                             <ComboBox ItemsSource="{Binding FireResistances}" SelectedValue="{Binding SelectedColumn.R}" SelectionChanged="FireResistanceChanged"
                                   Margin="0 4 5 0" Width="70" Height="21"/>

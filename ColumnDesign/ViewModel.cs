@@ -30,6 +30,9 @@ namespace ColumnDesign
             set { projectName = value; RaisePropertyChanged(nameof(ProjectName)); }
         }
 
+        /// <summary>
+        /// All project's columns
+        /// </summary>
         List<Column> myColumns = new List<Column>();
         public List<Column> MyColumns
         {
@@ -41,6 +44,9 @@ namespace ColumnDesign
             }
         }
 
+        /// <summary>
+        /// ViewModel for the interaction diagram view
+        /// </summary>
         IDView myIDView = new IDView();
         public IDView MyIDView
         {
@@ -48,6 +54,9 @@ namespace ColumnDesign
             set { myIDView = value; RaisePropertyChanged(nameof(MyIDView)); }
         }
 
+        /// <summary>
+        /// ViewModel for the 2D column display
+        /// </summary>
         LayoutView myLayoutView = new LayoutView();
         public LayoutView MyLayoutView
         {
@@ -55,6 +64,9 @@ namespace ColumnDesign
             set { myLayoutView = value; RaisePropertyChanged(nameof(MyLayoutView)); }
         }
 
+        /// <summary>
+        /// ViewModel for the 3D display of columns with their 3D position in the structure
+        /// </summary>
         ProjectView myProjectView = new ProjectView();
         public ProjectView MyProjectView
         {
@@ -62,6 +74,9 @@ namespace ColumnDesign
             set { myProjectView = value; RaisePropertyChanged(nameof(MyProjectView)); }
         }
 
+        /// <summary>
+        /// Calculations displayed
+        /// </summary>
         Calculations columnCalcs = new Calculations();
         public Calculations ColumnCalcs
         {
@@ -69,6 +84,9 @@ namespace ColumnDesign
             set { columnCalcs = value; RaisePropertyChanged(nameof(ColumnCalcs)); }
         }
 
+        /// <summary>
+        /// Formulae associated with columnCalcs
+        /// </summary>
         public List<Formula> CalcExpressions { get => columnCalcs.Expressions; }
 
         
@@ -129,6 +147,9 @@ namespace ColumnDesign
             set { totalCarbon = value; RaisePropertyChanged(nameof(TotalCarbon)); }
         }
 
+        /// <summary>
+        /// Active column
+        /// </summary>
         Column selectedColumn;
         public Column SelectedColumn
         {
@@ -150,19 +171,21 @@ namespace ColumnDesign
         public List<int> LinkDiameters { get; set; } = new List<int> { 10, 12, 16, 20, 25, 32, 40 };
 
         public List<int> FireResistances { get; set; } = new List<int> { 30, 60, 90, 120, 180, 240 };
-        List<string> fireDesignMethods = Enum.GetNames(typeof(FDesignMethod)).ToList(); //new List<string> { "Table", "Isotherm 500", "Zone method", "Advanced" };
+        List<string> fireDesignMethods = Enum.GetNames(typeof(FDesignMethod)).ToList(); 
         public List<string> FireDesignMethods
         {
             get { return fireDesignMethods; }
             set { fireDesignMethods = value; RaisePropertyChanged(nameof(FireDesignMethods)); }
         }
-        public List<string> FireCurves { get; set; } = Enum.GetNames(typeof(FCurve)).ToList(); //new List<string> { "Standard curve", "Hydrocarbon" };
+        public List<string> FireCurves { get; set; } = Enum.GetNames(typeof(FCurve)).ToList(); 
 
-        //public List<string> IDReductions { get; set; } = new List<string> { "100 %", "95 %", "90 %", "85 %", "80 %" };
         public List<int> IDReductions { get; set; } = new List<int> { 100, 95, 90, 85, 80 };
 
         public Dictionary<double, double> CarbonData = new Dictionary<double, double>();
 
+        /// <summary>
+        /// Series of settings related to word report
+        /// </summary>
         Settings mySettings = new Settings();
         public Settings MySettings
         {
@@ -170,6 +193,9 @@ namespace ColumnDesign
             set { mySettings = value; RaisePropertyChanged(nameof(MySettings)); }
         }
 
+        /// <summary>
+        /// Column instance used to set global parameters
+        /// </summary>
         Column globalColumn;
         public Column GlobalColumn
         {
@@ -191,6 +217,9 @@ namespace ColumnDesign
             set { isSteelCustom = value; RaisePropertyChanged(nameof(IsSteelCustom)); }
         }
 
+        /// <summary>
+        /// Rebar positions entered by user
+        /// </summary>
         List<RebarPosition> advancedRebarPos = new List<RebarPosition>();
         public List<RebarPosition> AdvancedRebarPos
         {
@@ -198,6 +227,9 @@ namespace ColumnDesign
             set { advancedRebarPos = value; RaisePropertyChanged(nameof(AdvancedRebarPos)); }
         }
 
+        /// <summary>
+        /// ViewMode for batch design
+        /// </summary>
         BatchDesignView myBatchDesignView = new BatchDesignView();
         public BatchDesignView MyBatchDesignView
         {
@@ -205,6 +237,9 @@ namespace ColumnDesign
             set { myBatchDesignView = value; RaisePropertyChanged(nameof(MyBatchDesignView)); }
         }
 
+        /// <summary>
+        /// List of columns to include in report
+        /// </summary>
         List<string> columnsInReport;
         public List<string> ColumnsInReport
         {
@@ -253,6 +288,7 @@ namespace ColumnDesign
             this.myIDView.UpdateIDHull(this.selectedColumn);
             RaisePropertyChanged(nameof(SectionCheck));
             RaisePropertyChanged(nameof(MyIDView));
+            RaisePropertyChanged(nameof(SelectedColumn));
         }
 
         public void UpdateProjectView()

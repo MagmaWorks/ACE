@@ -13,6 +13,9 @@ using System.Windows;
 
 namespace ColumnDesignCalc
 {
+    /// <summary>
+    /// Defines a column design calc in the SCaFFOLD framework. The created dll can be directly imported by SCaFFOLD
+    /// </summary>
     [CalcName("Advanced Column Design")]
     [CalcAlternativeName("ACE.ColumnDesign")]
     public class Calculations : CalcBase
@@ -61,9 +64,6 @@ namespace ColumnDesignCalc
         CalcDouble LinkSpacing;
 
         CalcDouble CapacityCheckO;
-        //CalcDouble FireCheckO;
-        //CalcDouble SpacingCheckO;
-        //CalcDouble MinMaxSteelCheckO;
 
         CalcDouble ConcreteCarbon;
         CalcDouble RebarCarbon;
@@ -73,11 +73,6 @@ namespace ColumnDesignCalc
         public List<Concrete> ConcreteGrades { get; set; } = new List<Concrete>()
         {
             new Concrete("Custom",50,37),
-            //new Concrete("32/40",32,33),
-            //new Concrete("35/45",35,34),
-            //new Concrete("40/50",40,35),
-            ////new Concrete("45/55",45,36),
-            //new Concrete("50/60",50,37),
         };
         public List<Steel> SteelGrades { get; set; } = new List<Steel>()
         {

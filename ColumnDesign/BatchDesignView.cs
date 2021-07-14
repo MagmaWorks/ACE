@@ -541,15 +541,23 @@ namespace ColumnDesign
                 Optimiser.Initialize();
 
                 int k = 1;
+                int maxAttemps = 100;
                 designs[i].Status = DesignStatus.InProgress;
-                while (designs[i].Status == DesignStatus.InProgress)
+                while (designs[i].Status == DesignStatus.InProgress && k <= maxAttemps)
                 {
-                    OptiMessage = BatchDesign.LoadClusters[i].Name + " - iteration " + k;
+                    OptiMessage = BatchDesign.LoadClusters[i].Name + " - attempt " + k;
                     await ColumnDesignOpti_Async();
                     k++;
                 }
-                designs[i].Status = DesignStatus.Designed;
-                BatchDesign.Designs.Add(designs[i].Col.Clone());
+                if(k == maxAttemps + 1)
+                {
+                    designs[i].Status = DesignStatus.NoDesignFound;
+                }
+                else
+                {
+                    designs[i].Status = DesignStatus.Designed;
+                    BatchDesign.Designs.Add(designs[i].Col.Clone());
+                }
                 ProgressPercentageMain = Convert.ToInt32( ( i + 1 ) * 1.0 / ( BatchDesign.NClustersTot ) * 100);
             }
 
@@ -710,7 +718,7 @@ namespace ColumnDesign
         public double ConcreteVolume { get; set; }
     }
 
-    public enum DesignStatus { Designed, InProgress, NotDesigned, DesignFound}
+    public enum DesignStatus { Designed, InProgress, NotDesigned, DesignFound, NoDesignFound }
     public class Design : ViewModelBase
     {
         Column col;

@@ -247,7 +247,7 @@
                                     <TextBox Name="MaxIter" Text="400" Width="40" Margin="0 4 0 4"/>
                                     <TextBox Name="Tinit" Text="3000" Width="40" Margin="0 4 0 4"/>
                                     <TextBox Name="Alpha" Text="0.9" Width="40" Margin="0 4 0 4"/>
-                                    <TextBox Name="Variance" Text="1" Width="40" Margin="0 4 0 4"/>
+                                    <TextBox Name="Variance" Text="2" Width="40" Margin="0 4 0 4"/>
                                 </StackPanel>
 
                             </StackPanel>
@@ -568,6 +568,9 @@
                                                     <DataTrigger Binding="{Binding Status}" Value="Designed">
                                                         <Setter Property="Visibility" Value="Collapsed"/>
                                                     </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="NoDesignFound">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="NotDesigned">
                                                         <Setter Property="Visibility" Value="Collapsed"/>
                                                     </DataTrigger>
@@ -668,6 +671,28 @@
                                         </Style>
                                     </StackPanel.Style>
                                     <TextBlock Text="Searching for the best design ..."/>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Vertical">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="InProgress">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="DesignFound">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="DesignFound">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="Designed">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock Text="No design found ..."/>
                                 </StackPanel>
 
 
