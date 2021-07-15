@@ -545,7 +545,7 @@ namespace ColumnDesign
                 designs[i].Status = DesignStatus.InProgress;
                 while (designs[i].Status == DesignStatus.InProgress && k <= maxAttemps)
                 {
-                    OptiMessage = BatchDesign.LoadClusters[i].Name + " - attempt " + k;
+                    OptiMessage = BatchDesign.LoadClusters[i].Name + " - run " + k;
                     await ColumnDesignOpti_Async();
                     k++;
                 }

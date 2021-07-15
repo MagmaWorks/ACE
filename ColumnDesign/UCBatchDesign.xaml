@@ -683,7 +683,7 @@
                                                 <DataTrigger Binding="{Binding Status}" Value="DesignFound">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status}" Value="DesignFound">
+                                                <DataTrigger Binding="{Binding Status}" Value="NoDesignFound">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding Status}" Value="Designed">
