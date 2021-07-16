@@ -541,7 +541,7 @@ namespace ColumnDesign
                 Optimiser.Initialize();
 
                 int k = 1;
-                int maxAttemps = 100;
+                int maxAttemps = 10;
                 designs[i].Status = DesignStatus.InProgress;
                 while (designs[i].Status == DesignStatus.InProgress && k <= maxAttemps)
                 {
