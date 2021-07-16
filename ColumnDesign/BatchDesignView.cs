@@ -552,12 +552,15 @@ namespace ColumnDesign
                 if(k == maxAttemps + 1)
                 {
                     designs[i].Status = DesignStatus.NoDesignFound;
+                    designs[i].Col = ClusterCol.Clone();
+                    Load l = designs[i].Col.SelectedLoad;
+                    designs[i].Col.FireLoad = new Load() { MEdx = 0.7 * l.MEdx, MEdy = 0.7 * l.MEdy, P = 0.7 * l.P };
                 }
                 else
                 {
                     designs[i].Status = DesignStatus.Designed;
-                    BatchDesign.Designs.Add(designs[i].Col.Clone());
                 }
+                BatchDesign.Designs.Add(designs[i].Col.Clone());
                 ProgressPercentageMain = Convert.ToInt32( ( i + 1 ) * 1.0 / ( BatchDesign.NClustersTot ) * 100);
             }
 

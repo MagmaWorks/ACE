@@ -101,6 +101,8 @@ namespace ColumnDesignCalc
 
         public string DataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/Magma Works/Scaffold/Data/";
 
+        public bool UpdateCol = true;
+
         public Calculations()
         {
             ImportConcreteGrades();
@@ -247,40 +249,44 @@ namespace ColumnDesignCalc
             Console.WriteLine("Expressions initialized");
             Console.WriteLine(ConcreteGrades.Count);
             // Import Scaffold data
-            Column = new Column()
+            if(UpdateCol)
             {
-                LX = Lx.Value,
-                LY = Ly.Value,
-                Length = Length.Value,
-                Angle = Angle.Value,
-                ConcreteGrade = ConcreteGrades.First(c => c.Name == ConcreteGrade.ValueAsString),
-                SteelGrade = SteelGrades.First(c => c.Name == SteelGrade.ValueAsString),
-                MaxAggSize = MaxAggSize.Value,
-                EffectiveLength = EffectiveLength.Value,
-                CoverToLinks = CoverToLinks.Value,
-                BarDiameter = BarDiameters.First(b => b == Convert.ToInt32(BarDiameter.ValueAsString)),
-                LinkDiameter = BarDiameters.First(b => b == Convert.ToInt32(LinkDiameter.ValueAsString)),
-                NRebarX = NRebars.First(n => n == Convert.ToInt32(NRebarX.ValueAsString)),
-                NRebarY = NRebars.First(n => n == Convert.ToInt32(NRebarY.ValueAsString)),
-                R = FireResistances.First(f => f == Convert.ToInt32(R.ValueAsString)),
-                FDMStr = FireDesignMethod.ValueAsString.Replace(" ", "_"),
-                SelectedLoad = new Load()
+                Column = new Column()
                 {
-                    MxTop = MxTop.Value,
-                    MxBot = MxBot.Value,
-                    MyTop = MyTop.Value,
-                    MyBot = MyBot.Value,
-                    P = P.Value,
-                },
-                FireLoad = new Load()
-                {
-                    MxTop = 0.7 * MxTop.Value,
-                    MxBot = 0.7 * MxBot.Value,
-                    MyTop = 0.7 * MyTop.Value,
-                    MyBot = 0.7 * MyBot.Value,
-                    P = 0.7 * P.Value,
-                },
-            };
+                    LX = Lx.Value,
+                    LY = Ly.Value,
+                    Length = Length.Value,
+                    Angle = Angle.Value,
+                    ConcreteGrade = ConcreteGrades.First(c => c.Name == ConcreteGrade.ValueAsString),
+                    SteelGrade = SteelGrades.First(c => c.Name == SteelGrade.ValueAsString),
+                    MaxAggSize = MaxAggSize.Value,
+                    EffectiveLength = EffectiveLength.Value,
+                    CoverToLinks = CoverToLinks.Value,
+                    BarDiameter = BarDiameters.First(b => b == Convert.ToInt32(BarDiameter.ValueAsString)),
+                    LinkDiameter = BarDiameters.First(b => b == Convert.ToInt32(LinkDiameter.ValueAsString)),
+                    NRebarX = NRebars.First(n => n == Convert.ToInt32(NRebarX.ValueAsString)),
+                    NRebarY = NRebars.First(n => n == Convert.ToInt32(NRebarY.ValueAsString)),
+                    R = FireResistances.First(f => f == Convert.ToInt32(R.ValueAsString)),
+                    FDMStr = FireDesignMethod.ValueAsString.Replace(" ", "_"),
+                    SelectedLoad = new Load()
+                    {
+                        MxTop = MxTop.Value,
+                        MxBot = MxBot.Value,
+                        MyTop = MyTop.Value,
+                        MyBot = MyBot.Value,
+                        P = P.Value,
+                    },
+                    FireLoad = new Load()
+                    {
+                        MxTop = 0.7 * MxTop.Value,
+                        MxBot = 0.7 * MxBot.Value,
+                        MyTop = 0.7 * MyTop.Value,
+                        MyBot = 0.7 * MyBot.Value,
+                        P = 0.7 * P.Value,
+                    },
+                };
+            }
+            
 
             if (Lx.Value > 0 && Ly.Value > 0)
             {
@@ -1168,8 +1174,27 @@ namespace ColumnDesignCalc
 
             return res;
         }
-        
-        public (bool, Formula) CheckFireZoneMethod(bool newdesign = false, bool calcOnly = false)
+
+        public (bool, Formula) CheckFireZoneMethod(bool allLoads = false, bool newdesign = false)
+        {
+            if (allLoads)
+            {
+                foreach (var l in Column.Loads)
+                {
+                    Column.FireLoad = new Load() { MEdx = 0.7 * l.MEdx, MEdy = 0.7 * l.MEdy, P = 0.7 * l.P };
+                    if (!CheckFireZoneMethod().Item1)
+                        return (false, new Formula());
+                }
+                return (true, new Formula());
+            }
+            if (Column.Shape == GeoShape.Rectangular)
+                return CheckFireZoneMethod_Rectangular();
+            //else if (Shape == GeoShape.LShaped)
+            //    return CheckFireIsotherm500_LShaped();
+            return (false, null);
+        }
+
+        public (bool, Formula) CheckFireZoneMethod_Rectangular(bool allLoads = false, bool newdesign = false, bool calcOnly = false)
         {
             Column col = Column;
             if (newdesign || (!col.TP?.TempMap.Keys.Contains(col.R) ?? true))
@@ -1478,6 +1503,7 @@ namespace ColumnDesignCalc
 
         public bool UpdateAdvancedFireCheck()
         {
+            if (Column.fireDiagramFaces.Count == 0) UpdateFireID();
             return Column.CheckIsInsideFireID();
         }
 

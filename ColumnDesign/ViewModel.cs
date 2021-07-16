@@ -585,7 +585,7 @@ namespace ColumnDesign
                 {
                     //int nloadtot = cols.Count;
                     k++;
-                    Calculations calc = new Calculations();
+                    Calculations calc = new Calculations() { UpdateCol = false };
                     calc.Column = c;
                     calc.UpdateInputOuput();
                     calc.UpdateCalc();
@@ -606,7 +606,7 @@ namespace ColumnDesign
                     {
                         k++;
                         c.SelectedLoad = c.DesigningLoads[i];
-                        Calculations calc = new Calculations();
+                        Calculations calc = new Calculations() { UpdateCol = false };
                         calc.Column = c;
                         calc.UpdateInputOuput();
                         calc.InstanceName = string.Format("{0} - {1}", c.Name, c.DesigningLoads[i].Name);

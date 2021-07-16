@@ -126,7 +126,7 @@ namespace Optimisation
 
         public void Initialize()
         {
-            fireMethods = new bool[] { true, false, false, true };
+            fireMethods = new bool[] { true, true, true, true };
             Calculations calc = new Calculations(column);
             CarbonRef = calc.GetEmbodiedCarbon()[2]; ;
             CostRef = calc.GetCost()[3];
@@ -446,6 +446,7 @@ namespace Optimisation
             double Wcost = DriversWeight[0];
             double Fcarb = Drivers[1];
             double Fcost = Drivers[0];
+            bool fireCheck = false;
             bool fireCheck0 = false;
             bool fireCheck1 = false;
             bool fireCheck2 = false;
@@ -461,15 +462,15 @@ namespace Optimisation
                     if (c.SpacingCheck == true)
                     {
 
-                        if (fireMethods[0]) fireCheck0 = calc.CheckFireDesignTable(c.AllLoads) ;
-                        if (!fireCheck0 && fireMethods[1]) fireCheck1 = calc.CheckFireIsotherm500().Item1;
-                        if (!fireCheck1 && fireMethods[2]) fireCheck2 = calc.CheckFireZoneMethod().Item1;
-                        if (!fireCheck2 && fireMethods[3])
+                        if (fireMethods[0]) fireCheck0 = fireCheck = calc.CheckFireDesignTable(c.AllLoads) ;
+                        if (!fireCheck && fireMethods[1]) fireCheck1 = fireCheck = calc.CheckFireIsotherm500(allLoads: c.AllLoads).Item1;
+                        if (!fireCheck && fireMethods[2]) fireCheck2 = fireCheck = calc.CheckFireZoneMethod(allLoads: c.AllLoads).Item1;
+                        if (!fireCheck && fireMethods[3])
                         {
                             calc.UpdateFireID(true);
-                            fireCheck3 = c.CheckIsInsideFireID(getMde : false);
+                            fireCheck3 = fireCheck = c.CheckIsInsideFireID(getMde : false);
                         }
-                        c.FireCheck = (fireCheck0 || fireCheck1 || fireCheck2 || fireCheck3);
+                        c.FireCheck = fireCheck; // (fireCheck0 || fireCheck1 || fireCheck2 || fireCheck3);
                         if (c.FireCheck == true)
                         {
                             if (fireCheck0) c.FDMStr = FDesignMethod.Table.ToString();

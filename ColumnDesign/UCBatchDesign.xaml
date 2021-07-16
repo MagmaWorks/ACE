@@ -536,7 +536,7 @@
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Status}" Value="NoDesignFound">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -590,6 +590,9 @@
                                                 <DataTrigger Binding="{Binding Status}" Value="InProgress">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="NoDesignFound">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
                                                 <DataTrigger Binding="{Binding Status}" Value="DesignFound">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
@@ -605,9 +608,6 @@
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Col.IsRectangular}" Value="False">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="NoDesignFound">
                                                         <Setter Property="Visibility" Value="Collapsed"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -707,7 +707,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </StackPanel.Style>
-                                    <TextBlock Text="No design found ..."/>
+                                    <TextBlock Text="No design found"/>
                                 </StackPanel>
 
 
