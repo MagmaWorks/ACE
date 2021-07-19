@@ -7,7 +7,7 @@
              xmlns:ox="http://oxyplot.org/wpf"
              mc:Ignorable="d"
              SizeChanged="LayoutSizeChanged">
-    <Grid>
+    <Grid Background="White">
         <Canvas HorizontalAlignment="Center" VerticalAlignment="Center">
             <Line X1="{Binding XAxis1.X}" 
                   Y1="{Binding XAxis1.Y}" 

@@ -15,13 +15,24 @@ using System.Reflection;
 using Column = ColumnDesignCalc.Column;
 using ColumnDesignCalc;
 using CalcCore;
+using BatchDesign;
 
 namespace ColumnDesign
 {
     public class ViewModel : ViewModelBase
     {
         public bool initializing = true;
-        
+
+        string projectName = "New Project";
+        public string ProjectName
+        {
+            get { return projectName; }
+            set { projectName = value; RaisePropertyChanged(nameof(ProjectName)); }
+        }
+
+        /// <summary>
+        /// All project's columns
+        /// </summary>
         List<Column> myColumns = new List<Column>();
         public List<Column> MyColumns
         {
@@ -33,8 +44,9 @@ namespace ColumnDesign
             }
         }
 
-        public bool CanColumnBeDeleted { get { return MyColumns.Count > 1; } }
-
+        /// <summary>
+        /// ViewModel for the interaction diagram view
+        /// </summary>
         IDView myIDView = new IDView();
         public IDView MyIDView
         {
@@ -42,6 +54,9 @@ namespace ColumnDesign
             set { myIDView = value; RaisePropertyChanged(nameof(MyIDView)); }
         }
 
+        /// <summary>
+        /// ViewModel for the 2D column display
+        /// </summary>
         LayoutView myLayoutView = new LayoutView();
         public LayoutView MyLayoutView
         {
@@ -49,13 +64,19 @@ namespace ColumnDesign
             set { myLayoutView = value; RaisePropertyChanged(nameof(MyLayoutView)); }
         }
 
-        //CalcuationView myCalcView = new CalcuationView();
-        //public CalcuationView MyCalcView
-        //{
-        //    get { return myCalcView; }
-        //    set { myCalcView = value; RaisePropertyChanged(nameof(MyCalcView)); }
-        //}
+        /// <summary>
+        /// ViewModel for the 3D display of columns with their 3D position in the structure
+        /// </summary>
+        ProjectView myProjectView = new ProjectView();
+        public ProjectView MyProjectView
+        {
+            get { return myProjectView; }
+            set { myProjectView = value; RaisePropertyChanged(nameof(MyProjectView)); }
+        }
 
+        /// <summary>
+        /// Calculations displayed
+        /// </summary>
         Calculations columnCalcs = new Calculations();
         public Calculations ColumnCalcs
         {
@@ -63,26 +84,17 @@ namespace ColumnDesign
             set { columnCalcs = value; RaisePropertyChanged(nameof(ColumnCalcs)); }
         }
 
+        /// <summary>
+        /// Formulae associated with columnCalcs
+        /// </summary>
         public List<Formula> CalcExpressions { get => columnCalcs.Expressions; }
 
-
-        FireDesignView myFireDesignView = new FireDesignView();
-        public FireDesignView MyFireDesignView
-        {
-            get { return myFireDesignView; }
-            set { myFireDesignView = value; RaisePropertyChanged(nameof(MyFireDesignView)); }
-        }
-
+        
         // Design checks
         bool sectionCheck = false;
         public bool SectionCheck
         {
-            get
-            {
-                //sectionCheck = SelectedColumn?.isInsideCapacity() ?? false;
-                //return SelectedColumn?.isInsideCapacity() ?? false;
-                return sectionCheck;
-            }
+            get{return sectionCheck;}
             set { sectionCheck = value; RaisePropertyChanged(nameof(SectionCheck)); }
         }
         
@@ -114,18 +126,6 @@ namespace ColumnDesign
             set { minRebarCheck = value; RaisePropertyChanged(nameof(MinRebarCheck)); }
         }
 
-        string nameSelectedColumn = "";
-        public string NameSelectedColumn
-        {
-            get { return nameSelectedColumn; }
-            set
-            {
-                nameSelectedColumn = value;
-                RaisePropertyChanged(nameof(NameSelectedColumn));
-                SelectedColumn = MyColumns.FirstOrDefault(c => c.Name == nameSelectedColumn);
-            }
-        }
-
         double concreteCarbon = 0;
         public double ConcreteCarbon
         {
@@ -147,12 +147,16 @@ namespace ColumnDesign
             set { totalCarbon = value; RaisePropertyChanged(nameof(TotalCarbon)); }
         }
 
+        /// <summary>
+        /// Active column
+        /// </summary>
         Column selectedColumn;
         public Column SelectedColumn
         {
             get { return selectedColumn ; }
             set { selectedColumn = value ?? myColumns.FirstOrDefault(c => c!= null);
                   UpdateDesign();
+                  UpdateProjectView();
                   RaisePropertyChanged(nameof(SelectedColumn));
             }
         }
@@ -167,24 +171,36 @@ namespace ColumnDesign
         public List<int> LinkDiameters { get; set; } = new List<int> { 10, 12, 16, 20, 25, 32, 40 };
 
         public List<int> FireResistances { get; set; } = new List<int> { 30, 60, 90, 120, 180, 240 };
-        List<string> fireDesignMethods = Enum.GetNames(typeof(FDesignMethod)).ToList(); //new List<string> { "Table", "Isotherm 500", "Zone method", "Advanced" };
+        List<string> fireDesignMethods = Enum.GetNames(typeof(FDesignMethod)).ToList(); 
         public List<string> FireDesignMethods
         {
             get { return fireDesignMethods; }
             set { fireDesignMethods = value; RaisePropertyChanged(nameof(FireDesignMethods)); }
         }
-        public List<string> FireCurves { get; set; } = Enum.GetNames(typeof(FCurve)).ToList(); //new List<string> { "Standard curve", "Hydrocarbon" };
+        public List<string> FireCurves { get; set; } = Enum.GetNames(typeof(FCurve)).ToList(); 
 
-        //public List<string> IDReductions { get; set; } = new List<string> { "100 %", "95 %", "90 %", "85 %", "80 %" };
         public List<int> IDReductions { get; set; } = new List<int> { 100, 95, 90, 85, 80 };
 
         public Dictionary<double, double> CarbonData = new Dictionary<double, double>();
 
+        /// <summary>
+        /// Series of settings related to word report
+        /// </summary>
         Settings mySettings = new Settings();
         public Settings MySettings
         {
             get { return mySettings; }
             set { mySettings = value; RaisePropertyChanged(nameof(MySettings)); }
+        }
+
+        /// <summary>
+        /// Column instance used to set global parameters
+        /// </summary>
+        Column globalColumn;
+        public Column GlobalColumn
+        {
+            get { return globalColumn; }
+            set { globalColumn = value; RaisePropertyChanged(nameof(GlobalColumn)); }
         }
 
         bool isConcreteCustom = false;
@@ -201,6 +217,9 @@ namespace ColumnDesign
             set { isSteelCustom = value; RaisePropertyChanged(nameof(IsSteelCustom)); }
         }
 
+        /// <summary>
+        /// Rebar positions entered by user
+        /// </summary>
         List<RebarPosition> advancedRebarPos = new List<RebarPosition>();
         public List<RebarPosition> AdvancedRebarPos
         {
@@ -208,6 +227,39 @@ namespace ColumnDesign
             set { advancedRebarPos = value; RaisePropertyChanged(nameof(AdvancedRebarPos)); }
         }
 
+        /// <summary>
+        /// ViewMode for batch design
+        /// </summary>
+        BatchDesignView myBatchDesignView = new BatchDesignView();
+        public BatchDesignView MyBatchDesignView
+        {
+            get { return myBatchDesignView; }
+            set { myBatchDesignView = value; RaisePropertyChanged(nameof(MyBatchDesignView)); }
+        }
+
+        /// <summary>
+        /// List of columns to include in report
+        /// </summary>
+        List<string> columnsInReport;
+        public List<string> ColumnsInReport
+        {
+            get { return columnsInReport; }
+            set { columnsInReport = value; RaisePropertyChanged(nameof(ColumnsInReport)); }
+        }
+
+        WordReportProgress reportProgress;
+        public WordReportProgress ReportProgress
+        {
+            get { return reportProgress; }
+            set { reportProgress = value; RaisePropertyChanged(nameof(ReportProgress)); }
+        }
+
+        bool displayOpenButtons = false;
+        public bool DisplayOpenButtons
+        {
+            get { return displayOpenButtons; }
+            set { displayOpenButtons = value; RaisePropertyChanged(nameof(DisplayOpenButtons)); }
+        }
 
         public ViewModel()
         {
@@ -220,6 +272,12 @@ namespace ColumnDesign
             RaisePropertyChanged(nameof(SelectedColumn));
         }
 
+        public void RefreshColumns()
+        {
+            RaisePropertyChanged(nameof(SelectedColumn));
+            RaisePropertyChanged(nameof(GlobalColumn));
+        }
+
         public void UpdateDesign(bool updateFire = true)
         {
             if (initializing) return;
@@ -230,6 +288,13 @@ namespace ColumnDesign
             this.myIDView.UpdateIDHull(this.selectedColumn);
             RaisePropertyChanged(nameof(SectionCheck));
             RaisePropertyChanged(nameof(MyIDView));
+            RaisePropertyChanged(nameof(SelectedColumn));
+        }
+
+        public void UpdateProjectView()
+        {
+            myProjectView.UpdateProjectView(myColumns, selectedColumn);
+            RaisePropertyChanged(nameof(MyProjectView));
         }
 
         public void UpdateLoad()
@@ -269,21 +334,8 @@ namespace ColumnDesign
             if (initializing) return;
             if (this.selectedColumn != null)
             {
-                //myCalcView.column = this.selectedColumn;
-                //myCalcView.Formulae = new List<FormulaeVM>();
-                ////myFireDesignView.LoadGraph(this.selectedColumn);
-                //MinMaxSteelCheck = myCalcView.UpdateMinMaxSteelCheck(this.SelectedColumn);
-                //SpacingCheck = myCalcView.UpdateSecondOrderCheck();
-                //FireCheck = myCalcView.UpdateFireDesign(this.SelectedColumn);
-                //MinRebarCheck = SelectedColumn.CheckMinRebarNo();
-                //SelectedColumn.CheckGuidances();
-                //GetEmbodiedCarbon();
-                //this.SelectedColumn.GetUtilisation();
-                //RaisePropertyChanged(nameof(SelectedColumn));
-
                 columnCalcs.Column = this.selectedColumn;
                 columnCalcs.InitExpressions();
-                //myFireDesignView.LoadGraph(this.selectedColumn);
                 MinMaxSteelCheck = columnCalcs.CheckMinMaxSteel();
                 SpacingCheck = columnCalcs.UpdateSecondOrderCheck();
                 SectionCheck = SelectedColumn.isInsideCapacity();
@@ -295,7 +347,7 @@ namespace ColumnDesign
                 GetEmbodiedCarbon();
                 this.SelectedColumn.GetUtilisation();
                 this.SelectedColumn.Get2DMaps();
-                RaisePropertyChanged(nameof(SelectedColumn));
+                //RaisePropertyChanged(nameof(SelectedColumn));
                 RaisePropertyChanged(nameof(CalcExpressions));
             }
         
@@ -311,20 +363,6 @@ namespace ColumnDesign
 
         }
 
-        public void Save()
-        {
-            var saveObj = Newtonsoft.Json.JsonConvert.SerializeObject(myColumns, Newtonsoft.Json.Formatting.Indented);
-            try
-            {
-                var filePath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\ColumnDesign\Temp\columnData.JSON";
-                System.IO.File.WriteAllText(filePath, saveObj);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show("Oops..." + Environment.NewLine + ex.Message);
-                return;
-            }
-        }
 
         public void SaveAs()
         {
@@ -335,12 +373,8 @@ namespace ColumnDesign
             try
             {
                 var saveDialog = new SaveFileDialog();
-                //saveDialog.Filter = @"JSON files |*.JSON";
                 saveDialog.Filter = @"ACE files |*.col";
-                //saveDialog.FileName = "Col_" + SelectedColumn.Name + @".JSON";
                 saveDialog.FileName = SelectedColumn.Name + @".col";
-
-                //saveDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 Properties.Settings.Default.Reload();
                 if (saveDialog.ShowDialog() != DialogResult.OK) return;
 
@@ -361,6 +395,7 @@ namespace ColumnDesign
         {
             var saveFolder = new FolderBrowserDialog();
             DialogResult result = saveFolder.ShowDialog();
+            Properties.Settings.Default.Reload();
             if (result != DialogResult.OK) return;
             try
             {
@@ -370,9 +405,7 @@ namespace ColumnDesign
                     CalcsColumn cc = new CalcsColumn(MyColumns[i]);
                     var saveObj = Newtonsoft.Json.JsonConvert.SerializeObject(MyColumns[i], Newtonsoft.Json.Formatting.Indented);
                     var saveObj_Calcs = Newtonsoft.Json.JsonConvert.SerializeObject(cc, Newtonsoft.Json.Formatting.Indented);
-                    //string filePath = folderName + @"\\Col_" + myColumns[i].Name + ".JSON";
                     string filePath = folderName + @"\\" + myColumns[i].Name + ".col";
-                    //string filePath_Calcs = folderName + @"\\Col_" + myColumns[i].Name + "_Calcs.JSON";
                     string filePath_Calcs = filePath.Replace(".col", ".json");
                     System.IO.File.WriteAllText(filePath, saveObj);
                     System.IO.File.WriteAllText(filePath_Calcs, saveObj_Calcs);
@@ -385,35 +418,86 @@ namespace ColumnDesign
             }
         }
 
+        public void SaveProject()
+        {
+            var placeholder = CreatePH();
+            var saveObj = Newtonsoft.Json.JsonConvert.SerializeObject(placeholder, Newtonsoft.Json.Formatting.Indented);
+
+            var saveDialog = new SaveFileDialog();
+            saveDialog.Filter = @"ACE files |*.ace";
+            saveDialog.FileName = SelectedColumn.Name + @".ace";
+            Properties.Settings.Default.Reload();
+            if (saveDialog.ShowDialog() != DialogResult.OK) return;
+
+            var filePath = saveDialog.FileName;
+            System.IO.File.WriteAllText(filePath, saveObj);
+        }
+
+        public ProjectPlaceholder CreatePH()
+        {
+            return new ProjectPlaceholder()
+            {
+                Columns = myColumns,
+                SelectedColumn = selectedColumn,
+                Settings = mySettings,
+                AdvancedRebarPos = advancedRebarPos,
+                BatchDesign = myBatchDesignView.BatchDesign,
+                ColumnsInReport = columnsInReport
+            };
+        }
+
         public void Open()
         {
             var openDialog = new OpenFileDialog();
-            openDialog.Filter = @"ACE files |*.JSON;*.col";
-            openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            openDialog.Filter = @"ACE files |*.col| All files (*.*)|*.*";
             openDialog.Multiselect = true;
+            Properties.Settings.Default.Reload();
             if (openDialog.ShowDialog() != DialogResult.OK) return;
             List<Column> newCols = new List<Column>();
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
-            //if (!newCols.Select(x => x.Name).Contains(customCol.Name)) newCols.Insert(0, customCol);
             MyColumns = newCols;
             Column c = MyColumns[Convert.ToInt32(Math.Min(newCols.Count - 1, 1))];
             c.FDMStr = "Table";
-            SelectedColumn = c; // MyColumns[Convert.ToInt32(Math.Min(newCols.Count-1,1))];
-            //NameSelectedColumn = SelectedColumn.Name;
+            SelectedColumn = c; 
+        }
+
+        public void OpenProject()
+        {
+            var openDialog = new OpenFileDialog();
+            openDialog.Filter = @"ACE files |*.ace| All files (*.*)|*.*";
+            openDialog.Multiselect = false;
+            Properties.Settings.Default.Reload();
+            if (openDialog.ShowDialog() != DialogResult.OK) return;
+
+            try
+            {
+                string openObj = System.IO.File.ReadAllText(openDialog.FileName);
+                ProjectPlaceholder ph = Newtonsoft.Json.JsonConvert.DeserializeObject<ProjectPlaceholder>(openObj);
+
+                MyColumns = ph.Columns;
+                SelectedColumn = ph.SelectedColumn;
+                mySettings = ph.Settings;
+                advancedRebarPos = ph.AdvancedRebarPos;
+                MyBatchDesignView.BatchDesign = ph.BatchDesign;
+                columnsInReport = ph.ColumnsInReport;
+            }
+            catch(Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+            }
         }
 
         public void OpenAdd()
         {
             var openDialog = new OpenFileDialog();
-            openDialog.Filter = @"ACE files |*.JSON;*.col";
-            openDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            openDialog.Filter = @"ACE files |*.col| All files (*.*)|*.*";
             openDialog.Multiselect = true;
+            Properties.Settings.Default.Reload();
             if (openDialog.ShowDialog() != DialogResult.OK) return;
-            List<Column> newCols = myColumns.Select(c => c.Clone()).ToList();
+            List<Column> newCols = new List<Column>(); 
             newCols.AddRange(OpenDesigns(openDialog.FileNames).ToList());
             MyColumns = newCols;
             SelectedColumn = MyColumns[MyColumns.Count - 1];
-            //NameSelectedColumn = SelectedColumn.Name;
         }
 
         public IEnumerable<Column> OpenDesigns(string[] fileNames)
@@ -438,6 +522,7 @@ namespace ColumnDesign
                         LY = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Ly").ValueAsString),
                         Length = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Length").ValueAsString),
                         Angle = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Angle").ValueAsString),
+                        Diameter = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Diameter").ValueAsString),
                         ConcreteGrade = columnCalcs.ConcreteGrades.First(c => c.Name == (dObj.Inputs.First(x => x.Name == "Concrete grade").ValueAsString)),
                         MaxAggSize = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Max agg. size").ValueAsString),
                         EffectiveLength = Convert.ToDouble(dObj.Inputs.First(x => x.Name == "Effective length").ValueAsString),
@@ -448,6 +533,12 @@ namespace ColumnDesign
                         NRebarY = Convert.ToInt32(dObj.Inputs.First(x => x.Name == "NRebarY").ValueAsString),
                         R = Convert.ToInt32(dObj.Inputs.First(x => x.Name == "R").ValueAsString),
                     };
+                    // shape
+                    if (Convert.ToBoolean(dObj.Inputs.First(x => x.Name == "isRectangular").ValueAsString))
+                        newCol.Shape = GeoShape.Rectangular;
+                    else if(Convert.ToBoolean(dObj.Inputs.First(x => x.Name == "isCircular").ValueAsString))
+                        newCol.Shape = GeoShape.Circular;
+
                     newCol.Loads.Add( new Load()
                     {
                         Name = "LOAD",
@@ -471,28 +562,96 @@ namespace ColumnDesign
 
         public void ExportToWord()
         {
-            if(mySettings.AllCalcs)
+            //Progress<WordReportProgress> progress = new Progress<WordReportProgress>(AsyncReportProgress);
+
+            //ExportToWordAsync();
+            //await Task.Run(() => ExportToWordAsync(progress));
+            ExportToWordAsync();
+        }
+
+        //public async void ExportToWordAsync(IProgress<WordReportProgress> progress)
+        public void ExportToWordAsync()
+        {
+            List<ICalc> calcs = new List<ICalc>();
+            if (columnsInReport == null) columnsInReport = new List<string> { SelectedColumn.Name };
+            List<Column> cols = columnsInReport.Select(n => myColumns.First(c => c.Name == n)).ToList();
+
+            int k = 0;
+
+            for (int n = 0; n < cols.Count; n++)
             {
-                List<ICalc> calcs = new List<ICalc>();
-                foreach (var c in myColumns)
+                Column c = cols[n];
+                if(mySettings.ExprtdLoads == ExportedLoads.Current)
                 {
-                    Calculations calc = new Calculations();
+                    //int nloadtot = cols.Count;
+                    k++;
+                    Calculations calc = new Calculations() { UpdateCol = false };
                     calc.Column = c;
                     calc.UpdateInputOuput();
-                    IDView.Generate2DIDs(c);
                     calc.UpdateCalc();
+                    IDView.Generate2DIDs(c);
+                    calc.AddInteractionDiagrams();
                     calcs.Add(calc);
+                    //progress.Report(new WordReportProgress()
+                    //{
+                    //    Progress = Convert.ToInt32(k * 1.0 / nloadtot) * 100,
+                    //    Message = string.Format("Preparing report for column {0} - load {1}", c.Name, c.SelectedLoad.Name)
+                    //});
                 }
-                
-                if (mySettings.CombinedReport)
-                    OutputToODT.WriteToODT(calcs, true, true, true, mySettings);
-                else
-                    OutputToODT.WriteToODT2(calcs, true, true, true, mySettings);
+                else if(mySettings.ExprtdLoads == ExportedLoads.DesigningLoads)
+                {
+                    //int nloadtot = cols.SelectMany(x => x.DesigningLoads).Count();
+                    c.GetDesigningLoads(mySettings.NumLoads);
+                    for(int i = 0; i < c.DesigningLoads.Count; i++)
+                    {
+                        k++;
+                        c.SelectedLoad = c.DesigningLoads[i];
+                        Calculations calc = new Calculations() { UpdateCol = false };
+                        calc.Column = c;
+                        calc.UpdateInputOuput();
+                        calc.InstanceName = string.Format("{0} - {1}", c.Name, c.DesigningLoads[i].Name);
+                        calc.UpdateCalc();
+                        IDView.Generate2DIDs(c);
+                        calc.AddInteractionDiagrams();
+                        calcs.Add(calc);
+                        //progress.Report(new WordReportProgress()
+                        //{
+                        //    Progress = Convert.ToInt32(k * 1.0 / nloadtot) * 100,
+                        //    Message = string.Format("Preparing report for column {0} - load {1}", c.Name, c.DesigningLoads[i].Name)
+                        //});
+                    }
+                }
+            }
+
+            if (mySettings.CombinedReport || mySettings.ExprtdCols == ExportedColumns.Current)
+            {
+                OutputToODT.WriteToODT(calcs, true, true, true, mySettings);
+                //progress.Report(new WordReportProgress()
+                //{
+                //    Progress = 100,
+                //    Message = "Writting report...",
+                //});
             }
             else
-                OutputToODT.WriteToODT(columnCalcs, true, true, true, mySettings);
+            {
+                OutputToODT.WriteToODT2(calcs, true, true, true, mySettings);
+                //progress.Report(new WordReportProgress()
+                //{
+                //    Progress = 100,
+                //    Message = "Writting report...",
+                //});
+            }
+            //}
+            //else
+            //    OutputToODT.WriteToODT(columnCalcs, true, true, true, mySettings);
         }
-        
+
+
+        void AsyncReportProgress(WordReportProgress value)
+        {
+            ReportProgress = value;
+        }
+
     }
 
     public class RebarPosition

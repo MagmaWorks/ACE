@@ -11,6 +11,9 @@ namespace ColumnDesignCalc
 {
     public enum FCurve { Standard, Hydrocarbon }
 
+    /// <summary>
+    /// Describes a temperature profile instance. Temperature profiles are calculated by solving the heat equation.
+    /// </summary>
     public class TemperatureProfile
     {
         double Rho20 = 2500;
@@ -34,7 +37,7 @@ namespace ColumnDesignCalc
 
         [JsonIgnore]
         public Dictionary<double, Matrix<double>> TempMap = new Dictionary<double, Matrix<double>>();
-        //public List<Matrix<double>> Contours;
+        
         public List<Contour> ContourPts { get; set; } = new List<Contour>();
         public List<double> Levels { get; set; } = new List<double>();
 
@@ -90,12 +93,6 @@ namespace ColumnDesignCalc
                     return Temp[0, j] + 25 * dx / l * (Tfire - Temp[0, j]) - dt * B[0, j] / l * 0.7 * 5.6703E-8 * Math.Pow(Temp[0, j] + 273, 4);
                 }));
 
-                //Temp.SetColumn(0, V.Dense(NX, i =>
-                //{
-                //    double l = 1.36 - 0.136 * Temp[0, i] / 100 + 0.0057 * (Temp[0, i] / 100) * (Temp[0, i] / 100);
-                //    return Temp[i, 0] + 25 * dy / l * (Tfire - Temp[i, 0]) - dt * B[i, 0] / l * 0.7 * 5.6703E-8 * Math.Pow(Temp[i, 0] + 273, 4);
-                //}));
-
                 Temp.SetColumn(0, V.Dense(NX, i =>
                 {
                     double l = 1.36 - 0.136 * Temp[i, 0] / 100 + 0.0057 * (Temp[i, 0] / 100) * (Temp[i, 0] / 100);
@@ -107,18 +104,10 @@ namespace ColumnDesignCalc
                           + dt / (4 * dy * dy) * A.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(1, NX - 2, 2, NY - 2).PointwisePower(2) - 2 * Temp.SubMatrix(1, NX - 2, 2, NY - 2).PointwiseMultiply(Temp.SubMatrix(1, NX - 2, 0, NY - 2)) + Temp.SubMatrix(1, NX - 2, 0, NY - 2).PointwisePower(2))
                           + dt / (dx * dx) * B.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(2, NX - 2, 1, NY - 2) - 2 * Temp.SubMatrix(1, NX - 2, 1, NY - 2) + Temp.SubMatrix(0, NX - 2, 1, NY - 2))
                           + dt / (dy * dy) * B.SubMatrix(1, NX - 2, 1, NY - 2).PointwiseMultiply(Temp.SubMatrix(1, NX - 2, 2, NY - 2) - 2 * Temp.SubMatrix(1, NX - 2, 1, NY - 2) + Temp.SubMatrix(1, NX - 2, 0, NY - 2));
-                //for (int i = 1; i < NX-1; i++)
-                //    for(int j = 1; j < NY-1; j++)
-                //    {
-                //        Temp[i, j] += dt / (4 * dx * dx) * A[i, j] * (Temp[i + 1, j] * Temp[i + 1, j] - 2 * Temp[i + 1, j] * Temp[i - 1, j] + Temp[i - 1, j] * Temp[i - 1, j])
-                //                    + dt / (4 * dy * dy) * A[i, j] * (Temp[i, j + 1] * Temp[i, j + 1] - 2 * Temp[i, j + 1] * Temp[i, j - 1] + Temp[i, j - 1] * Temp[i, j - 1])
-                //                    + dt / (dx * dx) * B[i, j] * (Temp[i + 1, j] - 2 * Temp[i, j] + Temp[i - 1, j])
-                //                    + dt / (dy * dy) * B[i, j] * (Temp[i, j + 1] - 2 * Temp[i, j] + Temp[i, j - 1]);
-                //    }
+                
 
                 Temp.SetSubMatrix(1, 1, Temp2);
 
-                //double t = (n + 1) * dt / 60;
                 if (fireResistances.Contains(t))
                     TempMap.Add(t, Temp.Clone());
             }
@@ -181,9 +170,6 @@ namespace ColumnDesignCalc
                     Tfire = 20 + 345 * Math.Log10(8 * t + 1);
                 else if (fcurve == FCurve.Hydrocarbon)
                     Tfire = 1080 * (1 - 0.325 * Math.Exp(-0.167 * t) - 0.675 * Math.Exp(-2.5 * t)) + 20;
-                // conditions due to symmetry
-                //Temp.SetColumn(NX - 1, Temp.Column(NX - 2));
-                //Temp.SetRow(NY - 1, Temp.Row(NY - 2));
 
                 A = M.Dense(NX, NY, (i, j) => (GetA(i, j)));
                 B = M.Dense(NX, NY, (i, j) => (GetB(i, j)));
@@ -289,9 +275,6 @@ namespace ColumnDesignCalc
                     Tfire = 20 + 345 * Math.Log10(8 * t + 1);
                 else if (fcurve == FCurve.Hydrocarbon)
                     Tfire = 1080 * (1 - 0.325 * Math.Exp(-0.167 * t) - 0.675 * Math.Exp(-2.5 * t)) + 20;
-                // conditions due to symmetry
-                //Temp.SetColumn(NX - 1, Temp.Column(NX - 2));
-                //Temp.SetRow(NY - 1, Temp.Row(NY - 2));
 
                 A = M.Dense(NX, NY, (i, j) => (GetA(i, j)));
                 B = M.Dense(NX, NY, (i, j) => (GetB(i, j)));
@@ -333,7 +316,6 @@ namespace ColumnDesignCalc
 
                 Temp.SetSubMatrix(1, 1, Temp2);
 
-                //double t = (n + 1) * dt / 60;
                 if (fireResistances.Contains(t))
                     TempMap.Add(t, Temp.Clone());
             }
@@ -383,9 +365,6 @@ namespace ColumnDesignCalc
             Lx = cLx;
             Ly = cLy;
 
-            //lx = hx;
-            //ly = hy;
-
             var M = Matrix<double>.Build;
             var V = Vector<double>.Build;
 
@@ -406,9 +385,6 @@ namespace ColumnDesignCalc
                     Tfire = 20 + 345 * Math.Log10(8 * t + 1);
                 else if (fcurve == FCurve.Hydrocarbon)
                     Tfire = 1080 * (1 - 0.325 * Math.Exp(-0.167 * t) - 0.675 * Math.Exp(-2.5 * t)) + 20;
-                // conditions due to symmetry
-                //Temp.SetColumn(NX - 1, Temp.Column(NX - 2));
-                //Temp.SetRow(NY - 1, Temp.Row(NY - 2));
 
                 A = M.Dense(NX, NY, (i, j) => (GetA(i, j)));
                 B = M.Dense(NX, NY, (i, j) => (GetB(i, j)));
@@ -452,7 +428,6 @@ namespace ColumnDesignCalc
 
                 Temp.SetSubMatrix(1, 1, Temp2);
 
-                //double t = (n + 1) * dt / 60;
                 if (fireResistances.Contains(t))
                     TempMap.Add(t, Temp.Clone());
             }
@@ -510,7 +485,6 @@ namespace ColumnDesignCalc
             double level = 25;
             while (!stop)
             {
-                //Matrix<int> Threshold = M.Dense(NX,NY,(i, j) => Temp[i, j] >= level ? 1 : 0);
                 Matrix<double> Binary = M.Dense(NX - 1, NY - 1, (i, j) =>
                 {
                     string bin = Temp[i, j] >= level ? "1" : "0";
@@ -704,7 +678,6 @@ namespace ColumnDesignCalc
                 MWPoint2D p0 = lpts.Aggregate(lpts[0], (closest, next) =>
                    Points.Distance(res[res.Count - 1], next) < Points.Distance(res[res.Count - 1], closest) ? next : closest);
                 res.Add(p0);
-                //lpts.RemoveAll(e => e.X == p0.X && e.Y == p0.Y);
                 lpts.Remove(p0);
             }
             return res;

@@ -16,69 +16,100 @@
         <ContentControl x:Key="Calcs">
             <local:UCCalcs/>
         </ContentControl>
-        <ContentControl x:Key="Fire">
-            <local:UCFireDesign DataContext="{Binding MyFireDesignView}"/>
+        <ContentControl x:Key="ProjectView">
+            <local:UCProjectView DataContext="{Binding MyProjectView}"/>
         </ContentControl>
         <ContentControl x:Key="Checks">
             <local:UCChecks/>
         </ContentControl>
     </UserControl.Resources>
-    
-    <Grid>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
+    <Border BorderBrush="#b6bdc1" BorderThickness="15">
+        <Grid Background="#b6bdc1">
+            <Grid.Resources>
+                <Style TargetType="GridSplitter">
+                    <Setter Property="Background" Value="#b6bdc1"/>
+                </Style>
+            </Grid.Resources>
 
-        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <ContentControl 
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border>
+                        <ContentControl 
                 Grid.Column="0" 
                 Content="{StaticResource Layout}"/>
+                    </Border>
 
-            <GridSplitter Grid.Column="1" Background="LightGray" HorizontalAlignment="Stretch" Width="2"/>
+                    <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="20" Margin="-1"/>
 
-            <ContentControl 
-                Grid.Column="2" 
-                Content="{StaticResource YieldSurface}"/>
+                    <Border
+                        Grid.Column="2" >
+                        <ContentControl 
+                            Content="{StaticResource YieldSurface}"/>
+                    </Border>
+                </Grid>
 
-        </Grid>
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Height="20"  Margin="-1"/>
 
-        <GridSplitter Grid.Row="1" Background="LightGray" HorizontalAlignment="Stretch" Height="2"/>
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition >
+                            <ColumnDefinition.Style>
+                                <Style TargetType="ColumnDefinition">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding MyProjectView.DisplayView, Mode=OneWay}" Value="false">
+                                            <Setter Property="Width" Value="0"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding MyProjectView.DisplayView, Mode=OneWay}" Value="true">
+                                            <Setter Property="Width" Value="*"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ColumnDefinition.Style>
+                        </ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="Auto"/>
-                <!--<ColumnDefinition Width="0*"/>
-                <ColumnDefinition Width="Auto"/>-->
-                <ColumnDefinition Width="2*"/>
-            </Grid.ColumnDefinitions>
+                    <ContentControl 
+                        Grid.Column="0" 
+                        Content="{StaticResource Calcs}"/>
 
-            <ContentControl 
-                Grid.Column="0" 
-                Content="{StaticResource Calcs}"/>
+                    <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="20" Margin="-1"/>
 
-            <GridSplitter Grid.Column="1" Background="LightGray" HorizontalAlignment="Stretch" Width="2"/>
+                    <ContentControl
+                        Padding="25"
+                        Grid.Column="2"
+                        Content="{StaticResource ProjectView}"/>
 
-            <!--<ContentControl
-                Grid.Column="2"
-                Content="{StaticResource Fire}"/>
+                </Grid>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="20" Margin="-1"/>
             
-            <GridSplitter Grid.Column="3" Background="LightGray" HorizontalAlignment="Stretch" Width="2"/>-->
-
             <ContentControl
                 Grid.Column="2"
                 Content="{StaticResource Checks}"/>
 
         </Grid>
-
-    </Grid>
+    </Border>
+    
 </UserControl>

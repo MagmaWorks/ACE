@@ -28,31 +28,31 @@ namespace ColumnDesign
 
         public void ViewMap(object sender, RoutedEventArgs e)
         {
-            GroupDesignOptimisation GDO = this.DataContext as GroupDesignOptimisation;
+            //GroupDesignOptimisation GDO = this.DataContext as GroupDesignOptimisation;
 
-            GDO.SetColumn3DView();
+            //GDO.SetColumn3DView();
 
-            ColumnMap CM = new ColumnMap()
-            {
-                DataContext = GDO,
-                Owner = this,
-            };
+            //ColumnMap CM = new ColumnMap()
+            //{
+            //    DataContext = GDO,
+            //    Owner = this,
+            //};
 
-            GDO.Columns3DView = GDO.Columns3DViews[0];
-            CM.DesignInfo.ItemsSource = GDO.Keys[0].legends;
-            CM.CarbonValue.Text = GDO.CarbonCosts[0].ToString();
-            CM.CostValue.Text = GDO.CostCosts[0].ToString();
-            List<int> Nds = new List<int>();
-            for (int i = GDO.minNd; i <= GDO.maxNd; i++)
-                Nds.Add(i);
-            CM.NdComboBox.ItemsSource = Nds;
+            //GDO.Columns3DView = GDO.Columns3DViews[0];
+            //CM.DesignInfo.ItemsSource = GDO.Keys[0].legends;
+            //CM.CarbonValue.Text = GDO.CarbonCosts[0].ToString();
+            //CM.CostValue.Text = GDO.CostCosts[0].ToString();
+            //List<int> Nds = new List<int>();
+            //for (int i = GDO.minNd; i <= GDO.maxNd; i++)
+            //    Nds.Add(i);
+            //CM.NdComboBox.ItemsSource = Nds;
 
-            CM.Show();
+            //CM.Show();
         }
 
         public void RepeatGroupOpti(object sender, RoutedEventArgs e)
         {
-            (this.DataContext as GroupDesignOptimisation).RepeatOptimisation();
+            //(this.DataContext as GroupDesignOptimisation).RepeatOptimisation();
         }
 
         public void Close(object sender, RoutedEventArgs e)

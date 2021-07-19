@@ -7,12 +7,23 @@ using System.Threading.Tasks;
 
 namespace ColumnDesign
 {
+    public enum ExportedColumns { All, Current, AllClusterCols, Selection}
+    public enum ExportedLoads { Current, DesigningLoads }
     public class Settings
     {
         public string ReportBy { get; set; } = Environment.UserName;
         public string ReportCheckedBy { get; set; } = "";
         public bool CombinedReport { get; set; } = false;
-        public bool AllCalcs { get; set; } = false;
+        public int NumLoads { get; set; } = 3;
+        public ExportedColumns ExprtdCols { get; set; } = ExportedColumns.Current;
+        public ExportedLoads ExprtdLoads { get; set; } = ExportedLoads.Current;
+
+        public bool IsAllCols { get => ExprtdCols == ExportedColumns.All; }
+        public bool IsCurrentCol { get => ExprtdCols == ExportedColumns.Current; }
+        public bool IsAllClusterCols { get => ExprtdCols == ExportedColumns.AllClusterCols; }
+        public bool IsSelectionCols { get => ExprtdCols == ExportedColumns.Selection; }
+        public bool IsCurrentLoad { get => ExprtdLoads == ExportedLoads.Current; }
+        public bool IsDesigningLoads { get => ExprtdLoads == ExportedLoads.DesigningLoads; }
         public Column DefaultColumn { get; set; } = new Column()
         {
             Name = "Col 350x350",
