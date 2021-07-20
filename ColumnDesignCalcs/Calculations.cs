@@ -106,7 +106,7 @@ namespace ColumnDesignCalc
         public Calculations()
         {
             ImportConcreteGrades();
-
+            
             Console.WriteLine("Entering Calculations");
             // Geometry
             InstanceName = "My Column Design";

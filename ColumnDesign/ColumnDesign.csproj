@@ -141,19 +141,12 @@
       <DependentUpon>Credits.xaml</DependentUpon>
     </Compile>
     <Compile Include="DesignOptimisation.cs" />
-    <Compile Include="DesignOptimisationNoWindow.cs" />
     <Compile Include="FireDesignView.cs" />
     <Compile Include="FireInfo.xaml.cs">
       <DependentUpon>FireInfo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FormulaeVM.cs" />
-    <Compile Include="GroupDesignOptimisation.cs" />
-    <Compile Include="GroupOptimisationResults.xaml.cs">
-      <DependentUpon>GroupOptimisationResults.xaml</DependentUpon>
-    </Compile>
     <Compile Include="IDView.cs" />
     <Compile Include="LayoutView.cs" />
-    <Compile Include="Materials.cs" />
     <Compile Include="OptimisationResults.xaml.cs">
       <DependentUpon>OptimisationResults.xaml</DependentUpon>
     </Compile>
@@ -241,10 +234,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="FireInfo.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GroupOptimisationResults.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
