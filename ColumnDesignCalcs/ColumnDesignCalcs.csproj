@@ -12,20 +12,16 @@
 
   <ItemGroup>
     <Reference Include="ETABSv17_To_ACE">
-      <HintPath>packages\ETABSColumnDesign_Plugin\ETABSv17_To_ACE.dll</HintPath>
+      <HintPath>..\..\..\DLLs\ETABSv17_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="ETABSv18_To_ACE">
-      <HintPath>packages\ETABSColumnDesign_Plugin\ETABSv18_To_ACE.dll</HintPath>
+      <HintPath>..\..\..\DLLs\ETABSv18_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="InteractionDiagram3D">
-      <HintPath>packages\InteractionDiagram3D\InteractionDiagram3D.dll</HintPath>
-      <Private>false</Private>
+      <HintPath>..\..\..\DLLs\InteractionDiagram3D.dll</HintPath>
     </Reference>
     <Reference Include="MWGeometry">
-      <HintPath>packages\MWGeometry\MWGeometry.dll</HintPath>
-    </Reference>
-    <Reference Include="StructuralDrawing2D">
-      <HintPath>packages\StructuralDrawing2D\StructuralDrawing2D.dll</HintPath>
+      <HintPath>..\..\..\DLLs\MWGeometry.dll</HintPath>
     </Reference>
   </ItemGroup>
 
