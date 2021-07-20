@@ -86,8 +86,8 @@
     <Reference Include="GenericViewer">
       <HintPath>.\GenericViewer.dll</HintPath>
     </Reference>
-    <Reference Include="InteractionDiagram3D">
-      <HintPath>..\packages\InteractionDiagram3D\InteractionDiagram3D.dll</HintPath>
+    <Reference Include="InteractionDiagram3D, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\Shared\InteractionDiagram3D.dll</HintPath>
     </Reference>
     <Reference Include="MWGeometry, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\..\DLLs\MWGeometry.dll</HintPath>
@@ -124,7 +124,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AsyncOptimisation.cs" />
     <Compile Include="AutoDesign.xaml.cs">
       <DependentUpon>AutoDesign.xaml</DependentUpon>
     </Compile>
@@ -495,12 +494,6 @@
     <PostBuildEvent>xCopy "$(ProjectDir)resources\Calculation_Template.docx" "$(ProjectDir)Bin\$(ConfigurationName)\Libraries\" /Y
 Copy "$(TargetDir)ColumnDesignCalcs.dll" "$(AppData)\Magma Works\Scaffold\Libraries\" /d</PostBuildEvent>
   </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Rhino3dmIO.Desktop.6.18.19266.14201\build\net45\Rhino3dmIO.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Rhino3dmIO.Desktop.6.18.19266.14201\build\net45\Rhino3dmIO.Desktop.targets'))" />
-  </Target>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
