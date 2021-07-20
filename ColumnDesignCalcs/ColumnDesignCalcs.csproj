@@ -12,16 +12,19 @@
 
   <ItemGroup>
     <Reference Include="ETABSv17_To_ACE">
-      <HintPath>..\..\..\DLLs\ETABSv17_To_ACE.dll</HintPath>
+      <HintPath>..\Shared\ETABSv17_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="ETABSv18_To_ACE">
-      <HintPath>..\..\..\DLLs\ETABSv18_To_ACE.dll</HintPath>
+      <HintPath>..\Shared\ETABSv18_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="InteractionDiagram3D">
-      <HintPath>..\..\..\DLLs\InteractionDiagram3D.dll</HintPath>
+      <HintPath>..\Shared\InteractionDiagram3D.dll</HintPath>
     </Reference>
     <Reference Include="MWGeometry">
-      <HintPath>..\..\..\DLLs\MWGeometry.dll</HintPath>
+      <HintPath>..\Shared\MWGeometry.dll</HintPath>
+    </Reference>
+    <Reference Include="StructuralDrawing2D">
+      <HintPath>..\Shared\StructuralDrawing2D.dll</HintPath>
     </Reference>
   </ItemGroup>
 

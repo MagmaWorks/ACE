@@ -84,10 +84,10 @@
       <HintPath>..\packages\DocumentFormat.OpenXml.2.9.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
     </Reference>
     <Reference Include="ETABSv17_To_ACE">
-      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv17_To_ACE.dll</HintPath>
+      <HintPath>..\Shared\ETABSv17_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="ETABSv18_To_ACE">
-      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv18_To_ACE.dll</HintPath>
+      <HintPath>..\Shared\ETABSv18_To_ACE.dll</HintPath>
     </Reference>
     <Reference Include="GenericViewer">
       <HintPath>.\GenericViewer.dll</HintPath>
