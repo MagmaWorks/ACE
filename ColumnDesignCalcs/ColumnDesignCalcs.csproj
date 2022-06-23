@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="CalcCoreStandard" Version="0.0.5" />
     <PackageReference Include="MathNet.Numerics" Version="4.11.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
