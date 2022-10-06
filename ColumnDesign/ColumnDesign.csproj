@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Rhino3dm.7.15.0\build\net45\Rhino3dm.props" Condition="Exists('..\packages\Rhino3dm.7.15.0\build\net45\Rhino3dm.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -84,10 +85,10 @@
       <HintPath>..\packages\DocumentFormat.OpenXml.2.9.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
     </Reference>
     <Reference Include="ETABSv17_To_ACE">
-      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv17_To_ACE.dll</HintPath>
+      <HintPath>..\ETABSv17_To_ACE.DLL</HintPath>
     </Reference>
     <Reference Include="ETABSv18_To_ACE">
-      <HintPath>..\packages\ETABSColumnDesign_Plugin\ETABSv18_To_ACE.dll</HintPath>
+      <HintPath>..\ETABSv18_To_ACE.DLL</HintPath>
     </Reference>
     <Reference Include="GenericViewer">
       <HintPath>.\GenericViewer.dll</HintPath>
@@ -96,7 +97,7 @@
       <HintPath>..\packages\HelixToolkit.Wpf.2.8.0\lib\net45\HelixToolkit.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="InteractionDiagram3D">
-      <HintPath>..\packages\InteractionDiagram3D\InteractionDiagram3D.dll</HintPath>
+      <HintPath>..\InteractionDiagram3D.DLL</HintPath>
     </Reference>
     <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
       <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
@@ -114,7 +115,7 @@
       <HintPath>..\packages\Microsoft.Maps.MapControl.WPF.1.0.0.3\lib\net40-Client\Microsoft.Maps.MapControl.WPF.dll</HintPath>
     </Reference>
     <Reference Include="MWGeometry">
-      <HintPath>..\packages\MWGeometry\MWGeometry.dll</HintPath>
+      <HintPath>..\MWGeometry.DLL</HintPath>
     </Reference>
     <Reference Include="netDxf.netstandard, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\netDxf.netstandard.2.3.0\lib\net45\netDxf.netstandard.dll</HintPath>
@@ -129,6 +130,12 @@
       <HintPath>..\packages\OxyPlot.Wpf.2.0.0\lib\net45\OxyPlot.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="ReachFramework" />
+    <Reference Include="Rhino3dm, Version=7.15.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rhino3dm.7.15.0\lib\net45\Rhino3dm.dll</HintPath>
+    </Reference>
+    <Reference Include="Rhino3dmIO, Version=7.1.20343.1000, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\lib\net45\Rhino3dmIO.dll</HintPath>
+    </Reference>
     <Reference Include="SkiaSharp, Version=1.68.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.1.68.1.1\lib\net45\SkiaSharp.dll</HintPath>
     </Reference>
@@ -548,12 +555,14 @@ Copy "$(TargetDir)ColumnDesignCalcs.dll" "$(AppData)\Magma Works\Scaffold\Librar
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Rhino3dmIO.Desktop.6.18.19266.14201\build\net45\Rhino3dmIO.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Rhino3dmIO.Desktop.6.18.19266.14201\build\net45\Rhino3dmIO.Desktop.targets'))" />
     <Error Condition="!Exists('..\packages\SkiaSharp.1.68.1.1\build\net45\SkiaSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.1.68.1.1\build\net45\SkiaSharp.targets'))" />
+    <Error Condition="!Exists('..\packages\Rhino3dm.7.15.0\build\net45\Rhino3dm.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Rhino3dm.7.15.0\build\net45\Rhino3dm.props'))" />
+    <Error Condition="!Exists('..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets'))" />
   </Target>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\SkiaSharp.1.68.1.1\build\net45\SkiaSharp.targets" Condition="Exists('..\packages\SkiaSharp.1.68.1.1\build\net45\SkiaSharp.targets')" />
+  <Import Project="..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets" Condition="Exists('..\packages\Rhino3dmIO.Desktop.7.1.20343.9491\build\net45\Rhino3dmIO.Desktop.targets')" />
 </Project>

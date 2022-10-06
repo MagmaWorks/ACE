@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <Reference Include="MWGeometry">
-      <HintPath>..\packages\MWGeometry\MWGeometry.dll</HintPath>
+      <HintPath>..\MWGeometry.DLL</HintPath>
     </Reference>
   </ItemGroup>
 
