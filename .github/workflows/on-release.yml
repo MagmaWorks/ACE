@@ -1,0 +1,9 @@
+name: On Release -- Push NuGet
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  call-workflow:
+    uses: magmaworks/actions/.github/workflows/on-release.yml@main

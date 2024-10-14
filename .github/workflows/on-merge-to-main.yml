@@ -1,0 +1,10 @@
+name: On Merge to Main -- Package and create/update draft release
+
+on:
+  push:
+    branches:
+    - main
+    
+jobs:
+  call-workflow:
+    uses: magmaworks/actions/.github/workflows/on-merge-to-main.yml@main

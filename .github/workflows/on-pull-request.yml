@@ -1,0 +1,11 @@
+name: On Pull Request -- Lint, Build, Test, Coverage
+
+on:
+  pull_request:
+    branches:    
+      - main
+      - 'release/**'
+      
+jobs:
+  call-workflow:
+    uses: magmaworks/actions/.github/workflows/on-pull-request.yml@main

@@ -1,1 +1,16 @@
-﻿
+﻿# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+
+# Visual Studio Code
+.vscode/
